@@ -7,6 +7,7 @@ export default {
     line1: '> Creo productos de IA solo.',
     line2: '> 6 productos. 0 empleados. $15/mes de infra.',
     line3: '> Impulsado por Claude Code + agentes de IA personalizados.',
+    longText: 'Creo productos con agentes de IA. No del tipo "impulsado por IA" de marketing — agentes autonomos reales que escriben codigo, ejecutan tests, despliegan en produccion y corrigen bugs mientras duermo.\n\nMi setup se llama Factory OS. Es una capa de orquestacion sobre Claude Code con 15 roles de agentes especializados: Builder, Discovery, Strategy, Quality, DevOps, Marketing y mas. El agente CEO delega tareas, el agente Builder escribe codigo, el agente Quality lo revisa. Yo apruebo los commits.\n\nSeis productos lanzados en tres semanas. Costo total de infraestructura: $15 al mes. Una tarjeta grafica NVIDIA P100 usada por $150 maneja la inferencia ML. Todo lo demas funciona en planes gratuitos — Cloudflare, Vercel, Supabase, Groq.\n\nEl futuro no se trata de escribir codigo mas rapido. Se trata de no escribir codigo en absoluto. Se trata de describir lo que quieres y ver como los agentes lo construyen. Ese futuro esta aqui. Yo lo estoy viviendo.',
   },
   nav: {
     products: 'Productos',

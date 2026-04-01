@@ -7,6 +7,7 @@ export default {
     line1: '> Je construis des produits IA en solo.',
     line2: '> 6 produits. 0 employes. $15/mois d\'infra.',
     line3: '> Propulse par Claude Code + factory d\'agents IA.',
+    longText: 'Je construis des produits avec des agents IA. Pas le genre "propulse par l\'IA" marketing — de vrais agents autonomes qui ecrivent du code, executent des tests, deployent en production et corrigent des bugs pendant que je dors.\n\nMon setup s\'appelle Factory OS. C\'est une couche d\'orchestration au-dessus de Claude Code avec 15 roles d\'agents specialises : Builder, Discovery, Strategy, Quality, DevOps, Marketing et plus. L\'agent CEO delegue les taches, l\'agent Builder ecrit le code, l\'agent Quality le revise. J\'approuve les commits.\n\nSix produits livres en trois semaines. Cout total d\'infrastructure : $15 par mois. Une carte graphique NVIDIA P100 d\'occasion a $150 gere l\'inference ML. Tout le reste tourne sur des offres gratuites — Cloudflare, Vercel, Supabase, Groq.\n\nL\'avenir ne consiste pas a ecrire du code plus vite. Il consiste a ne plus ecrire de code du tout. Il consiste a decrire ce que vous voulez et regarder les agents le construire. Cet avenir est la. Je le vis.',
   },
   nav: {
     products: 'Produits',

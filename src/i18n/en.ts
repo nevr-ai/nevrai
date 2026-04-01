@@ -7,6 +7,7 @@ export default {
     line1: '> I build AI products solo.',
     line2: '> 6 products. 0 employees. $15/mo infra.',
     line3: '> Powered by Claude Code + custom AI agent factory.',
+    longText: 'I build products with AI agents. Not the "AI-powered" marketing kind — actual autonomous agents that write code, run tests, deploy to production, and fix bugs while I sleep.\n\nMy setup is called Factory OS. It\'s an orchestration layer on top of Claude Code with 15 specialized agent roles: Builder, Discovery, Strategy, Quality, DevOps, Marketing, and more. The CEO agent delegates tasks, the Builder agent writes code, the Quality agent reviews it. I approve commits.\n\nSix products shipped in three weeks. Total infrastructure cost: $15 per month. A used NVIDIA P100 graphics card for $150 handles the ML inference. Everything else runs on free tiers — Cloudflare, Vercel, Supabase, Groq.\n\nThe future isn\'t about writing code faster. It\'s about not writing code at all. It\'s about describing what you want and watching agents build it. That future is here. I\'m living it.',
   },
   nav: {
     products: 'Products',

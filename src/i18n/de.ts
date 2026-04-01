@@ -7,6 +7,7 @@ export default {
     line1: '> Ich baue KI-Produkte allein.',
     line2: '> 6 Produkte. 0 Mitarbeiter. $15/Monat Infra.',
     line3: '> Angetrieben von Claude Code + eigene KI-Agenten-Factory.',
+    longText: 'Ich baue Produkte mit KI-Agenten. Nicht die "KI-gesteuert" Marketing-Art — echte autonome Agenten die Code schreiben, Tests ausfuehren, in Produktion deployen und Bugs fixen waehrend ich schlafe.\n\nMein Setup heisst Factory OS. Es ist eine Orchestrierungsschicht ueber Claude Code mit 15 spezialisierten Agentenrollen: Builder, Discovery, Strategy, Quality, DevOps, Marketing und mehr. Der CEO-Agent delegiert Aufgaben, der Builder-Agent schreibt Code, der Quality-Agent reviewt ihn. Ich genehmige Commits.\n\nSechs Produkte in drei Wochen ausgeliefert. Gesamte Infrastrukturkosten: $15 pro Monat. Eine gebrauchte NVIDIA P100 Grafikkarte fuer $150 uebernimmt die ML-Inferenz. Alles andere laeuft auf kostenlosen Tarifen — Cloudflare, Vercel, Supabase, Groq.\n\nDie Zukunft geht nicht darum Code schneller zu schreiben. Es geht darum ueberhaupt keinen Code zu schreiben. Es geht darum zu beschreiben was man will und Agenten dabei zuzusehen wie sie es bauen. Diese Zukunft ist da. Ich lebe sie.',
   },
   nav: {
     products: 'Produkte',

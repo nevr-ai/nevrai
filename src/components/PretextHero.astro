@@ -7,25 +7,33 @@ interface Props {
 
 const { lang = 'en' } = Astro.props;
 const t = getTranslation(lang);
-const heroText = `${t.hero.line1}\n${t.hero.line2}\n${t.hero.line3}`;
+const longText = t.hero.longText;
 ---
 
+<div class="mb-8">
+  <!-- Tagline and subtitle — always visible, not part of pretext animation -->
+  <p class="text-lg font-bold mb-1 text-(--color-accent)">{t.hero.line1}</p>
+  <p class="text-sm mb-6 text-(--color-text-dim)">{t.hero.line2}</p>
+</div>
+
 <div id="pretext-hero" class="relative">
-  <div id="pretext-lines" class="text-sm leading-relaxed space-y-1 font-mono">
-    <p class="text-(--color-accent)">{t.hero.line1}</p>
-    <p class="text-(--color-accent)">{t.hero.line2}</p>
-    <p class="text-(--color-accent)">{t.hero.line3}</p>
+  <!-- Static fallback text — visible until animation starts -->
+  <div id="pretext-lines" class="text-sm leading-relaxed font-mono whitespace-pre-line text-(--color-text-secondary)">
+    {longText}
   </div>
-  <!-- Orb overlay -->
-  <div id="pretext-orb" class="pointer-events-none absolute rounded-full opacity-0" style="width:80px;height:80px;transition:opacity 0.6s ease;"></div>
+  <!-- Orb overlays -->
+  <div id="pretext-orb-0" class="pretext-orb pointer-events-none absolute rounded-full opacity-0" style="width:100px;height:100px;"></div>
+  <div id="pretext-orb-1" class="pretext-orb pointer-events-none absolute rounded-full opacity-0" style="width:60px;height:60px;"></div>
+  <div id="pretext-orb-2" class="pretext-orb pointer-events-none absolute rounded-full opacity-0" style="width:40px;height:40px;"></div>
   <!-- Pretext-rendered text (hidden until animation starts) -->
   <div id="pretext-canvas" class="absolute inset-0 text-sm font-mono" style="display:none;"></div>
 </div>
 
 <style>
-  #pretext-orb {
+  .pretext-orb {
     filter: blur(20px);
     z-index: 1;
+    transition: opacity 0.6s ease;
   }
   #pretext-canvas {
     z-index: 0;
@@ -33,99 +41,118 @@ const heroText = `${t.hero.line1}\n${t.hero.line2}\n${t.hero.line3}`;
   #pretext-canvas span {
     position: absolute;
     white-space: pre;
-    color: var(--color-accent);
+    color: var(--color-text-secondary, var(--color-accent));
   }
 
   @media (max-width: 640px) {
-    #pretext-orb {
-      width: 40px !important;
-      height: 40px !important;
+    .pretext-orb {
       filter: blur(12px);
     }
   }
 </style>
 
-<script define:vars={{ heroText }}>
+<script define:vars={{ longText }}>
   async function initPretextAnimation() {
-    // Bail on reduced motion preference
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const container = document.getElementById('pretext-hero');
     const staticLines = document.getElementById('pretext-lines');
-    const orb = document.getElementById('pretext-orb');
     const canvas = document.getElementById('pretext-canvas');
-    if (!container || !staticLines || !orb || !canvas) return;
+    if (!container || !staticLines || !canvas) return;
+
+    // Collect orb elements
+    const orbEls = [
+      document.getElementById('pretext-orb-0'),
+      document.getElementById('pretext-orb-1'),
+      document.getElementById('pretext-orb-2'),
+    ].filter(Boolean);
+
+    if (orbEls.length === 0) return;
 
     // Dynamically import pretext
     let pretext;
     try {
-      pretext = await import('@chenglou/pretext');
-    } catch {
-      // Graceful fallback -- static text stays visible
+      // Use globalThis to cache the module
+      if (window.__pretextModule) {
+        pretext = window.__pretextModule;
+      } else {
+        // Static import via dynamic — Cloudflare Pages compatible
+        pretext = await import('@chenglou/pretext');
+        window.__pretextModule = pretext;
+      }
+    } catch (e) {
+      // Pretext unavailable — static text stays visible
+      console.warn('Pretext not loaded, falling back to static text');
       return;
     }
 
-    // Detect font from computed style
     const computedStyle = getComputedStyle(staticLines);
     const fontSize = computedStyle.fontSize || '14px';
     const fontFamily = computedStyle.fontFamily || 'monospace';
     const font = `${fontSize} ${fontFamily}`;
     const lineHeight = parseFloat(computedStyle.lineHeight) || parseFloat(fontSize) * 1.625;
 
-    // Prepare text once
-    const prepared = pretext.prepareWithSegments(heroText, font);
-
-    // Orb config -- responsive
     const isMobile = window.innerWidth < 640;
-    const orbSize = isMobile ? 40 : 80;
-    const orbRadius = orbSize / 2;
-    const animDuration = isMobile ? 5000 : 4000; // ms
-    const restInterval = 30000; // ms between animations
 
-    // Theme-aware orb color
-    function getOrbColor() {
+    // Orb configuration: radius, phase offset (seconds), speed multiplier, path type
+    const orbConfigs = [
+      { radius: isMobile ? 30 : 50, delay: 3000, speed: 0.0003, pathFn: 'sine' },
+      { radius: isMobile ? 18 : 30, delay: 5000, speed: 0.00025, pathFn: 'cosine' },
+      { radius: isMobile ? 12 : 20, delay: 7000, speed: 0.00035, pathFn: 'diagonal' },
+    ];
+
+    // Track orb positions
+    const orbPositions = orbConfigs.map(() => ({ x: -200, y: -200, r: 0, active: false }));
+
+    function getOrbGradient(opacity) {
       const isLight = document.documentElement.classList.contains('light');
-      return isLight
-        ? 'radial-gradient(circle, rgba(59,130,246,0.6) 0%, rgba(59,130,246,0) 70%)'
-        : 'radial-gradient(circle, rgba(34,197,94,0.5) 0%, rgba(34,197,94,0) 70%)';
+      if (isLight) {
+        return `radial-gradient(circle, rgba(59,130,246,${opacity}) 0%, rgba(59,130,246,0) 70%)`;
+      }
+      return `radial-gradient(circle, rgba(34,197,94,${opacity}) 0%, rgba(34,197,94,0) 70%)`;
     }
 
-    function layoutText(orbX, orbY, orbR, containerWidth) {
+    function layoutText(obstacles, containerWidth) {
       canvas.innerHTML = '';
 
-      // Split by newlines -- each is a separate paragraph
-      const paragraphs = heroText.split('\n');
+      const paragraphs = longText.split('\n\n');
       let globalY = 0;
 
       for (const para of paragraphs) {
+        if (!para.trim()) continue;
         const prepared = pretext.prepareWithSegments(para, font);
         let cursor = { segmentIndex: 0, graphemeIndex: 0 };
+        let safety = 0;
 
-        while (true) {
-          // Calculate available width for this line considering the orb
+        while (safety < 500) {
+          safety++;
           let lineX = 0;
           let maxWidth = containerWidth;
 
-          // Check if the orb overlaps this line vertically
+          // Check ALL obstacles (orbs) for this line
           const lineTop = globalY;
           const lineBottom = globalY + lineHeight;
-          const orbTop = orbY - orbR;
-          const orbBottom = orbY + orbR;
 
-          if (lineBottom > orbTop && lineTop < orbBottom) {
-            // Orb overlaps this line -- calculate horizontal exclusion
-            const lineMid = (lineTop + lineBottom) / 2;
-            const dy = Math.abs(orbY - lineMid);
-            if (dy < orbR) {
-              const dx = Math.sqrt(orbR * orbR - dy * dy);
-              const orbLeft = orbX - dx;
-              const orbRight = orbX + dx;
+          for (const obs of obstacles) {
+            if (!obs.active) continue;
+            const orbTop = obs.y - obs.r;
+            const orbBottom = obs.y + obs.r;
 
-              if (orbLeft <= containerWidth * 0.5) {
-                lineX = Math.max(0, orbRight + 8);
-                maxWidth = containerWidth - lineX;
-              } else {
-                maxWidth = Math.max(40, orbLeft - 8);
+            if (lineBottom > orbTop && lineTop < orbBottom) {
+              const lineMid = (lineTop + lineBottom) / 2;
+              const dy = Math.abs(obs.y - lineMid);
+              if (dy < obs.r) {
+                const dx = Math.sqrt(obs.r * obs.r - dy * dy);
+                const orbLeft = obs.x - dx;
+                const orbRight = obs.x + dx;
+
+                if (orbLeft <= containerWidth * 0.5) {
+                  const newLineX = Math.max(lineX, orbRight + 8);
+                  lineX = newLineX;
+                  maxWidth = containerWidth - lineX;
+                } else {
+                  maxWidth = Math.min(maxWidth, Math.max(40, orbLeft - 8) - lineX);
+                }
               }
             }
           }
@@ -145,110 +172,148 @@ const heroText = `${t.hero.line1}\n${t.hero.line2}\n${t.hero.line3}`;
           globalY += lineHeight;
         }
 
-        // Small gap between paragraphs
-        globalY += 4;
+        // Paragraph gap
+        globalY += lineHeight * 0.5;
       }
+
+      // Update container height to match rendered text
+      const totalHeight = Math.max(globalY, staticLines.scrollHeight);
+      canvas.style.height = `${totalHeight}px`;
+      container.style.minHeight = `${totalHeight}px`;
     }
 
-    let animFrameId = null;
-    let isAnimating = false;
+    // Path functions: each returns {x, y} normalized to [0..1] range
+    function sinePathPosition(t) {
+      // Slow horizontal sweep with vertical sine wave
+      const x = (Math.sin(t * 0.7) + 1) / 2;
+      const y = (Math.sin(t * 1.3) + 1) / 2;
+      return { x, y };
+    }
 
-    function runAnimation() {
-      if (isAnimating) return;
-      isAnimating = true;
+    function cosinePathPosition(t) {
+      const x = (Math.cos(t * 0.5 + 1) + 1) / 2;
+      const y = (Math.cos(t * 0.9 + 2) + 1) / 2;
+      return { x, y };
+    }
+
+    function diagonalPathPosition(t) {
+      const x = (Math.sin(t * 0.6 + 3) + 1) / 2;
+      const y = (Math.sin(t * 0.4 + 1.5) * Math.cos(t * 0.3) + 1) / 2;
+      return { x, y };
+    }
+
+    const pathFns = { sine: sinePathPosition, cosine: cosinePathPosition, diagonal: diagonalPathPosition };
+
+    let animFrameId = null;
+    let startTime = null;
+    let running = false;
+
+    function startAnimation() {
+      if (running) return;
+      running = true;
 
       const containerWidth = container.clientWidth;
-      const containerHeight = staticLines.clientHeight;
+      const containerHeight = staticLines.scrollHeight;
 
-      // Match canvas size to static text
-      canvas.style.height = `${containerHeight}px`;
-      container.style.height = `${containerHeight}px`;
-
-      // Show canvas, hide static
+      container.style.minHeight = `${containerHeight}px`;
       canvas.style.display = 'block';
       staticLines.style.visibility = 'hidden';
 
-      // Set orb color
-      orb.style.background = getOrbColor();
-      orb.style.width = `${orbSize}px`;
-      orb.style.height = `${orbSize}px`;
+      // Initial layout without obstacles
+      layoutText(orbPositions, containerWidth);
 
-      // Initial layout without orb
-      layoutText(-200, -200, 0, containerWidth);
-
-      // Fade in orb after a beat
-      requestAnimationFrame(() => {
-        orb.style.opacity = '0.8';
-      });
-
-      const startTime = performance.now();
+      startTime = performance.now();
 
       function animate(now) {
         const elapsed = now - startTime;
-        const progress = Math.min(elapsed / animDuration, 1);
+        const containerW = container.clientWidth;
+        const containerH = parseInt(container.style.minHeight) || containerHeight;
 
-        // Sine-wave path across the text
-        const orbX = -orbSize + (containerWidth + orbSize * 2) * progress;
-        const orbY = (containerHeight / 2) + Math.sin(progress * Math.PI * 2) * (containerHeight * 0.25);
+        // Padding from edges so orbs don't go out of bounds
+        const padX = 60;
+        const padY = 40;
 
-        // Position the orb element
-        orb.style.left = `${orbX - orbRadius}px`;
-        orb.style.top = `${orbY - orbRadius}px`;
+        for (let i = 0; i < orbConfigs.length; i++) {
+          const cfg = orbConfigs[i];
+          const orbEl = orbEls[i];
+          if (!orbEl) continue;
 
-        // Reflow text
-        layoutText(orbX, orbY, orbRadius + 12, containerWidth);
+          if (elapsed < cfg.delay) {
+            orbPositions[i].active = false;
+            orbEl.style.opacity = '0';
+            continue;
+          }
 
-        if (progress < 1) {
-          animFrameId = requestAnimationFrame(animate);
-        } else {
-          // Animation done -- fade out orb, restore static text
-          orb.style.opacity = '0';
-          setTimeout(() => {
-            canvas.style.display = 'none';
-            staticLines.style.visibility = 'visible';
-            container.style.height = '';
-            isAnimating = false;
-          }, 600);
+          // Activate and fade in
+          orbPositions[i].active = true;
+          const fadeIn = Math.min((elapsed - cfg.delay) / 1000, 1);
+          const opacity = 0.3 + fadeIn * 0.3;
+          orbEl.style.opacity = String(fadeIn * 0.8);
+          orbEl.style.background = getOrbGradient(opacity);
+
+          // Calculate position from path function
+          const t = (elapsed - cfg.delay) * cfg.speed;
+          const pathFn = pathFns[cfg.pathFn];
+          const pos = pathFn(t);
+
+          const orbX = padX + pos.x * (containerW - padX * 2);
+          const orbY = padY + pos.y * (containerH - padY * 2);
+
+          orbPositions[i].x = orbX;
+          orbPositions[i].y = orbY;
+          orbPositions[i].r = cfg.radius;
+
+          // Position the DOM element (center of orb)
+          const size = cfg.radius * 2;
+          orbEl.style.width = `${size}px`;
+          orbEl.style.height = `${size}px`;
+          orbEl.style.left = `${orbX - cfg.radius}px`;
+          orbEl.style.top = `${orbY - cfg.radius}px`;
         }
+
+        // Reflow text around all active orbs
+        layoutText(orbPositions, containerW);
+
+        animFrameId = requestAnimationFrame(animate);
       }
 
       animFrameId = requestAnimationFrame(animate);
     }
 
-    // Trigger: after 5s or on hover (whichever first)
-    let triggered = false;
+    // Start after a short delay to let the page settle
+    const timer = setTimeout(startAnimation, 2000);
 
-    function triggerOnce() {
-      if (triggered) return;
-      triggered = true;
-      runAnimation();
-
-      // Set up repeating cycle
-      setInterval(() => {
-        triggered = false;
-        runAnimation();
-        triggered = true;
-      }, restInterval);
-    }
-
-    const timer = setTimeout(triggerOnce, 5000);
+    // Also start on hover if not started yet
     container.addEventListener('mouseenter', () => {
       clearTimeout(timer);
-      triggerOnce();
-    });
+      startAnimation();
+    }, { once: true });
 
     // Cleanup on navigation (Astro view transitions)
     document.addEventListener('astro:before-swap', () => {
       if (animFrameId) cancelAnimationFrame(animFrameId);
       clearTimeout(timer);
+      running = false;
     });
+
+    // Handle theme changes — update orb colors
+    const observer = new MutationObserver(() => {
+      for (let i = 0; i < orbConfigs.length; i++) {
+        if (orbPositions[i].active && orbEls[i]) {
+          orbEls[i].style.background = getOrbGradient(0.5);
+        }
+      }
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
   }
 
-  // Run after DOM ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initPretextAnimation);
-  } else {
-    // Defer slightly to not block initial paint
-    setTimeout(initPretextAnimation, 100);
+  // Use async wrapper for dynamic import
+  async function boot() {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => initPretextAnimation());
+    } else {
+      setTimeout(() => initPretextAnimation(), 100);
+    }
   }
+  boot();
 </script>
