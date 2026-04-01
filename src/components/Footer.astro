@@ -1,9 +1,17 @@
 ---
+import { getTranslation, type Lang } from '../i18n/index';
+
+interface Props {
+  lang?: Lang;
+}
+
+const { lang = 'en' } = Astro.props;
+const t = getTranslation(lang);
 const year = new Date().getFullYear();
 ---
 <footer class="max-w-3xl mx-auto px-4 sm:px-6 py-8 mt-12 border-t border-(--color-border)">
   <div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-(--color-text-dim)">
-    <span>Built by Nevr &middot; Based in Georgia &middot; {year}</span>
+    <span>{t.footer.built} &middot; {t.footer.based} &middot; {year}</span>
     <div class="flex items-center gap-4">
       <a href="https://github.com/nevrai" target="_blank" rel="noopener" class="hover:text-(--color-accent)">GitHub</a>
       <a href="https://x.com/nevrai" target="_blank" rel="noopener" class="hover:text-(--color-accent)">X</a>

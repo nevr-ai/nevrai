@@ -1,0 +1,70 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProductCard from '../ProductCard.astro';
+import { getTranslation, type Lang } from '../../i18n/index';
+
+interface Props {
+  lang?: Lang;
+}
+
+const { lang = 'en' } = Astro.props;
+const t = getTranslation(lang);
+
+const products = [
+  {
+    name: 'CoffeeBot',
+    tagline: t.products.taglines.coffeebotLong,
+    url: 'https://coffeebot.app',
+    status: 'LIVE' as const,
+    stack: ['Astro', 'Tailwind', 'Groq', 'Cloudflare Pages'],
+    metric: t.products.metrics.coffeebot,
+  },
+  {
+    name: 'InkCloak',
+    tagline: t.products.taglines.inkcloakLong,
+    url: 'https://inkcloak.com',
+    status: 'LAUNCHING' as const,
+    stack: ['Next.js', 'DeBERTa', 'RunPod', 'Python'],
+    metric: t.products.metrics.inkcloak,
+  },
+  {
+    name: 'AICPO',
+    tagline: t.products.taglines.aicpoLong,
+    url: 'https://aicpo.app',
+    status: 'BUILDING' as const,
+    stack: ['Rails 8', 'SQLite', 'Groq', 'ActionCable'],
+    metric: t.products.metrics.aicpo,
+  },
+  {
+    name: 'Scrutly',
+    tagline: t.products.taglines.scrutlyLong,
+    url: 'https://scrutly.ai',
+    status: 'PLANNED' as const,
+    stack: ['Astro', 'DeBERTa', 'Cloudflare Workers'],
+  },
+  {
+    name: 'Tool Sites',
+    tagline: t.products.taglines.toolsitesLong,
+    status: 'LIVE' as const,
+    stack: ['Astro', 'Tailwind', 'MDX', 'Cloudflare Pages'],
+    metric: t.products.metrics.toolsites,
+  },
+  {
+    name: 'OpenClaw Finance',
+    tagline: t.products.taglines.openclawLong,
+    status: 'BUILT' as const,
+    stack: ['Python', 'DeepSeek R1-0528', 'Docker', 'SQLite'],
+    metric: t.products.metrics.openclaw,
+  },
+];
+---
+<BaseLayout title={t.products.title} description={t.products.description} lang={lang}>
+  <h1 class="text-sm mb-2 text-(--color-text-dim)">{t.sections.products}</h1>
+  <p class="text-sm text-(--color-text-dim) mb-8">{t.products.subtitle}</p>
+
+  <div class="grid grid-cols-1 gap-3">
+    {products.map(product => (
+      <ProductCard {...product} />
+    ))}
+  </div>
+</BaseLayout>

@@ -1,13 +1,20 @@
 ---
-// PretextHero — text-wrap animation using @chenglou/pretext
-// Orb floats through hero text, text reflows around it at 60fps
+import { getTranslation, type Lang } from '../i18n/index';
+
+interface Props {
+  lang?: Lang;
+}
+
+const { lang = 'en' } = Astro.props;
+const t = getTranslation(lang);
+const heroText = `${t.hero.line1}\n${t.hero.line2}\n${t.hero.line3}`;
 ---
 
 <div id="pretext-hero" class="relative">
   <div id="pretext-lines" class="text-sm leading-relaxed space-y-1 font-mono">
-    <p class="text-(--color-accent)">&gt; I build AI products solo.</p>
-    <p class="text-(--color-accent)">&gt; 6 products. 0 employees. $15/mo infra.</p>
-    <p class="text-(--color-accent)">&gt; Powered by Claude Code + custom AI agent factory.</p>
+    <p class="text-(--color-accent)">{t.hero.line1}</p>
+    <p class="text-(--color-accent)">{t.hero.line2}</p>
+    <p class="text-(--color-accent)">{t.hero.line3}</p>
   </div>
   <!-- Orb overlay -->
   <div id="pretext-orb" class="pointer-events-none absolute rounded-full opacity-0" style="width:80px;height:80px;transition:opacity 0.6s ease;"></div>
@@ -38,7 +45,7 @@
   }
 </style>
 
-<script>
+<script define:vars={{ heroText }}>
   async function initPretextAnimation() {
     // Bail on reduced motion preference
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -50,15 +57,13 @@
     if (!container || !staticLines || !orb || !canvas) return;
 
     // Dynamically import pretext
-    let pretext: typeof import('@chenglou/pretext');
+    let pretext;
     try {
       pretext = await import('@chenglou/pretext');
     } catch {
-      // Graceful fallback — static text stays visible
+      // Graceful fallback -- static text stays visible
       return;
     }
-
-    const heroText = '> I build AI products solo.\n> 6 products. 0 employees. $15/mo infra.\n> Powered by Claude Code + custom AI agent factory.';
 
     // Detect font from computed style
     const computedStyle = getComputedStyle(staticLines);
@@ -70,7 +75,7 @@
     // Prepare text once
     const prepared = pretext.prepareWithSegments(heroText, font);
 
-    // Orb config — responsive
+    // Orb config -- responsive
     const isMobile = window.innerWidth < 640;
     const orbSize = isMobile ? 40 : 80;
     const orbRadius = orbSize / 2;
@@ -78,23 +83,23 @@
     const restInterval = 30000; // ms between animations
 
     // Theme-aware orb color
-    function getOrbColor(): string {
+    function getOrbColor() {
       const isLight = document.documentElement.classList.contains('light');
       return isLight
         ? 'radial-gradient(circle, rgba(59,130,246,0.6) 0%, rgba(59,130,246,0) 70%)'
         : 'radial-gradient(circle, rgba(34,197,94,0.5) 0%, rgba(34,197,94,0) 70%)';
     }
 
-    function layoutText(orbX: number, orbY: number, orbR: number, containerWidth: number): void {
+    function layoutText(orbX, orbY, orbR, containerWidth) {
       canvas.innerHTML = '';
 
-      // Split by newlines — each is a separate paragraph
+      // Split by newlines -- each is a separate paragraph
       const paragraphs = heroText.split('\n');
       let globalY = 0;
 
       for (const para of paragraphs) {
         const prepared = pretext.prepareWithSegments(para, font);
-        let cursor: import('@chenglou/pretext').LayoutCursor = { segmentIndex: 0, graphemeIndex: 0 };
+        let cursor = { segmentIndex: 0, graphemeIndex: 0 };
 
         while (true) {
           // Calculate available width for this line considering the orb
@@ -108,8 +113,7 @@
           const orbBottom = orbY + orbR;
 
           if (lineBottom > orbTop && lineTop < orbBottom) {
-            // Orb overlaps this line — calculate horizontal exclusion
-            // Distance from orb center to this line's vertical midpoint
+            // Orb overlaps this line -- calculate horizontal exclusion
             const lineMid = (lineTop + lineBottom) / 2;
             const dy = Math.abs(orbY - lineMid);
             if (dy < orbR) {
@@ -117,13 +121,10 @@
               const orbLeft = orbX - dx;
               const orbRight = orbX + dx;
 
-              // Decide whether to push text right or shrink from right
               if (orbLeft <= containerWidth * 0.5) {
-                // Orb is on the left side — push text right
                 lineX = Math.max(0, orbRight + 8);
                 maxWidth = containerWidth - lineX;
               } else {
-                // Orb is on the right side — shrink line width
                 maxWidth = Math.max(40, orbLeft - 8);
               }
             }
@@ -149,7 +150,7 @@
       }
     }
 
-    let animFrameId: number | null = null;
+    let animFrameId = null;
     let isAnimating = false;
 
     function runAnimation() {
@@ -182,7 +183,7 @@
 
       const startTime = performance.now();
 
-      function animate(now: number) {
+      function animate(now) {
         const elapsed = now - startTime;
         const progress = Math.min(elapsed / animDuration, 1);
 
@@ -200,7 +201,7 @@
         if (progress < 1) {
           animFrameId = requestAnimationFrame(animate);
         } else {
-          // Animation done — fade out orb, restore static text
+          // Animation done -- fade out orb, restore static text
           orb.style.opacity = '0';
           setTimeout(() => {
             canvas.style.display = 'none';

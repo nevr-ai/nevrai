@@ -1,0 +1,103 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProductCard from '../ProductCard.astro';
+import BlogPostCard from '../BlogPostCard.astro';
+import Newsletter from '../Newsletter.astro';
+import PretextHero from '../PretextHero.astro';
+import { getCollection } from 'astro:content';
+import { getTranslation, type Lang } from '../../i18n/index';
+
+interface Props {
+  lang?: Lang;
+}
+
+const { lang = 'en' } = Astro.props;
+const t = getTranslation(lang);
+
+const posts = (await getCollection('blog'))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 3);
+
+const products = [
+  {
+    name: 'CoffeeBot',
+    tagline: t.products.taglines.coffeebot,
+    url: 'https://coffeebot.app',
+    status: 'LIVE' as const,
+    stack: ['Astro', 'Tailwind', 'Groq'],
+  },
+  {
+    name: 'InkCloak',
+    tagline: t.products.taglines.inkcloak,
+    url: 'https://inkcloak.com',
+    status: 'LAUNCHING' as const,
+    stack: ['Next.js', 'DeBERTa', 'RunPod'],
+  },
+  {
+    name: 'AICPO',
+    tagline: t.products.taglines.aicpo,
+    url: 'https://aicpo.app',
+    status: 'BUILDING' as const,
+    stack: ['Rails', 'SQLite', 'Groq'],
+  },
+  {
+    name: 'Scrutly',
+    tagline: t.products.taglines.scrutly,
+    url: 'https://scrutly.ai',
+    status: 'PLANNED' as const,
+    stack: ['Astro', 'DeBERTa'],
+  },
+  {
+    name: 'Tool Sites',
+    tagline: t.products.taglines.toolsites,
+    status: 'LIVE' as const,
+    stack: ['Astro', 'Tailwind', 'MDX'],
+    metric: t.products.metrics.toolsites,
+  },
+  {
+    name: 'OpenClaw Finance',
+    tagline: t.products.taglines.openclaw,
+    status: 'BUILT' as const,
+    stack: ['Python', 'DeepSeek R1', 'Docker'],
+  },
+];
+
+const linkPrefix = lang === 'en' ? '' : `/${lang}`;
+---
+<BaseLayout title={t.meta.title} description={t.meta.description} lang={lang}>
+  <section class="mb-16">
+    <PretextHero lang={lang} />
+  </section>
+
+  <section class="mb-16">
+    <h2 class="text-sm mb-6 text-(--color-text-dim)">{t.sections.products}</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      {products.map(product => (
+        <ProductCard {...product} />
+      ))}
+    </div>
+    <p class="text-sm text-(--color-text-dim) mt-4">
+      <a href={`${linkPrefix}/products`}>{t.products.viewAll}</a>
+    </p>
+  </section>
+
+  <section class="mb-16">
+    <h2 class="text-sm mb-6 text-(--color-text-dim)">{t.sections.latest}</h2>
+    <div class="space-y-3">
+      {posts.map(post => (
+        <BlogPostCard
+          title={post.data.title}
+          slug={post.id}
+          date={post.data.date}
+          readingTime={post.data.readingTime}
+          description={post.data.description}
+        />
+      ))}
+    </div>
+  </section>
+
+  <section>
+    <h2 class="text-sm mb-6 text-(--color-text-dim)">{t.sections.newsletter}</h2>
+    <Newsletter lang={lang} />
+  </section>
+</BaseLayout>
