@@ -1,9 +1,6 @@
-name = "nevrai-notify"
+name = "nevrai-subscribe"
 main = "worker.js"
 compatibility_date = "2026-04-01"
-
-[vars]
-NOTIFY_TOKEN = "nevrai-notify-2026"
 
 [[kv_namespaces]]
 binding = "SUBSCRIBERS"

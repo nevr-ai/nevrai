@@ -1,15 +1,15 @@
 // Cloudflare Worker: nevrai-notify
-// Sends update notification emails to all nevrai_subscribers via Loops.so
-// Deploy: cd workers/notify && wrangler deploy
-// Secrets: wrangler secret put LOOPS_API_KEY
+// Reads subscribers from KV, sends emails via Resend API
+// Deploy: cd workers/notify && npx wrangler deploy
+// Secrets: npx wrangler secret put RESEND_API_KEY
 //
 // Usage:
 //   POST / with Bearer token auth
 //   Body: { "subject": "...", "preview": "...", "url": "..." }
-//
-// TODO: Create a transactional email template in Loops.so dashboard
-//       and set the transactionalId below. Alternatively, uses Events API
-//       with event "update_published" as a simpler approach.
+
+const UNSUB_BASE = 'https://nevrai-subscribe.aicpo-relay.workers.dev/unsubscribe';
+const FROM_EMAIL = 'Nevr <updates@nevrai.com>';
+const BATCH_SIZE = 50; // Resend rate limit safety
 
 export default {
   async fetch(request, env) {
@@ -40,19 +40,62 @@ export default {
         return json({ error: 'subject and url are required' }, 400);
       }
 
-      // Approach 1: Use Loops Events API (simpler, works with automations)
-      // This sends an event to ALL contacts in the nevrai_subscribers group
-      // Create an automation in Loops dashboard triggered by "update_published" event
-      const sent = await sendViaEventsApi(env, { subject, preview, url });
-
-      if (sent.success) {
-        return json({ success: true, method: 'events_api', detail: sent.detail });
+      if (!env.RESEND_API_KEY || env.RESEND_API_KEY === 're_PLACEHOLDER') {
+        // List subscribers count even without Resend key
+        const subscribers = await listAllSubscribers(env);
+        return json({
+          success: false,
+          error: 'RESEND_API_KEY not configured',
+          subscriber_count: subscribers.length,
+        }, 503);
       }
 
-      // Approach 2 fallback: fetch contacts + send transactional to each
-      console.log('Events API failed, trying transactional fallback');
-      const result = await sendViaTransactional(env, { subject, preview, url });
-      return json(result, result.success ? 200 : 500);
+      // Fetch all subscribers from KV
+      const subscribers = await listAllSubscribers(env);
+
+      if (!subscribers.length) {
+        return json({ success: true, sent: 0, detail: 'No subscribers' });
+      }
+
+      let sent = 0;
+      let errors = 0;
+
+      for (const sub of subscribers) {
+        try {
+          const unsubLink = `${UNSUB_BASE}?email=${btoa(sub.email)}`;
+          const html = buildEmailHtml(subject, preview || '', url, unsubLink);
+
+          const resp = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+            },
+            body: JSON.stringify({
+              from: FROM_EMAIL,
+              to: sub.email,
+              subject,
+              html,
+              headers: {
+                'List-Unsubscribe': `<${unsubLink}>`,
+              },
+            }),
+          });
+
+          if (resp.ok) {
+            sent++;
+          } else {
+            errors++;
+            const errText = await resp.text();
+            console.error(`Resend error for ${sub.email}: ${resp.status} ${errText}`);
+          }
+        } catch (e) {
+          errors++;
+          console.error(`Send error for ${sub.email}: ${e.message}`);
+        }
+      }
+
+      return json({ success: true, sent, errors, total: subscribers.length });
 
     } catch (e) {
       console.error('Worker error:', e);
@@ -61,133 +104,62 @@ export default {
   },
 };
 
-// Approach 1: Loops Events API — triggers automation for all matching contacts
-async function sendViaEventsApi(env, { subject, preview, url }) {
-  // Note: Events API sends to a single contact by email.
-  // For broadcast, we need to fetch contacts first, then send event to each.
-  // Actually, Loops Events API requires an email — so we still need contact list.
-  // Let's go straight to the contact-list approach.
+async function listAllSubscribers(env) {
+  const subscribers = [];
+  let cursor = undefined;
 
-  const contacts = await fetchSubscribers(env);
-  if (!contacts.length) {
-    return { success: true, detail: 'No subscribers found' };
-  }
+  while (true) {
+    const opts = { limit: 1000 };
+    if (cursor) opts.cursor = cursor;
 
-  let sent = 0;
-  let errors = 0;
+    const result = await env.SUBSCRIBERS.list(opts);
 
-  for (const contact of contacts) {
-    try {
-      const resp = await fetch('https://app.loops.so/api/v1/events/send', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${env.LOOPS_API_KEY}`,
-        },
-        body: JSON.stringify({
-          email: contact.email,
-          eventName: 'update_published',
-          eventProperties: {
-            subject,
-            preview: preview || '',
-            url,
-            siteName: 'NevrAI',
-          },
-        }),
-      });
-
-      if (resp.ok) {
-        sent++;
-      } else {
-        errors++;
-        console.error(`Event send failed for ${contact.email}: ${resp.status}`);
+    for (const key of result.keys) {
+      const val = await env.SUBSCRIBERS.get(key.name);
+      if (val) {
+        try {
+          subscribers.push(JSON.parse(val));
+        } catch {
+          subscribers.push({ email: key.name });
+        }
       }
-    } catch (e) {
-      errors++;
-      console.error(`Event send error for ${contact.email}: ${e.message}`);
     }
+
+    if (result.list_complete) break;
+    cursor = result.cursor;
   }
 
-  return { success: true, detail: `Sent: ${sent}, errors: ${errors}, total: ${contacts.length}` };
+  return subscribers;
 }
 
-// Approach 2: Loops Transactional API — requires a transactionalId from dashboard
-async function sendViaTransactional(env, { subject, preview, url }) {
-  // TODO: Set this after creating template in Loops dashboard
-  const TRANSACTIONAL_ID = env.LOOPS_TRANSACTIONAL_ID || '';
+function buildEmailHtml(subject, preview, url, unsubLink) {
+  return `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="font-family:system-ui,-apple-system,sans-serif;max-width:560px;margin:0 auto;padding:32px 20px;color:#1a1a1a;line-height:1.6;">
+  <div style="display:none;font-size:1px;color:#fff;max-height:0;overflow:hidden;">${escapeHtml(preview)}</div>
 
-  if (!TRANSACTIONAL_ID) {
-    return { success: false, error: 'LOOPS_TRANSACTIONAL_ID not configured' };
-  }
+  <div style="border-bottom:2px solid #000;padding-bottom:12px;margin-bottom:24px;">
+    <strong style="font-size:18px;">NevrAI</strong>
+  </div>
 
-  const contacts = await fetchSubscribers(env);
-  if (!contacts.length) {
-    return { success: true, sent: 0, detail: 'No subscribers' };
-  }
+  <p style="font-size:16px;margin:0 0 20px;">${escapeHtml(preview)}</p>
 
-  let sent = 0;
-  let errors = 0;
+  <a href="${escapeHtml(url)}" style="display:inline-block;background:#000;color:#fff;padding:12px 24px;text-decoration:none;border-radius:6px;font-size:15px;font-weight:500;">
+    Check it out &rarr;
+  </a>
 
-  for (const contact of contacts) {
-    try {
-      const resp = await fetch('https://app.loops.so/api/v1/transactional', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${env.LOOPS_API_KEY}`,
-        },
-        body: JSON.stringify({
-          transactionalId: TRANSACTIONAL_ID,
-          email: contact.email,
-          dataVariables: {
-            subject,
-            preview: preview || '',
-            url,
-            siteName: 'NevrAI',
-          },
-        }),
-      });
+  <hr style="border:none;border-top:1px solid #e5e5e5;margin:32px 0 16px;">
 
-      if (resp.ok) {
-        sent++;
-      } else {
-        errors++;
-      }
-    } catch (e) {
-      errors++;
-    }
-  }
-
-  return { success: true, sent, errors, total: contacts.length };
+  <p style="font-size:12px;color:#888;margin:0;">
+    <a href="${escapeHtml(unsubLink)}" style="color:#888;">Unsubscribe</a>
+  </p>
+</body>
+</html>`;
 }
 
-// Fetch all contacts with userGroup = nevrai_subscribers
-async function fetchSubscribers(env) {
-  try {
-    // Loops.so /api/v1/contacts/find endpoint
-    const resp = await fetch('https://app.loops.so/api/v1/contacts/find', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${env.LOOPS_API_KEY}`,
-      },
-      body: JSON.stringify({
-        filter: {
-          userGroup: { is: 'nevrai_subscribers' },
-        },
-      }),
-    });
-
-    if (!resp.ok) {
-      console.error(`Contacts fetch failed: ${resp.status}`);
-      return [];
-    }
-
-    return await resp.json();
-  } catch (e) {
-    console.error('Contacts fetch error:', e.message);
-    return [];
-  }
+function escapeHtml(str) {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 function json(data, status = 200) {
