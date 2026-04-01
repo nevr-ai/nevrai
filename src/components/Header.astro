@@ -41,7 +41,7 @@ const homePath = lang === 'en' ? '/' : `/${lang}`;
     ))}
   </nav>
   <div class="flex items-center gap-3">
-    <LanguageSwitcher lang={lang} />
+    <LanguageSwitcher lang={lang} currentPath={Astro.url.pathname} />
     <ThemeToggle />
     <!-- Mobile menu button -->
     <button

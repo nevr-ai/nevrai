@@ -3,11 +3,14 @@ import { getLangs, getPathWithoutLocale, localizedPath, type Lang } from '../i18
 
 interface Props {
   lang: Lang;
+  currentPath?: string;
 }
 
-const { lang } = Astro.props;
+const { lang, currentPath } = Astro.props;
 const langs = getLangs();
-const basePath = getPathWithoutLocale(Astro.url);
+// Use explicit currentPath prop to avoid Astro.url issues on static builds
+const rawPath = currentPath || Astro.url.pathname;
+const basePath = getPathWithoutLocale(new URL(rawPath, 'https://nevrai.com'));
 ---
 <div class="flex items-center gap-1 text-xs font-mono">
   {langs.map((l, i) => (
