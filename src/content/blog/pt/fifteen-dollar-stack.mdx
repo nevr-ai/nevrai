@@ -1,0 +1,145 @@
+---
+title: "O Stack de $15/Mes"
+description: "Todas as ferramentas e servicos que uso para operar 6 produtos de IA. Custo total de infraestrutura: $15/mes. O que funciona, o que quebra e quando vale a pena fazer upgrade."
+date: 2026-03-25
+readingTime: "6 min de leitura"
+---
+
+Operar 6 produtos com $15/mes parece clickbait. Nao e. Aqui esta cada servico que uso, quanto custa e — honestamente — o que quebra.
+
+## O Stack
+
+### Cloudflare Workers + Pages — $0/mes
+
+**O que faz**: Hosteia sites estaticos (Astro, Next.js export), roda funcoes edge, gerencia DNS, fornece CDN.
+
+**Plano gratuito**: 100K requests/dia, 10ms de CPU por invocacao, 100 dominios custom.
+
+**O que quebra**: O limite de 10ms de CPU e real. Voce nao consegue fazer computacao pesada no edge. Cold starts sao raros mas existem. Workers KV tem limite de 1K escritas/segundo por namespace.
+
+**Quando fazer upgrade**: Se precisar de tempos de execucao mais longos ou mais de 100K requests diarios. O plano de $5/mes e generoso.
+
+### Vercel — $0/mes
+
+**O que faz**: Hosteia apps Next.js (frontend do InkCloak) com funcoes serverless.
+
+**Plano gratuito**: 100GB de bandwidth, 100 horas de execucao serverless, HTTPS automatico.
+
+**O que quebra**: Cold starts de serverless no plano gratuito podem chegar a 2-3 segundos. Sem conexoes persistentes. Tempos de build limitados a 45 minutos.
+
+**Quando fazer upgrade**: Se exceder bandwidth ou precisar de server-side rendering em escala. Pro custa $20/mes.
+
+### Supabase — $0/mes
+
+**O que faz**: Banco de dados PostgreSQL, autenticacao (Google OAuth, email), seguranca em nivel de linha.
+
+**Plano gratuito**: 500MB de banco, 50K usuarios ativos mensais, 1GB de armazenamento.
+
+**O que quebra**: O limite de 500MB e apertado se voce armazena embeddings ou blobs JSON grandes. Projetos gratuitos pausam apos 1 semana de inatividade.
+
+**Quando fazer upgrade**: Quando o banco exceder 500MB ou precisar de disponibilidade permanente. Pro custa $25/mes.
+
+### Groq — $0/mes
+
+**O que faz**: Inferencia LLM ultra-rapida. Uso Llama 3.3 70B para chat e Qwen 2.5 para geracao de codigo.
+
+**Plano gratuito**: 14,400 tokens/minuto, 30 requests/minuto, sem limite diario.
+
+**O que quebra**: Rate limits batem forte durante trafego em rajadas. O limite de 30 req/min significa que voce precisa de enfileiramento para usuarios concorrentes. A disponibilidade de modelos pode ser irregular — as vezes um modelo fica "indisponivel" por horas.
+
+**Solucao**: Uso um Cloudflare Worker como proxy (Groq bloqueia IPs russos) e implemento fallback automatico para modelos gratuitos do OpenRouter.
+
+**Quando fazer upgrade**: O plano pago de $0.27/M tokens remove os rate limits. Vale a pena acima de 50 usuarios concorrentes.
+
+### PostHog — $0/mes
+
+**O que faz**: Analytics de produto, replay de sessoes, feature flags, testes A/B.
+
+**Plano gratuito**: 1M eventos/mes, 15K replays de sessao, feature flags ilimitados.
+
+**O que quebra**: Honestamente, nada ainda. O plano gratuito e absurdamente generoso para um maker solo. A limitacao principal e retencao de dados (1 ano no gratuito).
+
+**Quando fazer upgrade**: Acima de 1M eventos/mes. Mas com 6 produtos pequenos, estou longe disso.
+
+### Loops.so — $0/mes
+
+**O que faz**: Email marketing. Campanhas de gotejamento, emails transacionais, gestao de assinantes.
+
+**Plano gratuito**: 1,000 contatos, automacao basica.
+
+**O que quebra**: O limite de 1K contatos e a restricao real. Sem dominios personalizados no plano gratuito (emails vem de loops.so). Acesso limitado a API.
+
+**Quando fazer upgrade**: Quando sua lista exceder 1K contatos. Starter custa $49/mes — pesado para um maker solo.
+
+### Sentry — $0/mes
+
+**O que faz**: Monitoramento de erros e rastreamento de performance em todos os produtos.
+
+**Plano gratuito**: 5K erros/mes, 10K transacoes de performance.
+
+**O que quebra**: O plano gratuito nao tem boas regras de alertas. Voce recebe notificacoes por email mas nao integracao com Slack/Telegram.
+
+**Quando fazer upgrade**: O plano team de $26/mes adiciona melhores alertas e mais volume.
+
+### RunPod — pago por uso
+
+**O que faz**: GPU cloud para treinamento e inferencia ML. Usado para fine-tuning de modelos DeBERTa.
+
+**Custo**: $0.49 pela minha ultima sessao de treinamento (spot A100, 20 minutos).
+
+**O que quebra**: Instancias spot podem ser interrompidas no meio do treinamento. Voce precisa de checkpointing. A UI e crua mas funcional.
+
+### NVIDIA P100 — $150 unico
+
+**O que faz**: Inferencia GPU local para desenvolvimento e cargas de producao leves.
+
+**O que quebra**: E uma placa velha (arquitetura Pascal). Sem suporte bfloat16, 16GB de VRAM limita o tamanho do modelo. O consumo de energia e alto para operacao 24/7.
+
+## O Que Economizei
+
+Se eu usasse alternativas pagas tipicas:
+
+| Servico | Alternativa Paga | Custo |
+|---------|-----------------|------|
+| Hosting | AWS EC2 + CloudFront | $200/mes |
+| Banco de dados | RDS PostgreSQL | $50/mes |
+| API de LLM | OpenAI GPT-4 | $100/mes |
+| Analytics | Mixpanel | $100/mes |
+| Email | Mailchimp | $30/mes |
+| Monitoramento | Datadog | $50/mes |
+| GPU cloud | Lambda Labs (sempre ligado) | $300/mes |
+| **Total** | | **$830/mes** |
+
+Sao $830/mes que nao estou gastando. Em um ano, sao quase $10K economizados.
+
+## A Verdade Honesta
+
+Planos gratuitos tem limitacoes reais:
+
+1. **Rate limits te forcam a pensar em arquitetura.** Voce nao pode simplesmente jogar requests numa API. Precisa de cache, enfileiramento e degradacao graceful.
+
+2. **Cold starts afetam a experiencia do usuario.** Visitantes de primeira vez em funcoes serverless esperam 2-3 segundos. Visitantes recorrentes recebem respostas sub-segundo.
+
+3. **Voce esta a um pico de crescimento de atingir os limites.** Se um produto viralizar, voce precisa fazer upgrade em horas. Tenha seu cartao de credito pronto.
+
+4. **Debugar e mais dificil.** Logging do plano gratuito e minimo. Quando algo quebra as 3h da manha, voce esta lendo logs do Cloudflare Workers sem contexto de tracing.
+
+5. **Alguns planos gratuitos sao loss leaders.** Eles querem que voce faca upgrade. A qualidade do produto em planos gratuitos pode degradar com o tempo enquanto as empresas focam em clientes pagantes.
+
+## Quando Parar de Ser Mao-de-Vaca
+
+Faca upgrade quando:
+
+- Seu produto tem clientes pagantes (use o dinheiro deles, nao o seu)
+- Rate limits estao causando erros visiveis para o usuario
+- Voce esta gastando mais tempo contornando limites do que construindo features
+- Uptime importa (planos gratuitos nao tem SLA)
+
+Fique no gratuito quando:
+
+- Voce esta validando uma ideia
+- O trafego esta abaixo de 1K usuarios diarios
+- Voce e o unico usuario que percebe o downtime
+- O produto nao esta gerando receita
+
+O stack de $15/mes nao e uma solucao permanente. E uma estrategia de lancamento. Construa barato, valide rapido, faca upgrade quando o dinheiro fluir.

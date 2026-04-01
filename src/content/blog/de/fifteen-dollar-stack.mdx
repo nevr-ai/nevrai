@@ -1,0 +1,145 @@
+---
+title: "Der $15/Monat Stack"
+description: "Alle Tools und Dienste die ich nutze um 6 KI-Produkte zu betreiben. Gesamte Infrastrukturkosten: $15/Monat. Was funktioniert, was kaputt geht und wann man upgraden sollte."
+date: 2026-03-25
+readingTime: "6 Min. Lesezeit"
+---
+
+6 Produkte mit $15/Monat betreiben klingt nach Clickbait. Ist es nicht. Hier ist jeder Dienst den ich nutze, was er kostet und — ehrlich gesagt — was kaputt geht.
+
+## Der Stack
+
+### Cloudflare Workers + Pages — $0/Monat
+
+**Was es macht**: Hostet statische Seiten (Astro, Next.js Export), fuehrt Edge-Funktionen aus, verwaltet DNS, stellt CDN bereit.
+
+**Kostenloser Tarif**: 100K Requests/Tag, 10ms CPU-Zeit pro Aufruf, 100 Custom-Domains.
+
+**Was kaputt geht**: Das 10ms CPU-Limit ist real. Du kannst keine schwere Berechnung am Edge machen. Cold Starts sind selten aber existieren. Workers KV hat ein Limit von 1K Schreibvorgaengen/Sekunde pro Namespace.
+
+**Wann upgraden**: Wenn du laengere Ausfuehrungszeiten oder mehr als 100K taegliche Requests brauchst. Der $5/Monat-Plan ist grosszuegig.
+
+### Vercel — $0/Monat
+
+**Was es macht**: Hostet Next.js-Apps (InkCloak Frontend) mit Serverless-Funktionen.
+
+**Kostenloser Tarif**: 100GB Bandbreite, 100 Stunden Serverless-Ausfuehrung, automatisches HTTPS.
+
+**Was kaputt geht**: Serverless Cold Starts im kostenlosen Tarif koennen 2-3 Sekunden erreichen. Keine persistenten Verbindungen. Build-Zeiten sind auf 45 Minuten begrenzt.
+
+**Wann upgraden**: Wenn du die Bandbreite ueberschreitest oder Server-Side Rendering im grossen Massstab brauchst. Pro kostet $20/Monat.
+
+### Supabase — $0/Monat
+
+**Was es macht**: PostgreSQL-Datenbank, Authentifizierung (Google OAuth, E-Mail), Row-Level Security.
+
+**Kostenloser Tarif**: 500MB Datenbank, 50K monatlich aktive Nutzer, 1GB Dateispeicher.
+
+**Was kaputt geht**: Das 500MB-Datenbanklimit ist eng wenn du Embeddings oder grosse JSON-Blobs speicherst. Kostenlose Projekte pausieren nach 1 Woche Inaktivitaet.
+
+**Wann upgraden**: Wenn deine Datenbank 500MB ueberschreitet oder du Always-On-Verfuegbarkeit brauchst. Pro kostet $25/Monat.
+
+### Groq — $0/Monat
+
+**Was es macht**: Ultraschnelle LLM-Inferenz. Ich nutze Llama 3.3 70B fuer Chat und Qwen 2.5 fuer Code-Generierung.
+
+**Kostenloser Tarif**: 14.400 Tokens/Minute, 30 Requests/Minute, kein Tageslimit.
+
+**Was kaputt geht**: Rate-Limits treffen hart bei Burst-Traffic. Das 30 Req/Min-Limit bedeutet du brauchst Queuing fuer gleichzeitige Nutzer. Die Modellverfuegbarkeit kann lueckenhaft sein — manchmal ist ein Modell stundenlang "nicht verfuegbar".
+
+**Workaround**: Ich nutze einen Cloudflare Worker als Proxy (Groq blockiert russische IPs) und implementiere automatischen Fallback auf kostenlose OpenRouter-Modelle.
+
+**Wann upgraden**: Der bezahlte $0,27/M Token-Tarif entfernt Rate-Limits. Lohnt sich ab 50 gleichzeitigen Nutzern.
+
+### PostHog — $0/Monat
+
+**Was es macht**: Produkt-Analytics, Session-Replay, Feature Flags, A/B-Testing.
+
+**Kostenloser Tarif**: 1M Events/Monat, 15K Session-Replays, unbegrenzte Feature Flags.
+
+**Was kaputt geht**: Ehrlich gesagt, bisher nichts. Der kostenlose Tarif ist absurd grosszuegig fuer einen Solo-Maker. Die Hauptbeschraenkung ist die Datenaufbewahrung (1 Jahr im kostenlosen Tarif).
+
+**Wann upgraden**: Ueber 1M Events/Monat. Aber mit 6 kleinen Produkten bin ich weit davon entfernt.
+
+### Loops.so — $0/Monat
+
+**Was es macht**: E-Mail-Marketing. Drip-Kampagnen, transaktionale E-Mails, Abonnentenverwaltung.
+
+**Kostenloser Tarif**: 1.000 Kontakte, grundlegende Automatisierung.
+
+**Was kaputt geht**: Das 1K-Kontaktlimit ist die echte Einschraenkung. Keine Custom-Domains im kostenlosen Tarif (E-Mails kommen von loops.so). Eingeschraenkter API-Zugang.
+
+**Wann upgraden**: Wenn deine Liste 1K Kontakte ueberschreitet. Starter kostet $49/Monat — heftig fuer einen Solo-Maker.
+
+### Sentry — $0/Monat
+
+**Was es macht**: Error-Monitoring und Performance-Tracking ueber alle Produkte.
+
+**Kostenloser Tarif**: 5K Fehler/Monat, 10K Performance-Transaktionen.
+
+**Was kaputt geht**: Dem kostenlosen Tarif fehlen gute Alerting-Regeln. Du bekommst E-Mail-Benachrichtigungen aber keine Slack/Telegram-Integration.
+
+**Wann upgraden**: Der $26/Monat Team-Plan bietet besseres Alerting und mehr Volumen.
+
+### RunPod — Nutzungsbasiert
+
+**Was es macht**: GPU-Cloud fuer ML-Training und Inferenz. Genutzt fuer Fine-Tuning von DeBERTa-Modellen.
+
+**Kosten**: $0,49 fuer meine letzte Trainingsession (Spot A100, 20 Minuten).
+
+**Was kaputt geht**: Spot-Instanzen koennen mitten im Training unterbrochen werden. Du brauchst Checkpointing. Die UI ist rau aber funktional.
+
+### NVIDIA P100 — $150 einmalig
+
+**Was es macht**: Lokale GPU-Inferenz fuer Entwicklung und leichte Produktions-Workloads.
+
+**Was kaputt geht**: Es ist eine alte Karte (Pascal-Architektur). Kein bfloat16-Support, 16GB VRAM begrenzt die Modellgroesse. Der Stromverbrauch ist hoch fuer 24/7-Betrieb.
+
+## Was Ich Gespart Habe
+
+Wenn ich typische bezahlte Alternativen nutzen wuerde:
+
+| Dienst | Bezahlte Alternative | Kosten |
+|---------|-----------------|------|
+| Hosting | AWS EC2 + CloudFront | $200/Monat |
+| Datenbank | RDS PostgreSQL | $50/Monat |
+| LLM-API | OpenAI GPT-4 | $100/Monat |
+| Analytics | Mixpanel | $100/Monat |
+| E-Mail | Mailchimp | $30/Monat |
+| Monitoring | Datadog | $50/Monat |
+| GPU-Cloud | Lambda Labs (Always-On) | $300/Monat |
+| **Gesamt** | | **$830/Monat** |
+
+Das sind $830/Monat die ich nicht ausgebe. Ueber ein Jahr sind das fast $10K gespart.
+
+## Die Ehrliche Wahrheit
+
+Kostenlose Tarife haben echte Einschraenkungen:
+
+1. **Rate-Limits zwingen dich ueber Architektur nachzudenken.** Du kannst nicht einfach Requests an eine API feuern. Du brauchst Caching, Queuing und Graceful Degradation.
+
+2. **Cold Starts beeinflussen die User Experience.** Erstbesucher von Serverless-Funktionen warten 2-3 Sekunden. Wiederkehrende Besucher bekommen Sub-Sekunden-Antworten.
+
+3. **Du bist einen Wachstumsschub davon entfernt die Limits zu erreichen.** Wenn ein Produkt viral geht, musst du innerhalb von Stunden upgraden. Halte deine Kreditkarte bereit.
+
+4. **Debugging ist schwieriger.** Logging im kostenlosen Tarif ist minimal. Wenn um 3 Uhr morgens etwas kaputt geht, liest du Cloudflare-Workers-Logs ohne Tracing-Kontext.
+
+5. **Manche kostenlosen Tarife sind Loss Leader.** Sie wollen dass du upgradest. Die Produktqualitaet kostenloser Tarife kann mit der Zeit nachlassen wenn Unternehmen sich auf zahlende Kunden konzentrieren.
+
+## Wann Man Aufhoeren Sollte Zu Sparen
+
+Upgrade wenn:
+
+- Dein Produkt zahlende Kunden hat (nutze deren Geld, nicht deins)
+- Rate-Limits nutzersichtbare Fehler verursachen
+- Du mehr Zeit mit dem Umgehen von Limits verbringst als mit dem Bauen von Features
+- Uptime wichtig ist (kostenlose Tarife haben kein SLA)
+
+Bleib kostenlos wenn:
+
+- Du eine Idee validierst
+- Traffic unter 1K taeglichen Nutzern liegt
+- Du der einzige Nutzer bist der Downtime bemerkt
+- Das Produkt keinen Umsatz generiert
+
+Der $15/Monat Stack ist keine dauerhafte Loesung. Es ist eine Launch-Strategie. Baue billig, validiere schnell, upgrade wenn das Geld fliesst.

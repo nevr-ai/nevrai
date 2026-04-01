@@ -252,6 +252,11 @@ html.light .card {
 
 .prose p {
   margin-bottom: 1.25rem;
+  color: var(--color-text-dim);
+}
+
+.prose h1, .prose h2, .prose h3, .prose h4 {
+  color: var(--color-text);
 }
 
 .prose ul, .prose ol {
@@ -261,10 +266,16 @@ html.light .card {
 
 .prose li {
   margin-bottom: 0.375rem;
+  color: var(--color-text-dim);
 }
 
 .prose strong {
   font-weight: 600;
+  color: var(--color-text);
+}
+
+.prose a {
+  color: var(--color-accent);
 }
 
 /* Dark theme: terminal-style list markers */
@@ -284,6 +295,53 @@ html.light .prose ul {
 
 html.light .prose ul li::before {
   content: "";
+}
+
+/* Dark theme: IDE-style syntax highlighting for blog content */
+.prose code {
+  color: #f59e0b;
+}
+
+.prose em {
+  color: #a78bfa;
+  font-style: italic;
+}
+
+.prose strong {
+  color: #e4e4e7;
+}
+
+.prose blockquote p {
+  color: #6b7280;
+}
+
+.prose h2 {
+  color: #22c55e;
+}
+
+.prose h3 {
+  color: #3b82f6;
+}
+
+/* Light theme: GitHub markdown style */
+html.light .prose code {
+  color: #cf222e;
+}
+
+html.light .prose em {
+  color: #57606a;
+}
+
+html.light .prose strong {
+  color: #1e1e1e;
+}
+
+html.light .prose h2, html.light .prose h3, html.light .prose h4 {
+  color: #1e1e1e;
+}
+
+html.light .prose p, html.light .prose li {
+  color: #57606a;
 }
 
 /* Selection */
