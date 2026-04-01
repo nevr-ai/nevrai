@@ -14,7 +14,9 @@ interface Props {
 const { lang = 'en' } = Astro.props;
 const t = getTranslation(lang);
 
+const langPrefixes = ['es/', 'pt/', 'de/', 'fr/', 'es\\', 'pt\\', 'de\\', 'fr\\'];
 const posts = (await getCollection('blog'))
+  .filter(post => !langPrefixes.some(prefix => post.id.startsWith(prefix)))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
   .slice(0, 3);
 
