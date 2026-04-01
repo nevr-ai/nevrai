@@ -1,13 +1,16 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { getCollection, render } from 'astro:content';
+import { getTranslation } from '../../../i18n/index';
+
+const t = getTranslation('es');
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog');
   return posts
-    .filter(post => !post.id.includes('/'))
+    .filter(post => post.id.startsWith('es/'))
     .map(post => ({
-      params: { slug: post.id },
+      params: { slug: post.id.replace('es/', '') },
       props: { post },
     }));
 }
@@ -16,7 +19,7 @@ const { post } = Astro.props;
 const { Content } = await render(post);
 const isoDate = post.data.date.toISOString().split('T')[0];
 ---
-<BaseLayout pagePath={`/blog/${post.id}`} title={`${post.data.title} — nevrai`} description={post.data.description}>
+<BaseLayout lang="es" pagePath={`/blog/${Astro.params.slug}`} title={`${post.data.title} — nevrai`} description={post.data.description}>
   <article>
     <header class="mb-8">
       <div class="flex items-center gap-3 text-xs text-(--color-text-dim) mb-3 font-mono">
@@ -30,7 +33,7 @@ const isoDate = post.data.date.toISOString().split('T')[0];
       <Content />
     </div>
     <footer class="mt-12 pt-6 border-t border-(--color-border)">
-      <a href="/blog" class="text-sm">&larr; Back to blog</a>
+      <a href="/es/blog" class="text-sm">&larr; {t.blog.backToBlog}</a>
     </footer>
   </article>
 </BaseLayout>

@@ -1,0 +1,118 @@
+---
+title: "J'ai construit 6 produits en 3 semaines en tant que fondateur solo"
+description: "Comment j'ai lance 6 produits IA sans employes, avec $15/mois d'infrastructure et une factory d'agents IA qui fait l'essentiel du travail."
+date: 2026-03-28
+readingTime: "8 min de lecture"
+---
+
+Il y a trois semaines, j'avais zero produit. Aujourd'hui j'en ai six — en ligne, deployes et servant des utilisateurs. Pas d'equipe. Pas de financement. Pas de reunions. Juste moi, un terminal et un systeme que j'appelle Factory OS.
+
+Voici ce que j'ai construit, comment je l'ai construit et ce que ca coute vraiment.
+
+## Les Produits
+
+### 1. CoffeeBot — coffeebot.app
+
+Un quiz de recommandation de cafe propulse par l'IA. Tu reponds a 5 questions sur tes preferences gustatives et il te recommande ta preparation parfaite avec les instructions de preparation.
+
+**Tech** : Astro, Tailwind CSS, Groq (Llama 3.3 pour les recommandations), Cloudflare Pages.
+
+**Pourquoi** : Je voulais un produit grand public simple pour tester l'ensemble du pipeline — de l'idee au produit deploye — en moins d'un jour. CoffeeBot a ete la preuve que mon systeme de build fonctionne.
+
+### 2. InkCloak — inkcloak.com
+
+Detecteur et humaniseur de texte IA. Le detecteur utilise un modele DeBERTa fine-tune avec une precision AUROC de 0.9999. L'humaniseur utilise la paraphrase adversariale pour reecrire le texte IA de maniere a passer la detection.
+
+**Tech** : Next.js, DeBERTa v3 (fine-tuned), RunPod pour l'inference GPU, backend Python.
+
+**Pourquoi** : Le marche de la detection IA croit rapidement et les outils existants sont soit imprecis soit chers. InkCloak vise a etre a la fois precis et abordable.
+
+### 3. AICPO — aicpo.app
+
+"Cursor pour la recherche produit." Un workspace a trois panneaux ou tu discutes avec un chercheur produit IA, il extrait des faits de ta conversation et genere 43 artefacts produit differents (business model canvas, analyse concurrentielle, strategie de prix, etc.).
+
+**Tech** : Rails 8, SQLite, Groq pour le chat, OpenRouter pour la generation d'artefacts, ActionCable pour les mises a jour en temps reel.
+
+**Pourquoi** : C'est le gros morceau. La recherche produit est penible — dispersee entre Google Docs, Notion, tableaux Miro. AICPO consolide tout dans un workspace propulse par l'IA.
+
+### 4. Scrutly — scrutly.ai
+
+Un detecteur de texte IA gratuit et rapide. Pas d'inscription, pas de limites sur l'usage basique. Utilise le meme modele DeBERTa qu'InkCloak mais dans une interface plus simple a usage unique.
+
+**Tech** : Astro, DeBERTa, Cloudflare Workers.
+
+**Statut** : Planifie — le modele de detection est pret depuis InkCloak, il manque juste le site wrapper.
+
+### 5. Tool Sites — 5 domaines
+
+199 pages SEO programmatiques sur 5 domaines de niche. Chaque page est du contenu genere par IA qui a ete edite par un humain, ciblant des keywords long-tail dans des niches specifiques.
+
+**Tech** : Astro, Tailwind, MDX pour le contenu, Cloudflare Pages.
+
+**Pourquoi** : Generation de trafic passif. Ces sites sont concus pour se positionner sur des keywords specifiques et diriger du trafic vers les produits principaux.
+
+### 6. OpenClaw Finance
+
+Une factory d'agents financiers IA avec 5 agents specialises pour l'analyse financiere, les rapports et le traitement de donnees. Construit sur DeepSeek R1-0528 pour les taches necessitant un raisonnement intensif.
+
+**Tech** : Python, DeepSeek R1-0528, Docker, SQLite.
+
+**Statut** : Construit et deploye sur 2 machines.
+
+## Ventilation des Couts
+
+| Categorie | Cout Mensuel |
+|----------|-------------|
+| Domaines (5) | $15 |
+| Hebergement (Cloudflare + Vercel) | $0 |
+| Base de donnees (Supabase + SQLite) | $0 |
+| Inference LLM (Groq) | $0 |
+| Analytics (PostHog) | $0 |
+| Suivi d'erreurs (Sentry) | $0 |
+| Email (Loops.so) | $0 |
+| **Total** | **$15/mois** |
+
+Couts ponctuels : $150 pour un GPU NVIDIA P100 d'occasion, $0.49 pour une session d'entrainement sur RunPod.
+
+## Comment : Factory OS
+
+Le secret n'est pas de travailler plus vite — c'est de travailler differemment.
+
+Factory OS est mon systeme d'orchestration d'agents IA personnalise construit sur Claude Code. Il a 15 roles specialises :
+
+- **CEO/Orchestrator** : Decompose les features en taches, delegue aux agents, revise l'output
+- **Builder** : Ecrit et teste le code
+- **DevOps** : Gere le deploiement, l'infrastructure, le monitoring
+- **QA Tester** : Tests au niveau navigateur via Chrome DevTools
+- **Product Researcher** : Analyse de marche et veille concurrentielle
+- Plus 10 autres roles specialises
+
+Chaque role a son propre fichier de prompt avec des connaissances du domaine, des standards de codage et des regles de decision. Le CEO n'ecrit jamais de code directement — il delegue toujours au specialiste approprie.
+
+Une feature typique prend 15-30 minutes de l'idee au code deploye :
+
+1. Je decris la feature en anglais simple
+2. Le CEO la decompose en taches
+3. Les agents Builder ecrivent et testent le code
+4. L'agent QA verifie dans le navigateur
+5. L'agent DevOps deploie
+
+Je prends les decisions produit. Les agents font l'implementation.
+
+## Ce Que J'ai Appris
+
+**Les offres gratuites sont sous-estimees.** La plupart des developpeurs passent directement aux services payants. Mais Cloudflare Workers te donne 100K requetes/jour gratuitement. Groq te donne 14K tokens/minute gratuitement. PostHog te donne 1M evenements/mois gratuitement. Tu peux faire tourner de vrais produits avec ca.
+
+**Les agents IA ont besoin de structure, pas de liberte.** Laisser carte blanche a un LLM mene au chaos. Chaque agent dans Factory OS a des regles strictes sur ce qu'il peut et ne peut pas faire. Le Builder ne peut pas deployer. Le DevOps ne peut pas ecrire de code applicatif. Les contraintes rendent les agents fiables.
+
+**La vitesse se compose.** Quand tu peux livrer un produit en un jour, tu peux tester 6 idees en 3 semaines. La plupart echoueront. Mais celles qui marchent sont deja en ligne et generent des donnees.
+
+**Solo ne veut pas dire seul.** J'ai zero employe, mais j'ai 15 agents IA qui travaillent 24/7. La definition d'"equipe" est en train de changer.
+
+## La Suite
+
+InkCloak lance cette semaine. AICPO entre en beta en avril. Les tool sites ont besoin d'optimisation SEO et de construction de backlinks.
+
+L'objectif n'est pas de construire 100 produits. C'est de trouver les 1-2 qui ont une vraie traction et de doubler la mise. Les autres sont des experiences, des opportunites d'apprentissage et des pieces de portfolio.
+
+Si tu veux suivre la progression, abonne-toi a la [newsletter](/fr/newsletter). Un email par lancement. Pas de spam.

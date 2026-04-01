@@ -106,6 +106,13 @@ export default {
     built: 'Criado por Nevr',
     based: 'Baseado na Georgia',
   },
+  blog: {
+    title: 'Blog — nevrai',
+    subtitle: 'Construindo em publico. Licoes de lancar produtos de IA solo.',
+    backToBlog: 'Voltar ao blog',
+    readMore: 'Leia mais',
+    minRead: 'min de leitura',
+  },
   common: {
     live: 'LIVE',
     launching: 'LAUNCHING',

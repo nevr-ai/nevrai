@@ -106,6 +106,13 @@ export default {
     built: 'Gebaut von Nevr',
     based: 'Basiert in Georgien',
   },
+  blog: {
+    title: 'Blog — nevrai',
+    subtitle: 'Building in Public. Erkenntnisse vom Solo-Shipping von KI-Produkten.',
+    backToBlog: 'Zurueck zum Blog',
+    readMore: 'Weiterlesen',
+    minRead: 'Min. Lesezeit',
+  },
   common: {
     live: 'LIVE',
     launching: 'LAUNCHING',

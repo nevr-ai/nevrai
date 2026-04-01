@@ -1,0 +1,145 @@
+---
+title: "Mon CEO IA travaille pendant que je dors"
+description: "Dans les coulisses de Factory OS : un systeme d'orchestration d'agents IA personnalise avec 15 roles qui construit, teste et deploie du code de maniere autonome."
+date: 2026-03-20
+readingTime: "8 min de lecture"
+---
+
+Mardi dernier a 2h du matin, pendant que je dormais, ma factory d'agents IA a deploye une correction de bug, execute la suite de tests, commite les changements avec un message descriptif et m'a envoye une notification Telegram. Quand je me suis reveille, le correctif etait en production.
+
+Ce n'est pas hypothetique. C'est Factory OS — mon systeme d'orchestration d'agents IA personnalise construit sur Claude Code. Voici comment ca fonctionne et ce que ca peut vraiment faire.
+
+## Ce Qu'est Factory OS
+
+Factory OS est un systeme de 15 roles d'agents IA specialises, coordonnes par un agent CEO/orchestrateur. Chaque role a :
+
+- Un **fichier de prompt** avec des connaissances du domaine, des regles et des contraintes
+- Une **attribution de modele** (quel LLM utiliser pour ce role)
+- Des **limites de permissions** (ce que l'agent peut et ne peut pas faire)
+- Des **quality gates** (verifications qui doivent etre reussies avant que le travail soit accepte)
+
+Les agents tournent dans des sessions Claude Code. L'agent CEO lit les descriptions de taches, les decompose en sous-taches, lance des agents specialistes, revise leur output et gere le pipeline.
+
+## Les 15 Roles
+
+| Role | Ce Qu'il Fait | Modele |
+|------|-------------|-------|
+| CEO/Orchestrateur | Delegue les taches, revise l'output, gere le pipeline | Claude Sonnet |
+| Builder | Ecrit le code applicatif (Rails, Astro, Next.js) | Claude Opus |
+| QA Tester | Tests au niveau navigateur via Chrome DevTools MCP | Claude Sonnet |
+| DevOps | Deploiement, infrastructure, gestion de serveurs | Claude Sonnet |
+| Product Researcher | Analyse de marche, recherche concurrentielle, analyse JTBD | Claude Sonnet |
+| SEO Specialist | Optimisation de contenu, recherche de mots-cles, SEO technique | Claude Sonnet |
+| Landing Builder | Landing pages avec copy oriente conversion | Claude Sonnet |
+| CTO | Decisions d'architecture, planification du stack technique | Claude Opus |
+| Senior Ruby | Developpement Rails avec regles de codage strictes | Claude Opus |
+| Content Writer | Articles de blog, documentation, copy marketing | Claude Sonnet |
+| Data Analyst | Interpretation d'analytics, analyse de funnel | Claude Sonnet |
+| Designer | Decisions UI/UX, design de composants | Claude Sonnet |
+| Security Auditor | Revue de code pour les vulnerabilites | Claude Sonnet |
+| Performance Engineer | Optimisation, mise en cache, tests de charge | Claude Sonnet |
+| Transcriber | Extraction audio et speech-to-text | Claude Sonnet |
+
+## Les Regles Qui Font Que Ca Marche
+
+### Regle 1 : Le CEO N'Ecrit Jamais de Code
+
+C'est la regle la plus importante. L'agent CEO delegue tout. Il n'ouvre jamais un fichier pour l'editer. Il n'execute jamais de tests directement. Il lance un agent Builder ou QA pour ca.
+
+Pourquoi ? Parce que quand un seul agent fait tout, il perd le contexte, fait des erreurs negligentes et produit du code inconsistant. La specialisation cree la responsabilite.
+
+### Regle 2 : Chaque Agent Lit D'Abord les Regles
+
+Avant de faire quoi que ce soit, chaque agent lance lit :
+
+1. Le preambule universel de l'agent (regles partagees)
+2. Son fichier de prompt specifique au role
+3. Le CLAUDE.md du projet (notes d'architecture, conventions, fichiers cles)
+
+C'est non negotiable. Meme si l'agent "connait deja" le codebase, il lit les regles. Parce qu'apres la compaction de contexte (quand la conversation devient trop longue), l'agent oublie tout. Les regles sont la memoire persistante.
+
+### Regle 3 : Quality Gates Avant le Commit
+
+Aucun code n'est commite sans avoir passe :
+
+1. Smoke test (`ruby bin/rails runner test/smoke_test.rb`)
+2. Verification de consistance (pas d'imports casses, pas de fichiers orphelins)
+3. Mise a jour de la documentation (CLAUDE.md reste a jour)
+4. Plan de rollback (peut-on annuler ca en toute securite ?)
+
+Si un gate echoue, l'agent corrige le probleme et re-execute. Il ne saute pas de gates.
+
+### Regle 4 : Limites de Permissions Strictes
+
+Le Builder ne peut pas deployer en production. Le DevOps ne peut pas modifier la logique applicative. Le QA Tester ne peut pas changer le code source. Chaque agent opere dans ses limites.
+
+Cela previent le mode de defaillance le plus dangereux : un agent qui "aide" en faisant quelque chose hors de son expertise.
+
+## CLAUDE.md : Le Systeme d'Exploitation
+
+Chaque projet a un fichier CLAUDE.md a sa racine. Ce n'est pas de la documentation — c'est le systeme d'exploitation pour les agents qui travaillent sur ce projet.
+
+Le CLAUDE.md d'AICPO fait plus de 500 lignes. Il contient :
+
+- Vue d'ensemble de l'architecture (framework, base de donnees, hebergement)
+- Modele de donnees avec toutes les tables et colonnes
+- Endpoints API avec formats de requete/reponse
+- Carte des service objects (ce que chaque service fait)
+- Diagrammes de pipeline (flux de donnees a travers le systeme)
+- Liste des fichiers cles (pour que les agents sachent ou chercher)
+- Commandes de developpement (comment lancer le serveur, les tests, les migrations)
+- Release gate (checklist obligatoire avant chaque commit)
+
+Quand un nouvel agent demarre et lit CLAUDE.md, il comprend l'ensemble du projet en quelques secondes. Pas d'onboarding. Pas de "tu peux me presenter le codebase ?" Il lit le fichier et commence a travailler.
+
+## Un Exemple Reel
+
+Voici ce qui s'est passe hier. Je voulais ajouter l'export PDF au systeme d'artefacts d'AICPO.
+
+1. J'ai dit au CEO : "Ajoute l'export PDF pour les artefacts. Lien public, pas de login requis, pret pour l'impression."
+2. Le CEO a cree une decomposition des taches :
+   - Base de donnees : table `artifact_pdf_links` avec token, document_id, snapshot de contenu
+   - Model : `ArtifactPdfLink` avec token auto-genere
+   - Controller : Route publique `GET /pdf/:token`, pas d'authentification
+   - Layout : HTML minimal pret pour l'impression (sombre a l'ecran, N&B propre a l'impression)
+   - API : Endpoints CRUD pour creer et gerer les liens
+3. Le CEO a lance un agent Builder avec le tableau de taches, les criteres d'acceptation et les references aux fichiers cles.
+4. Le Builder a ecrit la migration, le model, le controller, les vues et les endpoints API. Puis a execute le smoke test.
+5. Tests reussis. Le Builder a commite avec un message descriptif.
+6. J'ai revise le diff, approuve et deploye.
+
+Temps total : 25 minutes. Effort manuel total : lire le diff et approuver.
+
+## Ce Que les Agents IA Ne Peuvent Pas Faire
+
+Je ne vais pas pretendre que c'est de la magie. Voici ce avec quoi les agents ont encore du mal :
+
+**Decisions produit.** Les agents peuvent rechercher, analyser et presenter des options. Mais "devrait-on construire cette feature ?" est un jugement humain. L'agent CEO delegue, il ne strategise pas.
+
+**Design visuel.** Les agents peuvent implementer un design system et suivre des patterns. Mais creer une identite visuelle originale demande du gout humain. Je specifie l'esthetique, les agents l'implementent.
+
+**Architecture novatrice.** Pour les patterns bien compris (CRUD, API, auth), les agents sont excellents. Pour une architecture vraiment novatrice, ils ont besoin d'un guidage significatif. Ils sont meilleurs a executer des patterns connus qu'a en inventer de nouveaux.
+
+**Debugging de production.** Les agents peuvent lire des logs et suggerer des correctifs. Mais le vrai debugging de production necessite de comprendre le comportement des utilisateurs, l'etat de l'infrastructure et le contexte business que les agents n'ont pas.
+
+**Savoir quand s'arreter.** Les agents vont continuer a "ameliorer" le code indefiniment si tu les laisses. Le gold-plating est leur mode par defaut. Tu as besoin de criteres d'acceptation explicites et de conditions d'arret.
+
+## L'Economie
+
+Claude Code coute environ $75/M de tokens output pour Opus. Une feature typique qui prendrait a un developpeur humain 4-8 heures coute environ $5-15 en tokens.
+
+Compare ca au temps d'un developpeur a $50-150/heure. Meme au haut de la fourchette des couts de tokens, les agents IA sont 10-30x moins chers que les developpeurs humains pour le travail d'implementation.
+
+Le hic : tu as toujours besoin d'un humain pour la direction produit, les decisions de design et la revue qualite. Les agents IA sont des amplificateurs, pas des remplacants.
+
+## Ce Que Je Construis Ensuite
+
+Factory OS lui-meme evolue. Priorites actuelles :
+
+1. **Meilleure gestion du contexte.** Les longues sessions degradent la qualite. J'experimente avec des fichiers de memoire structures qui survivent a la compaction de contexte.
+2. **Execution parallele des agents.** Actuellement les agents tournent sequentiellement. Lancer Builder + QA en parallele pourrait diviser le temps de cycle par deux.
+3. **Prompts auto-ameliorants.** Des agents qui analysent leurs propres echecs et ameliorent automatiquement leurs fichiers de prompt.
+
+L'avenir ne passe pas par des equipes d'ingenierie de 100 personnes. Ce sont des makers solos avec des factories d'agents IA, qui livrent des produits qui necessitaient auparavant des entreprises entieres.
+
+Si tu veux suivre la progression, [abonne-toi a la newsletter](/fr/newsletter). Je partage ce qui marche, ce qui casse et ce que j'apprends.

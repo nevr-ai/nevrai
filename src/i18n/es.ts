@@ -106,6 +106,13 @@ export default {
     built: 'Creado por Nevr',
     based: 'Basado en Georgia',
   },
+  blog: {
+    title: 'Blog — nevrai',
+    subtitle: 'Construyendo en publico. Lecciones de lanzar productos de IA en solitario.',
+    backToBlog: 'Volver al blog',
+    readMore: 'Leer mas',
+    minRead: 'min de lectura',
+  },
   common: {
     live: 'LIVE',
     launching: 'LAUNCHING',

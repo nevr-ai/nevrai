@@ -106,6 +106,13 @@ export default {
     built: 'Built by Nevr',
     based: 'Based in Georgia',
   },
+  blog: {
+    title: 'Blog — nevrai',
+    subtitle: 'Building in public. Lessons from shipping AI products solo.',
+    backToBlog: 'Back to blog',
+    readMore: 'Read more',
+    minRead: 'min read',
+  },
   common: {
     live: 'LIVE',
     launching: 'LAUNCHING',
