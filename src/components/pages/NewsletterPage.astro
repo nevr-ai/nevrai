@@ -10,7 +10,7 @@ interface Props {
 const { lang = 'en' } = Astro.props;
 const t = getTranslation(lang);
 ---
-<BaseLayout title={t.newsletter.title} description={t.newsletter.description} lang={lang}>
+<BaseLayout title={t.newsletter.title} description={t.newsletter.description} lang={lang} pagePath="/newsletter">
   <h1 class="text-sm mb-2 text-(--color-text-dim)">{t.newsletter.heading}</h1>
 
   <div class="space-y-6">

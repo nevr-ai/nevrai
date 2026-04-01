@@ -9,7 +9,7 @@ interface Props {
 const { lang = 'en' } = Astro.props;
 const t = getTranslation(lang);
 ---
-<BaseLayout title={t.about.title} description={t.about.description} lang={lang}>
+<BaseLayout title={t.about.title} description={t.about.description} lang={lang} pagePath="/about">
   <h1 class="text-sm mb-2 text-(--color-text-dim)">{t.about.heading}</h1>
 
   <div class="prose text-sm leading-relaxed space-y-4 text-(--color-text)">

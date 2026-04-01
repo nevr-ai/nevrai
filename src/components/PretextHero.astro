@@ -11,46 +11,10 @@ const longText = t.hero.longText;
 ---
 
 <div class="mb-8">
-  <!-- Tagline and subtitle — always visible, not part of pretext animation -->
   <p class="text-lg font-bold mb-1 text-(--color-accent)">{t.hero.line1}</p>
   <p class="text-sm mb-6 text-(--color-text-dim)">{t.hero.line2}</p>
 </div>
 
-<div id="pretext-hero" class="relative" data-text={longText}>
-  <!-- Static fallback text — visible until animation starts -->
-  <div id="pretext-lines" class="text-sm leading-relaxed font-mono whitespace-pre-line text-(--color-text-secondary)">
-    {longText}
-  </div>
-  <!-- Orb overlays -->
-  <div id="pretext-orb-0" class="pretext-orb pointer-events-none absolute rounded-full opacity-0" style="width:100px;height:100px;"></div>
-  <div id="pretext-orb-1" class="pretext-orb pointer-events-none absolute rounded-full opacity-0" style="width:60px;height:60px;"></div>
-  <div id="pretext-orb-2" class="pretext-orb pointer-events-none absolute rounded-full opacity-0" style="width:40px;height:40px;"></div>
-  <!-- Pretext-rendered text (hidden until animation starts) -->
-  <div id="pretext-canvas" class="absolute inset-0 text-sm font-mono" style="display:none;"></div>
+<div class="text-sm leading-relaxed whitespace-pre-line text-(--color-text-dim)">
+  {longText}
 </div>
-
-<style>
-  .pretext-orb {
-    filter: none;
-    z-index: 2;
-    transition: opacity 0.6s ease;
-    border: 2px solid var(--color-accent);
-    box-shadow: 0 0 20px var(--color-accent), 0 0 40px var(--color-accent);
-  }
-  #pretext-canvas {
-    z-index: 0;
-  }
-  #pretext-canvas span {
-    position: absolute;
-    white-space: pre;
-    color: var(--color-text-secondary, var(--color-accent));
-  }
-
-  @media (max-width: 640px) {
-    .pretext-orb {
-      filter: blur(12px);
-    }
-  }
-</style>
-
-<script src="../scripts/pretext-animation.ts"></script>

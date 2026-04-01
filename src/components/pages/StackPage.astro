@@ -37,7 +37,7 @@ const totalSaved = savings.reduce((sum, s) => {
   return sum + (match ? parseInt(match[1]) : 0);
 }, 0);
 ---
-<BaseLayout title={t.stack.title} description={t.stack.description} lang={lang}>
+<BaseLayout title={t.stack.title} description={t.stack.description} lang={lang} pagePath="/stack">
   <h1 class="text-sm mb-2 text-(--color-text-dim)">{t.stack.heading}</h1>
   <p class="text-sm text-(--color-text-dim) mb-8">{t.stack.subtitle}</p>
 
