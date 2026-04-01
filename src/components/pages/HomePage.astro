@@ -60,6 +60,22 @@ const products = [
     status: 'BUILT' as const,
     stack: ['Python', 'DeepSeek R1', 'Docker'],
   },
+  {
+    name: 'DIYCalc',
+    tagline: t.products.taglines.diycalc,
+    url: 'https://diycalc.co',
+    status: 'LIVE' as const,
+    stack: ['Astro', 'Tailwind', 'MDX'],
+    metric: t.products.metrics.diycalc,
+  },
+  {
+    name: 'FitCalc',
+    tagline: t.products.taglines.fitcalc,
+    url: 'https://fitcalc.co',
+    status: 'LIVE' as const,
+    stack: ['Astro', 'Tailwind', 'MDX'],
+    metric: t.products.metrics.fitcalc,
+  },
 ];
 
 const linkPrefix = lang === 'en' ? '' : `/${lang}`;

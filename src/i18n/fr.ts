@@ -38,6 +38,10 @@ export default {
       toolsitesLong: '199 pages SEO programmatiques sur 5 domaines de niche. Contenu genere par IA avec edition humaine.',
       openclaw: 'Factory d\'agents financiers IA',
       openclawLong: 'Factory d\'agents financiers IA. 5 agents specialises pour l\'analyse et les rapports financiers.',
+      diycalc: 'Calculateurs gratuits de construction et materiaux',
+      diycalcLong: 'Calculateurs gratuits pour beton, paillis, gravier, peinture, carrelage — avec comptage de sacs, estimations de couts et guides d\'achat.',
+      fitcalc: 'Calculateurs gratuits de fitness et sante',
+      fitcalcLong: 'TDEE, IMC, masse grasse, macros, calories — formules scientifiques avec recommandations personnalisees.',
     },
     metrics: {
       coffeebot: '82 profils de cafe generes',
@@ -45,6 +49,8 @@ export default {
       aicpo: '43 artefacts avec le framework Product DNA',
       toolsites: '199 pages sur 5 domaines',
       openclaw: '5 agents, deployes sur 2 machines',
+      diycalc: '30+ calculateurs',
+      fitcalc: '40+ calculateurs',
     },
   },
   stack: {

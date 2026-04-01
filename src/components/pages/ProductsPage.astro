@@ -56,6 +56,22 @@ const products = [
     stack: ['Python', 'DeepSeek R1-0528', 'Docker', 'SQLite'],
     metric: t.products.metrics.openclaw,
   },
+  {
+    name: 'DIYCalc',
+    tagline: t.products.taglines.diycalcLong,
+    url: 'https://diycalc.co',
+    status: 'LIVE' as const,
+    stack: ['Astro', 'Tailwind', 'MDX', 'Cloudflare Pages'],
+    metric: t.products.metrics.diycalc,
+  },
+  {
+    name: 'FitCalc',
+    tagline: t.products.taglines.fitcalcLong,
+    url: 'https://fitcalc.co',
+    status: 'LIVE' as const,
+    stack: ['Astro', 'Tailwind', 'MDX', 'Cloudflare Pages'],
+    metric: t.products.metrics.fitcalc,
+  },
 ];
 ---
 <BaseLayout title={t.products.title} description={t.products.description} lang={lang} pagePath="/products">

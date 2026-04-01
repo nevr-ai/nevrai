@@ -38,6 +38,10 @@ export default {
       toolsitesLong: '199 programmatic SEO pages across 5 niche domains. AI-generated content with human editing.',
       openclaw: 'AI finance agent factory',
       openclawLong: 'AI finance agent factory. 5 specialized agents for financial analysis and reporting.',
+      diycalc: 'Free construction & material calculators',
+      diycalcLong: 'Free calculators for concrete, mulch, gravel, paint, tile — with bag counts, cost estimates, and buying guides.',
+      fitcalc: 'Free fitness & health calculators',
+      fitcalcLong: 'TDEE, BMI, body fat, macro, calorie calculators — science-backed formulas with personalized recommendations.',
     },
     metrics: {
       coffeebot: '82 coffee profiles generated',
@@ -45,6 +49,8 @@ export default {
       aicpo: '43 artifacts powered by Product DNA framework',
       toolsites: '199 pages across 5 domains',
       openclaw: '5 agents, deployed on 2 machines',
+      diycalc: '30+ calculators',
+      fitcalc: '40+ calculators',
     },
   },
   stack: {

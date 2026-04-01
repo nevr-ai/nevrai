@@ -37,7 +37,11 @@ export default {
       toolsites: '199 programmatische SEO-Seiten',
       toolsitesLong: '199 programmatische SEO-Seiten auf 5 Nischen-Domains. KI-generierter Content mit menschlicher Bearbeitung.',
       openclaw: 'KI-Finanzagenten-Factory',
-      openclawLong: 'KI-Finanzagenten-Factory. 5 spezialisierte Agenten f\u00fcr Finanzanalyse und Berichterstattung.',
+      openclawLong: 'KI-Finanzagenten-Factory. 5 spezialisierte Agenten für Finanzanalyse und Berichterstattung.',
+      diycalc: 'Kostenlose Bau- & Materialrechner',
+      diycalcLong: 'Kostenlose Rechner für Beton, Mulch, Kies, Farbe, Fliesen — mit Sackmengen, Kostenschätzungen und Einkaufsführern.',
+      fitcalc: 'Kostenlose Fitness- & Gesundheitsrechner',
+      fitcalcLong: 'TDEE, BMI, Körperfett, Makros, Kalorienrechner — wissenschaftlich fundierte Formeln mit personalisierten Empfehlungen.',
     },
     metrics: {
       coffeebot: '82 Kaffeeprofile generiert',
@@ -45,6 +49,8 @@ export default {
       aicpo: '43 Artefakte mit Product DNA Framework',
       toolsites: '199 Seiten auf 5 Domains',
       openclaw: '5 Agenten, auf 2 Maschinen deployed',
+      diycalc: '30+ Rechner',
+      fitcalc: '40+ Rechner',
     },
   },
   stack: {
