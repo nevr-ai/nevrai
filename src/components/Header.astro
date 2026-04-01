@@ -5,9 +5,10 @@ import { getTranslation, type Lang } from '../i18n/index';
 
 interface Props {
   lang?: Lang;
+  hideLanguageSwitcher?: boolean;
 }
 
-const { lang = 'en' } = Astro.props;
+const { lang = 'en', hideLanguageSwitcher = false } = Astro.props;
 const t = getTranslation(lang);
 const prefix = lang === 'en' ? '' : `/${lang}`;
 
@@ -41,7 +42,7 @@ const homePath = lang === 'en' ? '/' : `/${lang}`;
     ))}
   </nav>
   <div class="flex items-center gap-3">
-    <LanguageSwitcher lang={lang} currentPath={Astro.url.pathname} />
+    {!hideLanguageSwitcher && <LanguageSwitcher lang={lang} currentPath={Astro.url.pathname} />}
     <ThemeToggle />
     <!-- Mobile menu button -->
     <button

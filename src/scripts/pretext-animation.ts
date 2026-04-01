@@ -108,9 +108,7 @@ function initPretextAnimation() {
       globalY += lineHeight * 0.5;
     }
 
-    const totalHeight = Math.max(globalY, staticLines!.scrollHeight);
-    canvas!.style.height = `${totalHeight}px`;
-    container!.style.minHeight = `${totalHeight}px`;
+    canvas!.style.height = `${fixedHeight}px`;
   }
 
   function sinePathPosition(t: number) {
@@ -137,8 +135,10 @@ function initPretextAnimation() {
 
     const containerWidth = container!.clientWidth;
     const containerHeight = staticLines!.scrollHeight;
+    const fixedHeight = containerHeight + 40; // extra padding so text never overflows
 
-    container!.style.minHeight = `${containerHeight}px`;
+    container!.style.height = `${fixedHeight}px`;
+    container!.style.overflow = 'hidden';
     canvas!.style.display = 'block';
     staticLines!.style.visibility = 'hidden';
 

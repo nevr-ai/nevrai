@@ -6,7 +6,7 @@ import { getCollection } from 'astro:content';
 const posts = (await getCollection('blog'))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 ---
-<BaseLayout title="Blog — nevrai" description="Writing about building AI products solo with AI agents.">
+<BaseLayout title="Blog — nevrai" description="Writing about building AI products solo with AI agents." hideLanguageSwitcher={true}>
   <h1 class="text-sm mb-2 text-(--color-text-dim)">## Blog</h1>
   <p class="text-sm text-(--color-text-dim) mb-8">Building in public. Lessons from shipping AI products solo.</p>
 

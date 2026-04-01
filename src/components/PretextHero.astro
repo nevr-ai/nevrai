@@ -31,9 +31,11 @@ const longText = t.hero.longText;
 
 <style>
   .pretext-orb {
-    filter: blur(8px);
-    z-index: 1;
+    filter: none;
+    z-index: 2;
     transition: opacity 0.6s ease;
+    border: 2px solid var(--color-accent);
+    box-shadow: 0 0 20px var(--color-accent), 0 0 40px var(--color-accent);
   }
   #pretext-canvas {
     z-index: 0;

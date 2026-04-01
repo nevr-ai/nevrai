@@ -8,9 +8,10 @@ interface Props {
   title: string;
   description?: string;
   lang?: Lang;
+  hideLanguageSwitcher?: boolean;
 }
 
-const { title, description = 'Solo maker building AI products with AI agents. 6 products, 0 employees, $15/mo infra.', lang = 'en' } = Astro.props;
+const { title, description = 'Solo maker building AI products with AI agents. 6 products, 0 employees, $15/mo infra.', lang = 'en', hideLanguageSwitcher = false } = Astro.props;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const basePath = getPathWithoutLocale(Astro.url);
 const langs = getLangs();
@@ -48,7 +49,7 @@ const langs = getLangs();
   </script>
 </head>
 <body class="min-h-screen bg-(--color-bg) text-(--color-text)">
-  <Header lang={lang} />
+  <Header lang={lang} hideLanguageSwitcher={hideLanguageSwitcher} />
   <main class="max-w-3xl mx-auto px-4 sm:px-6 py-12">
     <slot />
   </main>
