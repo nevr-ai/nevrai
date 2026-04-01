@@ -41,9 +41,9 @@ function initPretextAnimation() {
   function getOrbGradient(opacity: number): string {
     const isLight = document.documentElement.classList.contains('light');
     if (isLight) {
-      return `radial-gradient(circle, rgba(59,130,246,${opacity}) 0%, rgba(59,130,246,0) 70%)`;
+      return `radial-gradient(circle, rgba(59,130,246,${opacity * 1.5}) 0%, rgba(59,130,246,${opacity * 0.3}) 60%, rgba(59,130,246,0) 80%)`;
     }
-    return `radial-gradient(circle, rgba(34,197,94,${opacity}) 0%, rgba(34,197,94,0) 70%)`;
+    return `radial-gradient(circle, rgba(34,197,94,${opacity * 1.5}) 0%, rgba(34,197,94,${opacity * 0.3}) 60%, rgba(34,197,94,0) 80%)`;
   }
 
   function layoutText(obstacles: typeof orbPositions, containerWidth: number) {
@@ -80,11 +80,11 @@ function initPretextAnimation() {
               const orbRight = obs.x + dx;
 
               if (orbLeft <= containerWidth * 0.5) {
-                const newLineX = Math.max(lineX, orbRight + 8);
+                const newLineX = Math.max(lineX, orbRight + 30);
                 lineX = newLineX;
                 maxWidth = containerWidth - lineX;
               } else {
-                maxWidth = Math.min(maxWidth, Math.max(40, orbLeft - 8) - lineX);
+                maxWidth = Math.min(maxWidth, Math.max(40, orbLeft - 30) - lineX);
               }
             }
           }
@@ -168,7 +168,7 @@ function initPretextAnimation() {
         orbPositions[i].active = true;
         const fadeIn = Math.min((elapsed - cfg.delay) / 1000, 1);
         const opacity = 0.3 + fadeIn * 0.3;
-        orbEl.style.opacity = String(fadeIn * 0.8);
+        orbEl.style.opacity = String(fadeIn * 1.0);
         orbEl.style.background = getOrbGradient(opacity);
 
         const t = (elapsed - cfg.delay) * cfg.speed;
