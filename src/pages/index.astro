@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import ProductCard from '../components/ProductCard.astro';
 import BlogPostCard from '../components/BlogPostCard.astro';
 import Newsletter from '../components/Newsletter.astro';
+import PretextHero from '../components/PretextHero.astro';
 import { getCollection } from 'astro:content';
 
 const posts = (await getCollection('blog'))
@@ -55,11 +56,7 @@ const products = [
 ---
 <BaseLayout title="nevrai — Solo Maker Building AI Products">
   <section class="mb-16">
-    <div class="text-sm text-(--color-text-dim) leading-relaxed space-y-1 font-mono">
-      <p class="text-(--color-accent)">&gt; I build AI products solo.</p>
-      <p class="text-(--color-accent)">&gt; 6 products. 0 employees. $15/mo infra.</p>
-      <p class="text-(--color-accent)">&gt; Powered by Claude Code + custom AI agent factory.</p>
-    </div>
+    <PretextHero />
   </section>
 
   <section class="mb-16">

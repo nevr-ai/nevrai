@@ -1,0 +1,253 @@
+---
+// PretextHero — text-wrap animation using @chenglou/pretext
+// Orb floats through hero text, text reflows around it at 60fps
+---
+
+<div id="pretext-hero" class="relative">
+  <div id="pretext-lines" class="text-sm leading-relaxed space-y-1 font-mono">
+    <p class="text-(--color-accent)">&gt; I build AI products solo.</p>
+    <p class="text-(--color-accent)">&gt; 6 products. 0 employees. $15/mo infra.</p>
+    <p class="text-(--color-accent)">&gt; Powered by Claude Code + custom AI agent factory.</p>
+  </div>
+  <!-- Orb overlay -->
+  <div id="pretext-orb" class="pointer-events-none absolute rounded-full opacity-0" style="width:80px;height:80px;transition:opacity 0.6s ease;"></div>
+  <!-- Pretext-rendered text (hidden until animation starts) -->
+  <div id="pretext-canvas" class="absolute inset-0 text-sm font-mono" style="display:none;"></div>
+</div>
+
+<style>
+  #pretext-orb {
+    filter: blur(20px);
+    z-index: 1;
+  }
+  #pretext-canvas {
+    z-index: 0;
+  }
+  #pretext-canvas span {
+    position: absolute;
+    white-space: pre;
+    color: var(--color-accent);
+  }
+
+  @media (max-width: 640px) {
+    #pretext-orb {
+      width: 40px !important;
+      height: 40px !important;
+      filter: blur(12px);
+    }
+  }
+</style>
+
+<script>
+  async function initPretextAnimation() {
+    // Bail on reduced motion preference
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const container = document.getElementById('pretext-hero');
+    const staticLines = document.getElementById('pretext-lines');
+    const orb = document.getElementById('pretext-orb');
+    const canvas = document.getElementById('pretext-canvas');
+    if (!container || !staticLines || !orb || !canvas) return;
+
+    // Dynamically import pretext
+    let pretext: typeof import('@chenglou/pretext');
+    try {
+      pretext = await import('@chenglou/pretext');
+    } catch {
+      // Graceful fallback — static text stays visible
+      return;
+    }
+
+    const heroText = '> I build AI products solo.\n> 6 products. 0 employees. $15/mo infra.\n> Powered by Claude Code + custom AI agent factory.';
+
+    // Detect font from computed style
+    const computedStyle = getComputedStyle(staticLines);
+    const fontSize = computedStyle.fontSize || '14px';
+    const fontFamily = computedStyle.fontFamily || 'monospace';
+    const font = `${fontSize} ${fontFamily}`;
+    const lineHeight = parseFloat(computedStyle.lineHeight) || parseFloat(fontSize) * 1.625;
+
+    // Prepare text once
+    const prepared = pretext.prepareWithSegments(heroText, font);
+
+    // Orb config — responsive
+    const isMobile = window.innerWidth < 640;
+    const orbSize = isMobile ? 40 : 80;
+    const orbRadius = orbSize / 2;
+    const animDuration = isMobile ? 5000 : 4000; // ms
+    const restInterval = 30000; // ms between animations
+
+    // Theme-aware orb color
+    function getOrbColor(): string {
+      const isLight = document.documentElement.classList.contains('light');
+      return isLight
+        ? 'radial-gradient(circle, rgba(59,130,246,0.6) 0%, rgba(59,130,246,0) 70%)'
+        : 'radial-gradient(circle, rgba(34,197,94,0.5) 0%, rgba(34,197,94,0) 70%)';
+    }
+
+    function layoutText(orbX: number, orbY: number, orbR: number, containerWidth: number): void {
+      canvas.innerHTML = '';
+
+      // Split by newlines — each is a separate paragraph
+      const paragraphs = heroText.split('\n');
+      let globalY = 0;
+
+      for (const para of paragraphs) {
+        const prepared = pretext.prepareWithSegments(para, font);
+        let cursor: import('@chenglou/pretext').LayoutCursor = { segmentIndex: 0, graphemeIndex: 0 };
+
+        while (true) {
+          // Calculate available width for this line considering the orb
+          let lineX = 0;
+          let maxWidth = containerWidth;
+
+          // Check if the orb overlaps this line vertically
+          const lineTop = globalY;
+          const lineBottom = globalY + lineHeight;
+          const orbTop = orbY - orbR;
+          const orbBottom = orbY + orbR;
+
+          if (lineBottom > orbTop && lineTop < orbBottom) {
+            // Orb overlaps this line — calculate horizontal exclusion
+            // Distance from orb center to this line's vertical midpoint
+            const lineMid = (lineTop + lineBottom) / 2;
+            const dy = Math.abs(orbY - lineMid);
+            if (dy < orbR) {
+              const dx = Math.sqrt(orbR * orbR - dy * dy);
+              const orbLeft = orbX - dx;
+              const orbRight = orbX + dx;
+
+              // Decide whether to push text right or shrink from right
+              if (orbLeft <= containerWidth * 0.5) {
+                // Orb is on the left side — push text right
+                lineX = Math.max(0, orbRight + 8);
+                maxWidth = containerWidth - lineX;
+              } else {
+                // Orb is on the right side — shrink line width
+                maxWidth = Math.max(40, orbLeft - 8);
+              }
+            }
+          }
+
+          if (maxWidth < 40) maxWidth = 40;
+
+          const line = pretext.layoutNextLine(prepared, cursor, maxWidth);
+          if (line === null) break;
+
+          const span = document.createElement('span');
+          span.textContent = line.text;
+          span.style.left = `${lineX}px`;
+          span.style.top = `${globalY}px`;
+          canvas.appendChild(span);
+
+          cursor = line.end;
+          globalY += lineHeight;
+        }
+
+        // Small gap between paragraphs
+        globalY += 4;
+      }
+    }
+
+    let animFrameId: number | null = null;
+    let isAnimating = false;
+
+    function runAnimation() {
+      if (isAnimating) return;
+      isAnimating = true;
+
+      const containerWidth = container.clientWidth;
+      const containerHeight = staticLines.clientHeight;
+
+      // Match canvas size to static text
+      canvas.style.height = `${containerHeight}px`;
+      container.style.height = `${containerHeight}px`;
+
+      // Show canvas, hide static
+      canvas.style.display = 'block';
+      staticLines.style.visibility = 'hidden';
+
+      // Set orb color
+      orb.style.background = getOrbColor();
+      orb.style.width = `${orbSize}px`;
+      orb.style.height = `${orbSize}px`;
+
+      // Initial layout without orb
+      layoutText(-200, -200, 0, containerWidth);
+
+      // Fade in orb after a beat
+      requestAnimationFrame(() => {
+        orb.style.opacity = '0.8';
+      });
+
+      const startTime = performance.now();
+
+      function animate(now: number) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / animDuration, 1);
+
+        // Sine-wave path across the text
+        const orbX = -orbSize + (containerWidth + orbSize * 2) * progress;
+        const orbY = (containerHeight / 2) + Math.sin(progress * Math.PI * 2) * (containerHeight * 0.25);
+
+        // Position the orb element
+        orb.style.left = `${orbX - orbRadius}px`;
+        orb.style.top = `${orbY - orbRadius}px`;
+
+        // Reflow text
+        layoutText(orbX, orbY, orbRadius + 12, containerWidth);
+
+        if (progress < 1) {
+          animFrameId = requestAnimationFrame(animate);
+        } else {
+          // Animation done — fade out orb, restore static text
+          orb.style.opacity = '0';
+          setTimeout(() => {
+            canvas.style.display = 'none';
+            staticLines.style.visibility = 'visible';
+            container.style.height = '';
+            isAnimating = false;
+          }, 600);
+        }
+      }
+
+      animFrameId = requestAnimationFrame(animate);
+    }
+
+    // Trigger: after 5s or on hover (whichever first)
+    let triggered = false;
+
+    function triggerOnce() {
+      if (triggered) return;
+      triggered = true;
+      runAnimation();
+
+      // Set up repeating cycle
+      setInterval(() => {
+        triggered = false;
+        runAnimation();
+        triggered = true;
+      }, restInterval);
+    }
+
+    const timer = setTimeout(triggerOnce, 5000);
+    container.addEventListener('mouseenter', () => {
+      clearTimeout(timer);
+      triggerOnce();
+    });
+
+    // Cleanup on navigation (Astro view transitions)
+    document.addEventListener('astro:before-swap', () => {
+      if (animFrameId) cancelAnimationFrame(animFrameId);
+      clearTimeout(timer);
+    });
+  }
+
+  // Run after DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPretextAnimation);
+  } else {
+    // Defer slightly to not block initial paint
+    setTimeout(initPretextAnimation, 100);
+  }
+</script>
