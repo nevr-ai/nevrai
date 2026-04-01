@@ -1,0 +1,62 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProductCard from '../components/ProductCard.astro';
+
+const products = [
+  {
+    name: 'CoffeeBot',
+    tagline: 'AI coffee recommendation quiz. Answer 5 questions, get your perfect brew.',
+    url: 'https://coffeebot.app',
+    status: 'LIVE' as const,
+    stack: ['Astro', 'Tailwind', 'Groq', 'Cloudflare Pages'],
+    metric: '82 coffee profiles generated',
+  },
+  {
+    name: 'InkCloak',
+    tagline: 'AI text detector + humanizer. DeBERTa-based detection with adversarial paraphrasing.',
+    url: 'https://inkcloak.com',
+    status: 'LAUNCHING' as const,
+    stack: ['Next.js', 'DeBERTa', 'RunPod', 'Python'],
+    metric: 'AUROC 0.9999 detection accuracy',
+  },
+  {
+    name: 'AICPO',
+    tagline: 'Cursor for product research. Three-panel workspace: chat, extract facts, generate 43 artifacts.',
+    url: 'https://aicpo.app',
+    status: 'BUILDING' as const,
+    stack: ['Rails 8', 'SQLite', 'Groq', 'ActionCable'],
+    metric: '43 artifacts, 19 AJTBD data points',
+  },
+  {
+    name: 'Scrutly',
+    tagline: 'Free AI text detector. Simple, fast, no signup required.',
+    url: 'https://scrutly.ai',
+    status: 'PLANNED' as const,
+    stack: ['Astro', 'DeBERTa', 'Cloudflare Workers'],
+  },
+  {
+    name: 'Tool Sites',
+    tagline: '199 programmatic SEO pages across 5 niche domains. AI-generated content with human editing.',
+    status: 'LIVE' as const,
+    stack: ['Astro', 'Tailwind', 'MDX', 'Cloudflare Pages'],
+    metric: '199 pages across 5 domains',
+  },
+  {
+    name: 'OpenClaw Finance',
+    tagline: 'AI finance agent factory. 5 specialized agents for financial analysis and reporting.',
+    status: 'BUILT' as const,
+    stack: ['Python', 'DeepSeek R1-0528', 'Docker', 'SQLite'],
+    metric: '5 agents, deployed on 2 machines',
+  },
+];
+---
+<BaseLayout title="Products — nevrai" description="6 AI products built solo with AI agents.">
+  <h1 class="text-sm mb-2 text-(--color-text-dim)">## Products</h1>
+  <p class="text-sm text-(--color-text-dim) mb-8">6 products. All built solo with Claude Code and a custom agent factory.</p>
+
+  <div class="grid grid-cols-1 gap-3">
+    {products.map(product => (
+      <ProductCard {...product} />
+    ))}
+  </div>
+</BaseLayout>

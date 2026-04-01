@@ -1,0 +1,45 @@
+---
+interface Props {
+  name: string;
+  tagline: string;
+  url?: string;
+  status: 'LIVE' | 'LAUNCHING' | 'BUILDING' | 'PLANNED' | 'BUILT';
+  stack?: string[];
+  metric?: string;
+}
+
+const { name, tagline, url, status, stack = [], metric } = Astro.props;
+
+const badgeClass = {
+  LIVE: 'badge-live',
+  LAUNCHING: 'badge-launching',
+  BUILDING: 'badge-building',
+  PLANNED: 'badge-planned',
+  BUILT: 'badge-built',
+}[status];
+---
+<div class="card border border-(--color-border) p-4 sm:p-5 hover:border-(--color-accent) transition-colors bg-(--color-bg-card)">
+  <div class="flex items-start justify-between gap-2 mb-2">
+    <h3 class="text-base font-semibold m-0 !text-inherit !normal-case !tracking-normal">
+      {url ? (
+        <a href={url} target="_blank" rel="noopener" class="no-underline text-(--color-text) hover:text-(--color-accent)">{name}</a>
+      ) : (
+        name
+      )}
+    </h3>
+    <span class={`badge ${badgeClass}`}>{status}</span>
+  </div>
+  <p class="text-sm text-(--color-text-dim) mb-3 leading-relaxed">{tagline}</p>
+  {stack.length > 0 && (
+    <div class="flex flex-wrap gap-1.5 mb-2">
+      {stack.map(tech => (
+        <span class="text-[0.625rem] px-1.5 py-0.5 border border-(--color-border) rounded text-(--color-text-dim) font-mono">
+          {tech}
+        </span>
+      ))}
+    </div>
+  )}
+  {metric && (
+    <p class="text-xs text-(--color-accent) mt-2 mb-0 font-mono">{metric}</p>
+  )}
+</div>

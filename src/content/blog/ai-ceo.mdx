@@ -1,0 +1,145 @@
+---
+title: "My AI CEO Runs While I Sleep"
+description: "Inside Factory OS: a custom AI agent orchestration system with 15 roles that builds, tests, and deploys code autonomously."
+date: 2026-03-20
+readingTime: "8 min read"
+---
+
+At 2am last Tuesday, while I was asleep, my AI agent factory deployed a bug fix, ran the test suite, committed the changes with a descriptive message, and sent me a Telegram notification. When I woke up, the fix was live.
+
+This is not hypothetical. This is Factory OS — my custom AI agent orchestration system built on Claude Code. Here is how it works and what it can actually do.
+
+## What Factory OS Is
+
+Factory OS is a system of 15 specialized AI agent roles, coordinated by a CEO/orchestrator agent. Each role has:
+
+- A **prompt file** with domain knowledge, rules, and constraints
+- A **model assignment** (which LLM to use for this role)
+- **Permission boundaries** (what the agent can and cannot do)
+- **Quality gates** (checks that must pass before work is accepted)
+
+The agents run in Claude Code sessions. The CEO agent reads task descriptions, breaks them into subtasks, spawns specialist agents, reviews their output, and manages the pipeline.
+
+## The 15 Roles
+
+| Role | What It Does | Model |
+|------|-------------|-------|
+| CEO/Orchestrator | Delegates tasks, reviews output, manages pipeline | Claude Sonnet |
+| Builder | Writes application code (Rails, Astro, Next.js) | Claude Opus |
+| QA Tester | Browser-level testing via Chrome DevTools MCP | Claude Sonnet |
+| DevOps | Deployment, infrastructure, server management | Claude Sonnet |
+| Product Researcher | Market analysis, competitor research, JTBD analysis | Claude Sonnet |
+| SEO Specialist | Content optimization, keyword research, technical SEO | Claude Sonnet |
+| Landing Builder | Landing pages with conversion-focused copy | Claude Sonnet |
+| CTO | Architecture decisions, tech stack planning | Claude Opus |
+| Senior Ruby | Rails-specific development with strict coding rules | Claude Opus |
+| Content Writer | Blog posts, documentation, marketing copy | Claude Sonnet |
+| Data Analyst | Analytics interpretation, funnel analysis | Claude Sonnet |
+| Designer | UI/UX decisions, component design | Claude Sonnet |
+| Security Auditor | Code review for vulnerabilities | Claude Sonnet |
+| Performance Engineer | Optimization, caching, load testing | Claude Sonnet |
+| Transcriber | Audio extraction and speech-to-text | Claude Sonnet |
+
+## The Rules That Make It Work
+
+### Rule 1: The CEO Never Writes Code
+
+This is the most important rule. The CEO agent delegates everything. It never opens a file and edits it. It never runs tests directly. It spawns a Builder or QA agent for that.
+
+Why? Because when a single agent does everything, it loses context, makes sloppy mistakes, and produces inconsistent code. Specialization creates accountability.
+
+### Rule 2: Every Agent Reads the Rules First
+
+Before doing any work, every spawned agent reads:
+
+1. The universal agent preamble (shared rules)
+2. Its role-specific prompt file
+3. The project's CLAUDE.md (architecture notes, conventions, key files)
+
+This is non-negotiable. Even if the agent "already knows" the codebase, it reads the rules. Because after context compaction (when the conversation gets too long), the agent forgets everything. The rules are the persistent memory.
+
+### Rule 3: Quality Gates Before Commit
+
+No code gets committed without passing:
+
+1. Smoke test (`ruby bin/rails runner test/smoke_test.rb`)
+2. Consistency check (no broken imports, no orphaned files)
+3. Documentation update (CLAUDE.md stays current)
+4. Rollback plan (can we undo this safely?)
+
+If any gate fails, the agent fixes the issue and re-runs. It does not skip gates.
+
+### Rule 4: Strict Permission Boundaries
+
+The Builder cannot deploy to production. The DevOps cannot modify application logic. The QA Tester cannot change source code. Each agent operates within its boundary.
+
+This prevents the most dangerous failure mode: an agent "helping" by doing something outside its expertise.
+
+## CLAUDE.md: The Operating System
+
+Every project has a CLAUDE.md file in its root. This is not documentation — it is the operating system for agents working on that project.
+
+AICPO's CLAUDE.md is over 500 lines. It contains:
+
+- Architecture overview (framework, database, hosting)
+- Data model with all tables and columns
+- API endpoints with request/response formats
+- Service object map (what each service does)
+- Pipeline diagrams (data flow through the system)
+- Key files list (so agents know where to look)
+- Dev commands (how to run the server, tests, migrations)
+- Release gate (mandatory checklist before every commit)
+
+When a new agent spawns and reads CLAUDE.md, it understands the entire project in seconds. No onboarding. No "can you walk me through the codebase?" Just read the file and start working.
+
+## A Real Example
+
+Here is what happened yesterday. I wanted to add PDF export to AICPO's artifact system.
+
+1. I told the CEO: "Add PDF export for artifacts. Public link, no login required, print-ready."
+2. The CEO created a task breakdown:
+   - Database: `artifact_pdf_links` table with token, document_id, content snapshot
+   - Model: `ArtifactPdfLink` with auto-generated token
+   - Controller: Public route `GET /pdf/:token`, no authentication
+   - Layout: Minimal print-ready HTML (dark on screen, clean B&W on print)
+   - API: CRUD endpoints for creating and managing links
+3. The CEO spawned a Builder agent with the task table, acceptance criteria, and key file references.
+4. The Builder wrote the migration, model, controller, views, and API endpoints. Then ran the smoke test.
+5. Tests passed. The Builder committed with a descriptive message.
+6. I reviewed the diff, approved, and deployed.
+
+Total time: 25 minutes. Total manual effort: reading the diff and approving.
+
+## What AI Agents Cannot Do
+
+I am not going to pretend this is magic. Here is what agents still struggle with:
+
+**Product decisions.** Agents can research, analyze, and present options. But "should we build this feature?" is a human judgment call. The CEO agent delegates, it does not strategize.
+
+**Visual design.** Agents can implement a design system and follow patterns. But creating an original visual identity requires human taste. I specify the aesthetic, agents implement it.
+
+**Novel architecture.** For well-understood patterns (CRUD, API, auth), agents are excellent. For genuinely novel architecture, they need significant guidance. They are better at executing known patterns than inventing new ones.
+
+**Debugging production issues.** Agents can read logs and suggest fixes. But real production debugging requires understanding user behavior, infrastructure state, and business context that agents do not have.
+
+**Knowing when to stop.** Agents will keep "improving" code forever if you let them. Gold-plating is their default mode. You need explicit acceptance criteria and stop conditions.
+
+## The Economics
+
+Claude Code costs roughly $75/M output tokens for Opus. A typical feature that would take a human developer 4-8 hours costs about $5-15 in tokens.
+
+Compare that to a developer's time at $50-150/hour. Even at the high end of token costs, AI agents are 10-30x cheaper than human developers for implementation work.
+
+The catch: you still need a human for product direction, design decisions, and quality review. AI agents are amplifiers, not replacements.
+
+## What I Am Building Next
+
+Factory OS itself is evolving. Current priorities:
+
+1. **Better context management.** Long sessions degrade quality. I am experimenting with structured memory files that survive context compaction.
+2. **Parallel agent execution.** Currently agents run sequentially. Running Builder + QA in parallel could cut cycle time in half.
+3. **Self-improving prompts.** Agents that analyze their own failures and improve their prompt files automatically.
+
+The future is not 100-person engineering teams. It is solo makers with AI agent factories, shipping products that used to require entire companies.
+
+If you want to follow along, [subscribe to the newsletter](/newsletter). I share what works, what breaks, and what I learn.

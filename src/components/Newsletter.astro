@@ -1,0 +1,23 @@
+---
+// Reusable newsletter signup form
+// TODO: Replace mailto with Loops.so API endpoint when ready
+---
+<div class="border border-(--color-border) p-6 bg-(--color-bg-card) card">
+  <h3 class="text-sm font-semibold mb-2 !normal-case !tracking-normal">Follow the build</h3>
+  <p class="text-sm text-(--color-text-dim) mb-4">One email when I ship something new. No spam. Unsubscribe anytime.</p>
+  <form class="flex flex-col sm:flex-row gap-2" action="mailto:hey@nevrai.com" method="GET">
+    <input
+      type="email"
+      name="subject"
+      placeholder="you@example.com"
+      required
+      class="flex-1 px-3 py-2 text-sm bg-(--color-surface) border border-(--color-border) rounded text-(--color-text) placeholder:text-(--color-text-dim) focus:outline-none focus:border-(--color-accent) font-mono"
+    />
+    <button
+      type="submit"
+      class="px-4 py-2 text-sm font-semibold bg-(--color-accent) text-(--color-bg) rounded hover:opacity-90 transition-opacity cursor-pointer"
+    >
+      Subscribe
+    </button>
+  </form>
+</div>

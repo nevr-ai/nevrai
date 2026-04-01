@@ -1,0 +1,118 @@
+---
+title: "I Built 6 Products in 3 Weeks as a Solo Founder"
+description: "How I shipped 6 AI products with zero employees, $15/month infrastructure, and an AI agent factory that does most of the work."
+date: 2026-03-28
+readingTime: "8 min read"
+---
+
+Three weeks ago I had zero products. Today I have six — live, deployed, and serving users. No team. No funding. No meetings. Just me, a terminal, and a system I call Factory OS.
+
+Here is what I built, how I built it, and what it actually costs to run.
+
+## The Products
+
+### 1. CoffeeBot — coffeebot.app
+
+An AI-powered coffee recommendation quiz. You answer 5 questions about your taste preferences, and it recommends your perfect brew with brewing instructions.
+
+**Tech**: Astro, Tailwind CSS, Groq (Llama 3.3 for recommendations), Cloudflare Pages.
+
+**Why**: I wanted a simple consumer-facing product to test the full pipeline — from idea to deployed product — in under a day. CoffeeBot was the proof that my build system works.
+
+### 2. InkCloak — inkcloak.com
+
+AI text detector and humanizer. The detector uses a fine-tuned DeBERTa model with AUROC 0.9999 accuracy. The humanizer uses adversarial paraphrasing to rewrite AI text so it passes detection.
+
+**Tech**: Next.js, DeBERTa v3 (fine-tuned), RunPod for GPU inference, Python backend.
+
+**Why**: The AI detection market is growing fast, and existing tools are either inaccurate or expensive. InkCloak aims to be both accurate and affordable.
+
+### 3. AICPO — aicpo.app
+
+"Cursor for product research." A three-panel workspace where you chat with an AI product researcher, it extracts facts from your conversation, and generates 43 different product artifacts (business model canvas, competitive analysis, pricing strategy, etc.).
+
+**Tech**: Rails 8, SQLite, Groq for chat, OpenRouter for artifact generation, ActionCable for real-time updates.
+
+**Why**: This is the big one. Product research is painful — scattered across Google Docs, Notion, Miro boards. AICPO consolidates everything into one AI-powered workspace.
+
+### 4. Scrutly — scrutly.ai
+
+A free, fast AI text detector. No signup, no rate limits on basic usage. Uses the same DeBERTa model as InkCloak but wrapped in a simpler, single-purpose interface.
+
+**Tech**: Astro, DeBERTa, Cloudflare Workers.
+
+**Status**: Planned — the detector model is ready from InkCloak, just needs the wrapper site.
+
+### 5. Tool Sites — 5 domains
+
+199 programmatic SEO pages across 5 niche domains. Each page is AI-generated content that has been human-edited, targeting long-tail keywords in specific niches.
+
+**Tech**: Astro, Tailwind, MDX for content, Cloudflare Pages.
+
+**Why**: Passive traffic generation. These sites are designed to rank for specific keywords and drive traffic to the main products.
+
+### 6. OpenClaw Finance
+
+An AI finance agent factory with 5 specialized agents for financial analysis, reporting, and data processing. Built on DeepSeek R1-0528 for reasoning-heavy tasks.
+
+**Tech**: Python, DeepSeek R1-0528, Docker, SQLite.
+
+**Status**: Built and deployed on 2 machines.
+
+## The Cost Breakdown
+
+| Category | Monthly Cost |
+|----------|-------------|
+| Domains (5) | $15 |
+| Hosting (Cloudflare + Vercel) | $0 |
+| Database (Supabase + SQLite) | $0 |
+| LLM inference (Groq) | $0 |
+| Analytics (PostHog) | $0 |
+| Error tracking (Sentry) | $0 |
+| Email (Loops.so) | $0 |
+| **Total** | **$15/mo** |
+
+One-time costs: $150 for a used NVIDIA P100 GPU, $0.49 for a RunPod training session.
+
+## How: Factory OS
+
+The secret is not working faster — it is working differently.
+
+Factory OS is my custom AI agent orchestration system built on top of Claude Code. It has 15 specialized roles:
+
+- **CEO/Orchestrator**: Breaks down features into tasks, delegates to agents, reviews output
+- **Builder**: Writes and tests code
+- **DevOps**: Handles deployment, infrastructure, monitoring
+- **QA Tester**: Browser-level testing via Chrome DevTools
+- **Product Researcher**: Market analysis and competitive intelligence
+- Plus 10 more specialized roles
+
+Each role has its own prompt file with domain knowledge, coding standards, and decision rules. The CEO never writes code directly — it always delegates to the appropriate specialist.
+
+A typical feature takes 15-30 minutes from idea to deployed code:
+
+1. I describe the feature in plain English
+2. The CEO breaks it into tasks
+3. Builder agents write and test the code
+4. QA agent verifies in the browser
+5. DevOps agent deploys
+
+I make the product decisions. The agents do the implementation.
+
+## What I Learned
+
+**Free tiers are underrated.** Most developers jump straight to paid services. But Cloudflare Workers gives you 100K requests/day for free. Groq gives you 14K tokens/minute for free. PostHog gives you 1M events/month for free. You can run real products on this.
+
+**AI agents need structure, not freedom.** Giving an LLM free reign leads to chaos. Each agent in Factory OS has strict rules about what it can and cannot do. The Builder cannot deploy. The DevOps cannot write application code. Constraints make agents reliable.
+
+**Speed compounds.** When you can ship a product in a day, you can test 6 ideas in 3 weeks. Most will fail. But the ones that work are already live and generating data.
+
+**Solo does not mean alone.** I have zero employees, but I have 15 AI agents that work 24/7. The definition of "team" is changing.
+
+## What is Next
+
+InkCloak launches this week. AICPO enters beta in April. The tool sites need SEO optimization and backlink building.
+
+The goal is not to build 100 products. It is to find the 1-2 that have real traction and double down. The others are experiments, learning opportunities, and portfolio pieces.
+
+If you want to follow along, subscribe to the [newsletter](/newsletter). One email per ship. No spam.

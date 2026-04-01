@@ -1,0 +1,145 @@
+---
+title: "The $15/Month Stack"
+description: "Every tool and service I use to run 6 AI products. Total infrastructure cost: $15/month. Here is what works, what breaks, and when to upgrade."
+date: 2026-03-25
+readingTime: "6 min read"
+---
+
+Running 6 products on $15/month sounds like clickbait. It is not. Here is every service I use, what it costs, and — honestly — what breaks.
+
+## The Stack
+
+### Cloudflare Workers + Pages — $0/mo
+
+**What it does**: Hosts static sites (Astro, Next.js export), runs edge functions, handles DNS, provides CDN.
+
+**Free tier**: 100K requests/day, 10ms CPU time per invocation, 100 custom domains.
+
+**What breaks**: The 10ms CPU limit is real. You cannot do heavy computation at the edge. Cold starts are rare but exist. Workers KV has a 1K write/second limit per namespace.
+
+**When to upgrade**: If you need longer execution times or more than 100K daily requests. The $5/mo plan is generous.
+
+### Vercel — $0/mo
+
+**What it does**: Hosts Next.js apps (InkCloak frontend) with serverless functions.
+
+**Free tier**: 100GB bandwidth, 100 hours serverless execution, automatic HTTPS.
+
+**What breaks**: Serverless cold starts on free tier can hit 2-3 seconds. No persistent connections. Build times are limited to 45 minutes.
+
+**When to upgrade**: If you exceed bandwidth or need server-side rendering at scale. Pro is $20/mo.
+
+### Supabase — $0/mo
+
+**What it does**: PostgreSQL database, authentication (Google OAuth, email), row-level security.
+
+**Free tier**: 500MB database, 50K monthly active users, 1GB file storage.
+
+**What breaks**: The 500MB database limit is tight if you store embeddings or large JSON blobs. Free projects pause after 1 week of inactivity.
+
+**When to upgrade**: When your database exceeds 500MB or you need always-on availability. Pro is $25/mo.
+
+### Groq — $0/mo
+
+**What it does**: Ultra-fast LLM inference. I use Llama 3.3 70B for chat and Qwen 2.5 for code generation.
+
+**Free tier**: 14,400 tokens/minute, 30 requests/minute, no daily limit.
+
+**What breaks**: Rate limits hit hard during burst traffic. The 30 req/min limit means you need queuing for concurrent users. Model availability can be spotty — sometimes a model is "unavailable" for hours.
+
+**Workaround**: I use a Cloudflare Worker as a proxy (Groq blocks Russian IPs) and implement automatic fallback to OpenRouter free models.
+
+**When to upgrade**: The $0.27/M token paid tier removes rate limits. Worth it above 50 concurrent users.
+
+### PostHog — $0/mo
+
+**What it does**: Product analytics, session replay, feature flags, A/B testing.
+
+**Free tier**: 1M events/month, 15K session replays, unlimited feature flags.
+
+**What breaks**: Honestly, nothing yet. The free tier is absurdly generous for a solo maker. The main limitation is data retention (1 year on free).
+
+**When to upgrade**: Above 1M events/month. But for 6 small products, I am nowhere near that.
+
+### Loops.so — $0/mo
+
+**What it does**: Email marketing. Drip campaigns, transactional emails, subscriber management.
+
+**Free tier**: 1,000 contacts, basic automation.
+
+**What breaks**: The 1K contact limit is the real constraint. No custom domains on free tier (emails come from loops.so). Limited API access.
+
+**When to upgrade**: When your list exceeds 1K contacts. Starter is $49/mo — steep for a solo maker.
+
+### Sentry — $0/mo
+
+**What it does**: Error monitoring and performance tracking across all products.
+
+**Free tier**: 5K errors/month, 10K performance transactions.
+
+**What breaks**: The free tier lacks good alerting rules. You get email notifications but not Slack/Telegram integration.
+
+**When to upgrade**: The $26/mo team plan adds better alerting and more volume.
+
+### RunPod — pay per use
+
+**What it does**: GPU cloud for ML training and inference. Used for fine-tuning DeBERTa models.
+
+**Cost**: $0.49 for my last training session (spot A100, 20 minutes).
+
+**What breaks**: Spot instances can be preempted mid-training. You need checkpointing. The UI is rough but functional.
+
+### NVIDIA P100 — $150 one-time
+
+**What it does**: Local GPU inference for development and light production workloads.
+
+**What breaks**: It is an old card (Pascal architecture). No bfloat16 support, 16GB VRAM limits model size. Power consumption is high for 24/7 operation.
+
+## What I Saved
+
+If I used typical paid alternatives:
+
+| Service | Paid Alternative | Cost |
+|---------|-----------------|------|
+| Hosting | AWS EC2 + CloudFront | $200/mo |
+| Database | RDS PostgreSQL | $50/mo |
+| LLM API | OpenAI GPT-4 | $100/mo |
+| Analytics | Mixpanel | $100/mo |
+| Email | Mailchimp | $30/mo |
+| Monitoring | Datadog | $50/mo |
+| GPU cloud | Lambda Labs (always-on) | $300/mo |
+| **Total** | | **$830/mo** |
+
+That is $830/month I am not spending. Over a year, that is almost $10K saved.
+
+## The Honest Truth
+
+Free tiers have real limitations:
+
+1. **Rate limits force you to think about architecture.** You cannot just throw requests at an API. You need caching, queuing, and graceful degradation.
+
+2. **Cold starts affect user experience.** First-time visitors to serverless functions wait 2-3 seconds. Returning visitors get sub-second responses.
+
+3. **You are one growth spike away from hitting limits.** If a product goes viral, you need to upgrade within hours. Have your credit card ready.
+
+4. **Debugging is harder.** Free tier logging is minimal. When something breaks at 3am, you are reading Cloudflare Workers logs with no tracing context.
+
+5. **Some free tiers are loss leaders.** They want you to upgrade. Product quality on free tiers can degrade over time as companies focus on paid customers.
+
+## When to Stop Being Cheap
+
+Upgrade when:
+
+- Your product has paying customers (use their money, not yours)
+- Rate limits are causing user-visible errors
+- You are spending more time working around limits than building features
+- Uptime matters (free tiers have no SLA)
+
+Stay free when:
+
+- You are validating an idea
+- Traffic is under 1K daily users
+- You are the only user who notices downtime
+- The product is not generating revenue
+
+The $15/month stack is not a permanent solution. It is a launch strategy. Build cheap, validate fast, upgrade when the money flows.

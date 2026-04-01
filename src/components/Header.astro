@@ -1,0 +1,68 @@
+---
+import ThemeToggle from './ThemeToggle.astro';
+
+const navLinks = [
+  { href: '/products', label: 'Products' },
+  { href: '/stack', label: 'Stack' },
+  { href: '/blog', label: 'Blog' },
+  { href: '/about', label: 'About' },
+];
+
+const currentPath = Astro.url.pathname;
+---
+<header class="max-w-3xl mx-auto px-4 sm:px-6 py-6 flex items-center justify-between">
+  <a href="/" class="text-lg font-semibold tracking-tight no-underline hover:no-underline text-(--color-text) hover:text-(--color-accent)">
+    [nevrai]
+  </a>
+  <nav class="hidden sm:flex items-center gap-6 text-sm">
+    {navLinks.map(link => (
+      <a
+        href={link.href}
+        class:list={[
+          'no-underline transition-colors',
+          currentPath.startsWith(link.href)
+            ? 'text-(--color-accent)'
+            : 'text-(--color-text-dim) hover:text-(--color-accent)',
+        ]}
+      >
+        {link.label}
+      </a>
+    ))}
+  </nav>
+  <div class="flex items-center gap-4">
+    <ThemeToggle />
+    <!-- Mobile menu button -->
+    <button
+      id="mobile-menu-btn"
+      class="sm:hidden text-(--color-text-dim) hover:text-(--color-accent)"
+      aria-label="Toggle menu"
+    >
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M3 5h14M3 10h14M3 15h14" />
+      </svg>
+    </button>
+  </div>
+</header>
+<!-- Mobile nav -->
+<nav id="mobile-menu" class="sm:hidden hidden max-w-3xl mx-auto px-4 pb-4">
+  <div class="flex flex-col gap-3 text-sm border-t border-(--color-border) pt-4">
+    {navLinks.map(link => (
+      <a
+        href={link.href}
+        class:list={[
+          'no-underline',
+          currentPath.startsWith(link.href)
+            ? 'text-(--color-accent)'
+            : 'text-(--color-text-dim) hover:text-(--color-accent)',
+        ]}
+      >
+        {link.label}
+      </a>
+    ))}
+  </div>
+</nav>
+<script is:inline>
+  document.getElementById('mobile-menu-btn').addEventListener('click', function() {
+    document.getElementById('mobile-menu').classList.toggle('hidden');
+  });
+</script>
