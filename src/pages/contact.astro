@@ -10,11 +10,11 @@ import t from '../content/text';
     <div class="border border-(--color-border) p-6 bg-(--color-bg-card) card space-y-3">
       <div class="flex items-center gap-3">
         <span class="text-(--color-text-dim) w-20">Email</span>
-        <a href="mailto:rmn.work@yandex.ru" class="text-(--color-accent)">rmn.work@yandex.ru</a>
+        <a href={`mailto:${t.links.email}`} class="text-(--color-accent)">{t.links.email}</a>
       </div>
       <div class="flex items-center gap-3">
         <span class="text-(--color-text-dim) w-20">Telegram</span>
-        <a href="https://t.me/nevr_ai" target="_blank" rel="noopener" class="text-(--color-accent)">@nevr_ai</a>
+        <a href={t.links.telegramUrl} target="_blank" rel="noopener" class="text-(--color-accent)">{t.links.telegram}</a>
       </div>
       <div class="flex items-center gap-3">
         <span class="text-(--color-text-dim) w-20">hh.ru</span>
@@ -26,7 +26,7 @@ import t from '../content/text';
       </div>
       <div class="flex items-center gap-3">
         <span class="text-(--color-text-dim) w-20">GitHub</span>
-        <a href="https://github.com/m7248353-a11y" target="_blank" rel="noopener" class="text-(--color-accent)">m7248353-a11y</a>
+        <a href={t.links.githubUrl} target="_blank" rel="noopener" class="text-(--color-accent)">{t.links.github}</a>
       </div>
     </div>
 

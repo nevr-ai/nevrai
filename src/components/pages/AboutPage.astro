@@ -5,23 +5,33 @@ import t from '../../content/text';
 <BaseLayout title={t.about.title} description={t.about.description} pagePath="/about">
   <h1 class="text-sm mb-2 text-(--color-text-dim)">{t.about.heading}</h1>
 
-  <div class="prose text-sm leading-relaxed space-y-4 text-(--color-text)">
+  <!-- Dark theme (tech) -->
+  <div class="theme-dark-block prose text-sm leading-relaxed space-y-4 text-(--color-text)">
     <p>{t.about.bio1}</p>
-
     <p set:html={t.about.bio2} />
-
     <p set:html={t.about.bio3} />
-
     <p set:html={t.about.bio4} />
-
     <p set:html={t.about.bio5} />
+    <p set:html={t.about.bio6} />
+  </div>
 
+  <!-- Light theme (business) -->
+  <div class="theme-light-block prose text-sm leading-relaxed space-y-4 text-(--color-text)">
+    <p>{t.about.light_bio1}</p>
+    <p set:html={t.about.light_bio2} />
+    <p set:html={t.about.light_bio3} />
+    <p set:html={t.about.light_bio4} />
+    <p set:html={t.about.light_bio5} />
+    <p set:html={t.about.light_bio6} />
+  </div>
+
+  <div class="prose text-sm leading-relaxed space-y-4 text-(--color-text)">
     <h2 class="text-sm mt-8 mb-4 text-(--color-text-dim)">{t.about.linksHeading}</h2>
 
     <ul class="space-y-2 list-none p-0">
-      <li><a href="https://github.com/m7248353-a11y" target="_blank" rel="noopener">GitHub</a> — {t.about.githubLabel}</li>
-      <li><a href="https://t.me/nevr_ai" target="_blank" rel="noopener">Telegram</a> — {t.about.tgLabel}</li>
-      <li><a href="mailto:rmn.work@yandex.ru">rmn.work@yandex.ru</a> — {t.about.emailLabel}</li>
+      <li><a href={t.links.githubUrl} target="_blank" rel="noopener">GitHub</a> — {t.about.githubLabel}</li>
+      <li><a href={t.links.telegramUrl} target="_blank" rel="noopener">Telegram</a> — {t.about.tgLabel}</li>
+      <li><a href={`mailto:${t.links.email}`}>{t.links.email}</a> — {t.about.emailLabel}</li>
     </ul>
 
     <h2 class="text-sm mt-8 mb-4 text-(--color-text-dim)">{t.about.nowHeading}</h2>

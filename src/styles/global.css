@@ -74,6 +74,18 @@ html.light h6 {
   font-weight: 700;
 }
 
+/* Theme-based content visibility */
+.theme-dark { display: inline; }
+.theme-light { display: none; }
+html.light .theme-dark { display: none; }
+html.light .theme-light { display: inline; }
+
+/* Block-level variants */
+.theme-dark-block { display: block; }
+.theme-light-block { display: none; }
+html.light .theme-dark-block { display: none; }
+html.light .theme-light-block { display: block; }
+
 /* Links */
 a {
   color: var(--color-accent);

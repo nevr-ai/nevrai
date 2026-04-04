@@ -2,13 +2,15 @@
 interface Props {
   name: string;
   tagline: string;
+  lightTagline?: string;
   url?: string;
   status: 'LIVE' | 'LAUNCHING' | 'BUILDING' | 'PLANNED' | 'BUILT';
   stack?: string[];
   metric?: string;
+  lightMetric?: string;
 }
 
-const { name, tagline, url, status, stack = [], metric } = Astro.props;
+const { name, tagline, lightTagline, url, status, stack = [], metric, lightMetric } = Astro.props;
 
 const badgeClass = {
   LIVE: 'badge-live',
@@ -29,7 +31,14 @@ const badgeClass = {
     </h3>
     <span class={`badge ${badgeClass}`}>{status}</span>
   </div>
-  <p class="text-sm text-(--color-text-dim) mb-3 leading-relaxed">{tagline}</p>
+  {lightTagline ? (
+    <p class="text-sm text-(--color-text-dim) mb-3 leading-relaxed">
+      <span class="theme-dark">{tagline}</span>
+      <span class="theme-light">{lightTagline}</span>
+    </p>
+  ) : (
+    <p class="text-sm text-(--color-text-dim) mb-3 leading-relaxed">{tagline}</p>
+  )}
   {stack.length > 0 && (
     <div class="flex flex-wrap gap-1.5 mb-2">
       {stack.map(tech => (
@@ -40,6 +49,15 @@ const badgeClass = {
     </div>
   )}
   {metric && (
-    <p class="text-xs text-(--color-accent) mt-2 mb-0 font-mono">{metric}</p>
+    <p class="text-xs text-(--color-accent) mt-2 mb-0 font-mono">
+      {lightMetric ? (
+        <>
+          <span class="theme-dark">{metric}</span>
+          <span class="theme-light">{lightMetric}</span>
+        </>
+      ) : (
+        metric
+      )}
+    </p>
   )}
 </div>

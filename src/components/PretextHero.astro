@@ -1,13 +1,23 @@
 ---
 import t from '../content/text';
-const longText = t.hero.longText;
 ---
 
 <div class="mb-8">
-  <p class="text-lg font-bold mb-1 text-(--color-accent)">{t.hero.line1}</p>
-  <p class="text-sm mb-6 text-(--color-text-dim)">{t.hero.line2}</p>
+  <p class="text-lg font-bold mb-1 text-(--color-accent)">
+    <span class="theme-dark">{t.hero.line1}</span>
+    <span class="theme-light">{t.hero.light_line1}</span>
+  </p>
+  <p class="text-sm mb-1 text-(--color-text-dim)">
+    <span class="theme-dark">{t.hero.line2}</span>
+    <span class="theme-light">{t.hero.light_line2}</span>
+  </p>
+  <p class="text-sm mb-6 text-(--color-text-dim)">
+    <span class="theme-dark">{t.hero.line3}</span>
+    <span class="theme-light">{t.hero.light_line3}</span>
+  </p>
 </div>
 
 <div class="text-sm leading-relaxed whitespace-pre-line text-(--color-text-dim)">
-  {longText}
+  <span class="theme-dark">{t.hero.longText}</span>
+  <span class="theme-light">{t.hero.light_longText}</span>
 </div>
