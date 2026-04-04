@@ -11,70 +11,34 @@ const posts = (await getCollection('blog'))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
   .slice(0, 3);
 
-const products = [
-  {
-    name: 'CoffeeBot',
-    tagline: t.products.taglines.coffeebot,
-    url: 'https://coffeebot.app',
-    status: 'LIVE' as const,
-    stack: ['Astro', 'Tailwind', 'Groq'],
-  },
-  {
-    name: 'InkCloak',
-    tagline: t.products.taglines.inkcloak,
-    url: 'https://inkcloak.com',
-    status: 'LAUNCHING' as const,
-    stack: ['Next.js', 'DeBERTa LoRA', 'RunPod GPU', 'Python'],
-  },
-  {
-    name: 'AICPO',
-    tagline: t.products.taglines.aicpo,
-    url: 'https://aicpo.app',
-    status: 'BUILDING' as const,
-    stack: ['Rails', 'SQLite', 'Groq'],
-  },
-  {
-    name: 'Scrutly',
-    tagline: t.products.taglines.scrutly,
-    url: 'https://scrutly.ai',
-    status: 'PLANNED' as const,
-    stack: ['Astro', 'DeBERTa'],
-  },
-  {
-    name: 'Tool Sites',
-    tagline: t.products.taglines.toolsites,
-    status: 'LIVE' as const,
-    stack: ['Astro', 'Tailwind', 'MDX'],
-    metric: t.products.metrics.toolsites,
-  },
-  {
-    name: 'OpenClaw Finance',
-    tagline: t.products.taglines.openclaw,
-    status: 'BUILT' as const,
-    stack: ['Python', 'DeepSeek R1', 'Docker'],
-  },
-  {
-    name: 'RackCloud',
-    tagline: t.products.taglines.rackcloud,
-    status: 'BUILT' as const,
-    stack: ['Claude Opus', 'Proxmox', 'OpenStack', 'Python'],
-  },
-  {
-    name: 'DIYCalc',
-    tagline: t.products.taglines.diycalc,
-    url: 'https://diycalc.co',
-    status: 'LIVE' as const,
-    stack: ['Astro', 'Tailwind', 'MDX'],
-    metric: t.products.metrics.diycalc,
-  },
-  {
-    name: 'FitCalc',
-    tagline: t.products.taglines.fitcalc,
-    url: 'https://fitcalc.co',
-    status: 'LIVE' as const,
-    stack: ['Astro', 'Tailwind', 'MDX'],
-    metric: t.products.metrics.fitcalc,
-  },
+const standaloneProducts = [
+  { name: 'CoffeeBot', tagline: t.products.taglines.coffeebot, url: 'https://coffeebot.app', status: 'LIVE' as const, stack: ['Astro', 'Groq', 'Tailwind'], metric: t.products.metrics.coffeebot },
+  { name: 'InkCloak', tagline: t.products.taglines.inkcloak, url: 'https://inkcloak.com', status: 'LAUNCHING' as const, stack: ['Next.js', 'DeBERTa LoRA', 'RunPod GPU'], metric: t.products.metrics.inkcloak },
+  { name: 'Scrutly', tagline: t.products.taglines.scrutly, url: 'https://scrutly.ai', status: 'PLANNED' as const, stack: ['Astro', 'DeBERTa'] },
+  { name: 'Tool Sites', tagline: t.products.taglines.toolsites, status: 'LIVE' as const, stack: ['Astro', 'MDX'], metric: t.products.metrics.toolsites },
+  { name: 'OpenClaw Finance', tagline: t.products.taglines.openclaw, status: 'BUILT' as const, stack: ['Python', 'DeepSeek R1', 'Docker'], metric: t.products.metrics.openclaw },
+  { name: 'RackCloud', tagline: t.products.taglines.rackcloud, status: 'BUILT' as const, stack: ['Claude Opus', 'Proxmox', 'Python'], metric: t.products.metrics.rackcloud },
+  { name: 'DIYCalc', tagline: t.products.taglines.diycalc, url: 'https://diycalc.co', status: 'LIVE' as const, stack: ['Astro', 'MDX'], metric: t.products.metrics.diycalc },
+  { name: 'FitCalc', tagline: t.products.taglines.fitcalc, url: 'https://fitcalc.co', status: 'LIVE' as const, stack: ['Astro', 'MDX'], metric: t.products.metrics.fitcalc },
+];
+
+const aicpoProducts = [
+  { name: 'AICPO Platform', tagline: t.products.taglines.aicpo_platform, url: 'https://aicpo.ru', status: 'LIVE' as const, stack: ['Rails 8', 'ActionCable', 'Propshaft'], metric: t.products.metrics.aicpo_platform },
+  { name: 'Autonomous LLM Runtime', tagline: t.products.taglines.llm_runtime, status: 'LIVE' as const, stack: ['Groq', 'OpenRouter', 'Redis'], metric: t.products.metrics.llm_runtime },
+  { name: 'AI Discovery Engine', tagline: t.products.taglines.discovery, status: 'LIVE' as const, stack: ['DuckDuckGo', 'Groq', 'PostgreSQL'], metric: t.products.metrics.discovery },
+  { name: 'Dual-Brain Chat', tagline: t.products.taglines.dual_brain, status: 'LIVE' as const, stack: ['Groq 0.5с', 'Claude', 'SSE'], metric: t.products.metrics.dual_brain },
+  { name: 'Artifact Pipeline', tagline: t.products.taglines.artifact_pipeline, status: 'LIVE' as const, stack: ['Groq', 'Gemini', 'OpenRouter'], metric: t.products.metrics.artifact_pipeline },
+  { name: 'Semantic Memory', tagline: t.products.taglines.semantic_memory, status: 'LIVE' as const, stack: ['pg_vector', 'cosine similarity'], metric: t.products.metrics.semantic_memory },
+  { name: 'Product Health Monitor', tagline: t.products.taglines.health_monitor, status: 'LIVE' as const, stack: ['PostHog', 'Stripe', 'GA4', 'Метрика'], metric: t.products.metrics.health_monitor },
+  { name: 'Team OS', tagline: t.products.taglines.team_os, status: 'LIVE' as const, stack: ['SAML 2.0', 'OIDC', 'RBAC'], metric: t.products.metrics.team_os },
+  { name: 'Self-Evolving Prompts', tagline: t.products.taglines.self_evolving, status: 'LIVE' as const, stack: ['Groq', 'cron'], metric: t.products.metrics.self_evolving },
+  { name: 'Evolution Pipeline', tagline: t.products.taglines.evolution, status: 'LIVE' as const, stack: ['Claude Sonnet', 'Groq'], metric: t.products.metrics.evolution },
+  { name: 'Research Corpus', tagline: t.products.taglines.research_corpus, status: 'LIVE' as const, stack: ['PostgreSQL', 'SHA256'], metric: t.products.metrics.research_corpus },
+  { name: 'Pain Extractor', tagline: t.products.taglines.pain_extractor, status: 'LIVE' as const, stack: ['Rails engine', 'Groq'], metric: t.products.metrics.pain_extractor },
+  { name: 'Credit Engine', tagline: t.products.taglines.credit_engine, status: 'LIVE' as const, stack: ['PostgreSQL', 'row locks'], metric: t.products.metrics.credit_engine },
+  { name: 'Tokenomics Guard', tagline: t.products.taglines.tokenomics, status: 'LIVE' as const, stack: ['Redis', 'PostgreSQL'], metric: t.products.metrics.tokenomics },
+  { name: 'Email Bridge', tagline: t.products.taglines.email_bridge, status: 'LIVE' as const, stack: ['IMAP', 'SMTP', 'ActionCable'], metric: t.products.metrics.email_bridge },
+  { name: 'PDF Publisher', tagline: t.products.taglines.pdf_publisher, status: 'LIVE' as const, stack: ['Rails', 'HTML→PDF'], metric: t.products.metrics.pdf_publisher },
 ];
 ---
 <BaseLayout title={t.meta.title} description={t.meta.description} pagePath="/">
@@ -85,7 +49,13 @@ const products = [
   <section class="mb-16">
     <h2 class="text-sm mb-6 text-(--color-text-dim)">{t.sections.products}</h2>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-      {products.map(product => (
+      {standaloneProducts.map(product => (
+        <ProductCard {...product} />
+      ))}
+    </div>
+    <h2 class="text-sm mt-12 mb-6 text-(--color-text-dim)">## AICPO Platform — 16 систем под одним капотом</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      {aicpoProducts.map(product => (
         <ProductCard {...product} />
       ))}
     </div>
