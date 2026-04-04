@@ -99,58 +99,24 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   </section>
 </div>
 
-<!-- Verify token from magic link -->
-<div id="app-verifying" style="display:none;">
-  <p class="text-(--color-text-dim)">Verifying your login...</p>
-</div>
-
 <script is:inline>
 (function() {
   const API = 'https://api.nevrai.com';
   const loginEl = document.getElementById('app-login');
   const dashEl = document.getElementById('app-dashboard');
-  const verifyEl = document.getElementById('app-verifying');
 
-  // Check for verify token in URL
-  const params = new URLSearchParams(window.location.search);
-  const token = params.get('token');
-
-  if (token) {
-    verifyEl.style.display = '';
-    verifyToken(token);
+  // Magic link flow: user clicks link → gateway /v1/auth/verify sets localStorage → redirects here
+  // Dashboard just checks localStorage on load
+  const session = localStorage.getItem('nevrai_session');
+  if (session) {
+    showDashboard(session);
   } else {
-    const session = localStorage.getItem('nevrai_session');
-    if (session) {
-      showDashboard(session);
-    } else {
-      showLogin();
-    }
-  }
-
-  async function verifyToken(t) {
-    try {
-      const res = await fetch(API + '/v1/auth/verify?token=' + encodeURIComponent(t));
-      const data = await res.json();
-      if (res.ok && data.session_token) {
-        localStorage.setItem('nevrai_session', data.session_token);
-        window.history.replaceState({}, '', '/dashboard');
-        showDashboard(data.session_token);
-      } else {
-        verifyEl.style.display = 'none';
-        showLogin();
-        document.getElementById('login-status').textContent = data.message || 'Verification failed. Please try again.';
-      }
-    } catch (e) {
-      verifyEl.style.display = 'none';
-      showLogin();
-      document.getElementById('login-status').textContent = 'Network error. Please try again.';
-    }
+    showLogin();
   }
 
   function showLogin() {
     loginEl.style.display = '';
     dashEl.style.display = 'none';
-    verifyEl.style.display = 'none';
   }
 
   function showDashboard(session) {
