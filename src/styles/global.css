@@ -87,6 +87,7 @@ html.light .theme-dark-block { display: none; }
 html.light .theme-light-block { display: block; }
 
 /* Links */
+@layer base {
 a {
   color: var(--color-accent);
   text-decoration: none;
@@ -97,6 +98,7 @@ a:hover {
   text-decoration: underline;
   color: var(--color-accent-hover);
 }
+} /* end @layer base for links */
 
 /* Code blocks */
 code {
