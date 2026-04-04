@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" fill="none">
+  <rect width="800" height="400" fill="#0a0a0a"/>
+  <!-- Calculator vs AI dice -->
+  <g transform="translate(120,120)">
+    <!-- Calculator icon -->
+    <rect x="0" y="0" width="80" height="100" rx="8" fill="#18181b" stroke="#27272a"/>
+    <rect x="12" y="12" width="56" height="20" rx="3" fill="#22c55e" opacity="0.2"/>
+    <text x="40" y="27" fill="#22c55e" font-family="monospace" font-size="11" text-anchor="middle">= 100%</text>
+    <rect x="12" y="42" width="16" height="12" rx="2" fill="#27272a"/>
+    <rect x="32" y="42" width="16" height="12" rx="2" fill="#27272a"/>
+    <rect x="52" y="42" width="16" height="12" rx="2" fill="#27272a"/>
+    <rect x="12" y="60" width="16" height="12" rx="2" fill="#27272a"/>
+    <rect x="32" y="60" width="16" height="12" rx="2" fill="#27272a"/>
+    <rect x="52" y="60" width="16" height="12" rx="2" fill="#27272a"/>
+    <rect x="12" y="78" width="16" height="12" rx="2" fill="#27272a"/>
+    <rect x="32" y="78" width="56" height="12" rx="2" fill="#27272a"/>
+    <text x="40" y="135" fill="#a1a1aa" font-family="monospace" font-size="10" text-anchor="middle">deterministic</text>
+  </g>
+  <!-- VS -->
+  <text x="300" y="180" fill="#27272a" font-family="monospace" font-size="24" text-anchor="middle">vs</text>
+  <!-- AI brain with probability -->
+  <g transform="translate(380,120)">
+    <circle cx="40" cy="40" r="40" fill="#18181b" stroke="#27272a"/>
+    <text x="40" y="35" fill="#a1a1aa" font-family="monospace" font-size="10" text-anchor="middle">LLM</text>
+    <text x="40" y="50" fill="#a1a1aa" font-family="monospace" font-size="9" text-anchor="middle">~92-97%</text>
+    <text x="40" y="135" fill="#a1a1aa" font-family="monospace" font-size="10" text-anchor="middle">probabilistic</text>
+  </g>
+  <!-- Arrow to solution -->
+  <line x1="500" y1="160" x2="540" y2="160" stroke="#22c55e" stroke-width="2"/>
+  <polygon points="538,155 548,160 538,165" fill="#22c55e"/>
+  <!-- Solution: verification loop -->
+  <g transform="translate(560,120)">
+    <rect x="0" y="0" width="160" height="80" rx="8" fill="#18181b" stroke="#22c55e" stroke-width="1"/>
+    <text x="80" y="25" fill="#22c55e" font-family="monospace" font-size="10" text-anchor="middle">verify loop</text>
+    <text x="80" y="42" fill="#a1a1aa" font-family="monospace" font-size="9" text-anchor="middle">generate → check</text>
+    <text x="80" y="55" fill="#a1a1aa" font-family="monospace" font-size="9" text-anchor="middle">→ fix → recheck</text>
+    <text x="80" y="68" fill="#a1a1aa" font-family="monospace" font-size="9" text-anchor="middle">→ validate = 100%</text>
+    <text x="80" y="115" fill="#22c55e" font-family="monospace" font-size="10" text-anchor="middle">compensated</text>
+  </g>
+  <text x="400" y="340" fill="#a1a1aa" font-family="monospace" font-size="13" text-anchor="middle">AI will never be a calculator. But verification loops make it reliable.</text>
+</svg>
