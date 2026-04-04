@@ -3,7 +3,7 @@ const PRODUCT_COUNT = 39;
 const t = {
   meta: {
     title: 'Роман Неверов — AI Product Builder',
-    description: `AI-продукты в одиночку. ${PRODUCT_COUNT} продуктов, $15/мес инфраструктура, Factory OS.`,
+    description: `${PRODUCT_COUNT} AI-продуктов в продакшене. Выручка \u00D72.2. 150 человек \u2192 solo + AI. Factory OS.`,
   },
   hero: {
     // Dark theme (tech)
@@ -320,7 +320,7 @@ const t = {
     bio3: '<strong>AICPO</strong> (<a href="https://aicpo.ru">aicpo.ru</a>) \u2014 мой флагманский продукт. SaaS-платформа для продуктовых исследований: 31 подсистема, 43 артефакта, мультимодельный LLM-каскад (Groq \u2192 OpenRouter \u2192 Claude), Knowledge Graph, SSO (SAML + OIDC), CRM, мониторинг. Rails 8, PostgreSQL, Docker. Живой продукт в продакшене.',
     bio4: '<strong>PUNKT E</strong> (2024\u20132026) \u2014 Product Lead. Крупнейшее EV-приложение в РФ, 95K пользователей. Выручка \u00D72.2 за год при падении рынка на 37%. NPS: 3.2 \u2192 4.9. Запустил AI-проекты: предсказание зарядных сессий (PyTorch), прототип чатбота поддержки (LLM), AI-исследование рынка.',
     bio5: '<strong>Mafin</strong> (2022\u20132024) \u2014 Head of Products. Top-3 insurtech. 11 команд, 150 человек. P&L 4 бизнес-линий. Расширил линейку с 3 до 16 продуктов. 70+ партнёрских интеграций. M&A интеграция двух компаний.',
-    bio6: `<strong>Factory OS</strong> \u2014 моя система оркестрации AI-агентов поверх Claude Code. 15 специализированных ролей. Все ${PRODUCT_COUNT} продуктов построены через неё. Не фреймворк \u2014 набор правил, ролей и процессов, который превращает одного человека в команду.`,
+    bio6: `<strong>Factory OS</strong> \u2014 технология управления AI-агентами. 15 ролей (Builder, Quality, DevOps, Discovery, Strategy...), 40+ правил, quality gates. Все ${PRODUCT_COUNT} продуктов построены через неё. Воспроизводимая методология \u2014 <a href="/methodology">подробнее</a>.`,
     // --- Light theme (business) ---
     light_bio1: 'Роман Неверов. Москва.',
     light_bio2: '<strong>Руководитель AI-продуктов.</strong> 10 лет управлял продуктами и командами до 150 человек. Последние 2 года \u2014 строю AI-продукты полного цикла: от исследования рынка до работающего сервиса.',
