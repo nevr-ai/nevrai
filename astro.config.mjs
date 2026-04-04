@@ -7,14 +7,7 @@ import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://nevrai.com',
-  i18n: {
-    defaultLocale: 'en',
-    locales: ['en', 'es', 'pt', 'de', 'fr'],
-    routing: {
-      prefixDefaultLocale: false,
-    },
-  },
+  site: 'https://nevr.aicpo.ru',
   vite: {
     plugins: [tailwindcss()],
   },

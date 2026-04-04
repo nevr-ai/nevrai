@@ -1,14 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProductCard from '../ProductCard.astro';
-import { getTranslation, type Lang } from '../../i18n/index';
-
-interface Props {
-  lang?: Lang;
-}
-
-const { lang = 'en' } = Astro.props;
-const t = getTranslation(lang);
+import t from '../../content/text';
 
 const products = [
   {
@@ -24,7 +17,7 @@ const products = [
     tagline: t.products.taglines.inkcloakLong,
     url: 'https://inkcloak.com',
     status: 'LAUNCHING' as const,
-    stack: ['Next.js', 'DeBERTa', 'RunPod', 'Python'],
+    stack: ['Next.js', 'DeBERTa LoRA', 'RunPod Serverless', 'Python', 'CUDA'],
     metric: t.products.metrics.inkcloak,
   },
   {
@@ -57,6 +50,13 @@ const products = [
     metric: t.products.metrics.openclaw,
   },
   {
+    name: 'RackCloud',
+    tagline: t.products.taglines.rackcloudLong,
+    status: 'BUILT' as const,
+    stack: ['Claude Opus', 'Proxmox', 'OpenStack', 'Python'],
+    metric: t.products.metrics.rackcloud,
+  },
+  {
     name: 'DIYCalc',
     tagline: t.products.taglines.diycalcLong,
     url: 'https://diycalc.co',
@@ -74,7 +74,7 @@ const products = [
   },
 ];
 ---
-<BaseLayout title={t.products.title} description={t.products.description} lang={lang} pagePath="/products">
+<BaseLayout title={t.products.title} description={t.products.description} pagePath="/products">
   <h1 class="text-sm mb-2 text-(--color-text-dim)">{t.sections.products}</h1>
   <p class="text-sm text-(--color-text-dim) mb-8">{t.products.subtitle}</p>
 

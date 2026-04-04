@@ -1,16 +1,9 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Newsletter from '../Newsletter.astro';
-import { getTranslation, type Lang } from '../../i18n/index';
-
-interface Props {
-  lang?: Lang;
-}
-
-const { lang = 'en' } = Astro.props;
-const t = getTranslation(lang);
+import t from '../../content/text';
 ---
-<BaseLayout title={t.newsletter.title} description={t.newsletter.description} lang={lang} pagePath="/newsletter">
+<BaseLayout title={t.newsletter.title} description={t.newsletter.description} pagePath="/newsletter">
   <h1 class="text-sm mb-2 text-(--color-text-dim)">{t.newsletter.heading}</h1>
 
   <div class="space-y-6">
@@ -20,7 +13,7 @@ const t = getTranslation(lang);
       <p>{t.newsletter.unsubscribe}</p>
     </div>
 
-    <Newsletter lang={lang} />
+    <Newsletter />
 
     <div class="text-sm text-(--color-text-dim) space-y-2">
       <p>{t.newsletter.previousTopics}</p>

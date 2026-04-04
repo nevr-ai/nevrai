@@ -1,31 +1,26 @@
 ---
 import ThemeToggle from './ThemeToggle.astro';
-import LanguageSwitcher from './LanguageSwitcher.astro';
-import { getTranslation, type Lang } from '../i18n/index';
+import t from '../content/text';
 
 interface Props {
-  lang?: Lang;
-  hideLanguageSwitcher?: boolean;
   pagePath?: string;
 }
 
-const { lang = 'en', hideLanguageSwitcher = false, pagePath } = Astro.props;
-const t = getTranslation(lang);
-const prefix = lang === 'en' ? '' : `/${lang}`;
+const { pagePath } = Astro.props;
 
 const navLinks = [
-  { href: `${prefix}/products`, label: t.nav.products },
-  { href: `${prefix}/stack`, label: t.nav.stack },
+  { href: '/products', label: t.nav.products },
+  { href: '/stack', label: t.nav.stack },
   { href: '/blog', label: t.nav.blog },
-  { href: `${prefix}/about`, label: t.nav.about },
+  { href: '/about', label: t.nav.about },
+  { href: '/contact', label: t.nav.contact },
 ];
 
 const currentPath = Astro.url.pathname;
-const homePath = lang === 'en' ? '/' : `/${lang}`;
 ---
 <header class="max-w-3xl mx-auto px-4 sm:px-6 py-6 flex items-center justify-between">
-  <a href={homePath} class="text-lg font-semibold tracking-tight no-underline hover:no-underline text-(--color-text) hover:text-(--color-accent)">
-    [nevrai]
+  <a href="/" class="text-lg font-semibold tracking-tight no-underline hover:no-underline text-(--color-text) hover:text-(--color-accent)">
+    [nevr]
   </a>
   <nav class="hidden sm:flex items-center gap-6 text-sm">
     {navLinks.map(link => (
@@ -43,7 +38,6 @@ const homePath = lang === 'en' ? '/' : `/${lang}`;
     ))}
   </nav>
   <div class="flex items-center gap-3">
-    {!hideLanguageSwitcher && <LanguageSwitcher lang={lang} currentPath={pagePath || Astro.url.pathname} />}
     <ThemeToggle />
     <!-- Mobile menu button -->
     <button

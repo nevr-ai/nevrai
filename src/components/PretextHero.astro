@@ -1,12 +1,5 @@
 ---
-import { getTranslation, type Lang } from '../i18n/index';
-
-interface Props {
-  lang?: Lang;
-}
-
-const { lang = 'en' } = Astro.props;
-const t = getTranslation(lang);
+import t from '../content/text';
 const longText = t.hero.longText;
 ---
 

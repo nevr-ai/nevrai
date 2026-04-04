@@ -1,0 +1,10 @@
+{
+  "name": "nevr-ru",
+  "main": "@astrojs/cloudflare/entrypoints/server",
+  "compatibility_date": "2026-03-17",
+  "compatibility_flags": ["global_fetch_strictly_public", "nodejs_compat"],
+  "assets": { "directory": "./dist", "binding": "ASSETS" },
+  "routes": [
+    { "pattern": "nevr.aicpo.ru", "custom_domain": true }
+  ]
+}

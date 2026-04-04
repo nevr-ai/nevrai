@@ -2,24 +2,19 @@
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import { getLangs, getPathWithoutLocale, localizedPath, type Lang } from '../i18n/index';
 
 interface Props {
   title: string;
   description?: string;
-  lang?: Lang;
-  hideLanguageSwitcher?: boolean;
   pagePath?: string;
 }
 
-const { title, description = 'Solo maker building AI products with AI agents. 6 products, 0 employees, $15/mo infra.', lang = 'en', hideLanguageSwitcher = false, pagePath } = Astro.props;
-const basePath = pagePath || getPathWithoutLocale(Astro.url);
-const canonicalPath = pagePath ? localizedPath(lang, pagePath) : Astro.url.pathname;
+const { title, description = 'AI-продукты в одиночку. 9 продуктов, $15/мес инфраструктура, Factory OS.', pagePath } = Astro.props;
+const canonicalPath = pagePath || Astro.url.pathname;
 const canonicalURL = new URL(canonicalPath, Astro.site);
-const langs = getLangs();
 ---
 <!DOCTYPE html>
-<html lang={lang}>
+<html lang="ru">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -28,15 +23,11 @@ const langs = getLangs();
   <meta name="description" content={description} />
   <link rel="canonical" href={canonicalURL} />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  {langs.map(l => (
-    <link rel="alternate" hreflang={l} href={new URL(localizedPath(l, basePath), Astro.site)} />
-  ))}
-  <link rel="alternate" hreflang="x-default" href={new URL(basePath || '/', Astro.site)} />
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonicalURL} />
-  <meta property="og:site_name" content="nevrai" />
+  <meta property="og:site_name" content="Роман Неверов" />
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content={title} />
   <meta name="twitter:description" content={description} />
@@ -51,11 +42,11 @@ const langs = getLangs();
   </script>
 </head>
 <body class="min-h-screen bg-(--color-bg) text-(--color-text)">
-  <Header lang={lang} hideLanguageSwitcher={hideLanguageSwitcher} pagePath={pagePath} />
+  <Header pagePath={pagePath} />
   <main class="max-w-3xl mx-auto px-4 sm:px-6 py-12">
     <slot />
   </main>
-  <Footer lang={lang} />
+  <Footer />
   <!-- PostHog Analytics -->
   <script is:inline>
     !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys onFeatureFlags onSessionId".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);

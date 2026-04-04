@@ -1,35 +1,28 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getTranslation, type Lang } from '../../i18n/index';
-
-interface Props {
-  lang?: Lang;
-}
-
-const { lang = 'en' } = Astro.props;
-const t = getTranslation(lang);
+import t from '../../content/text';
 
 const stack = [
-  { service: 'Cloudflare Workers', cost: '$0', what: 'Compute + hosting', limit: '100K req/day' },
-  { service: 'Vercel', cost: '$0', what: 'Next.js hosting', limit: '100GB bandwidth' },
-  { service: 'Supabase', cost: '$0', what: 'Auth + Database', limit: '500MB DB' },
-  { service: 'Groq', cost: '$0', what: 'LLM inference', limit: '14K tokens/min' },
-  { service: 'PostHog', cost: '$0', what: 'Analytics', limit: '1M events/mo' },
-  { service: 'Loops.so', cost: '$0', what: 'Email drip', limit: '1K contacts' },
-  { service: 'Sentry', cost: '$0', what: 'Error monitoring', limit: '5K errors/mo' },
-  { service: 'RunPod', cost: '$0.49 once', what: 'ML training', limit: 'Pay per use' },
-  { service: 'NVIDIA P100', cost: '$150 once', what: 'GPU inference', limit: 'Own hardware' },
-  { service: 'Domains (5)', cost: '$15/mo', what: '.com .app .ai', limit: '\u2014' },
+  { service: 'Cloudflare Workers', cost: '$0', what: 'Хостинг + compute', limit: '100K req/day' },
+  { service: 'Vercel', cost: '$0', what: 'Next.js хостинг', limit: '100GB bandwidth' },
+  { service: 'Supabase', cost: '$0', what: 'Auth + БД', limit: '500MB DB' },
+  { service: 'Groq', cost: '$0', what: 'LLM-инференс', limit: '14K tokens/min' },
+  { service: 'PostHog', cost: '$0', what: 'Аналитика', limit: '1M events/mo' },
+  { service: 'Loops.so', cost: '$0', what: 'Email-рассылка', limit: '1K контактов' },
+  { service: 'Sentry', cost: '$0', what: 'Мониторинг ошибок', limit: '5K errors/mo' },
+  { service: 'RunPod', cost: '$0.49 разово', what: 'ML-тренировка', limit: 'Pay per use' },
+  { service: 'NVIDIA P100', cost: '$150 разово', what: 'GPU-инференс', limit: 'Своё железо' },
+  { service: 'Домены (5)', cost: '$15/мес', what: '.com .app .ai', limit: '\u2014' },
 ];
 
 const savings = [
-  { service: 'AWS/GCP compute', paid: '$200/mo', using: 'Cloudflare Workers' },
-  { service: 'Vercel Pro', paid: '$20/mo', using: 'Free tier' },
-  { service: 'Database hosting', paid: '$50/mo', using: 'Supabase free + SQLite' },
-  { service: 'OpenAI API', paid: '$100/mo', using: 'Groq free tier' },
-  { service: 'Mixpanel/Amplitude', paid: '$100/mo', using: 'PostHog free' },
-  { service: 'Mailchimp', paid: '$30/mo', using: 'Loops.so free' },
-  { service: 'GPU cloud (always-on)', paid: '$300/mo', using: 'Own P100 + RunPod spot' },
+  { service: 'AWS/GCP compute', paid: '$200/мес', using: 'Cloudflare Workers' },
+  { service: 'Vercel Pro', paid: '$20/мес', using: 'Бесплатный тариф' },
+  { service: 'Хостинг БД', paid: '$50/мес', using: 'Supabase free + SQLite' },
+  { service: 'OpenAI API', paid: '$100/мес', using: 'Groq бесплатно' },
+  { service: 'Mixpanel/Amplitude', paid: '$100/мес', using: 'PostHog free' },
+  { service: 'Mailchimp', paid: '$30/мес', using: 'Loops.so free' },
+  { service: 'GPU cloud (always-on)', paid: '$300/мес', using: 'Своя P100 + RunPod spot' },
 ];
 
 const totalSaved = savings.reduce((sum, s) => {
@@ -37,7 +30,7 @@ const totalSaved = savings.reduce((sum, s) => {
   return sum + (match ? parseInt(match[1]) : 0);
 }, 0);
 ---
-<BaseLayout title={t.stack.title} description={t.stack.description} lang={lang} pagePath="/stack">
+<BaseLayout title={t.stack.title} description={t.stack.description} pagePath="/stack">
   <h1 class="text-sm mb-2 text-(--color-text-dim)">{t.stack.heading}</h1>
   <p class="text-sm text-(--color-text-dim) mb-8">{t.stack.subtitle}</p>
 
@@ -90,6 +83,6 @@ const totalSaved = savings.reduce((sum, s) => {
 
   <div class="border border-(--color-accent) p-4 text-center bg-(--color-bg-card) card">
     <p class="text-sm text-(--color-text-dim) mb-1">{t.stack.totalSavings}</p>
-    <p class="text-2xl font-bold text-(--color-accent) font-mono m-0">${totalSaved}+/mo</p>
+    <p class="text-2xl font-bold text-(--color-accent) font-mono m-0">${totalSaved}+/мес</p>
   </div>
 </BaseLayout>

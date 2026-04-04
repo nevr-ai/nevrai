@@ -1,15 +1,8 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getTranslation, type Lang } from '../../i18n/index';
-
-interface Props {
-  lang?: Lang;
-}
-
-const { lang = 'en' } = Astro.props;
-const t = getTranslation(lang);
+import t from '../../content/text';
 ---
-<BaseLayout title={t.about.title} description={t.about.description} lang={lang} pagePath="/about">
+<BaseLayout title={t.about.title} description={t.about.description} pagePath="/about">
   <h1 class="text-sm mb-2 text-(--color-text-dim)">{t.about.heading}</h1>
 
   <div class="prose text-sm leading-relaxed space-y-4 text-(--color-text)">
@@ -19,16 +12,16 @@ const t = getTranslation(lang);
 
     <p set:html={t.about.bio3} />
 
-    <p>{t.about.bio4}</p>
+    <p set:html={t.about.bio4} />
 
-    <p>{t.about.bio5}</p>
+    <p set:html={t.about.bio5} />
 
     <h2 class="text-sm mt-8 mb-4 text-(--color-text-dim)">{t.about.linksHeading}</h2>
 
     <ul class="space-y-2 list-none p-0">
-      <li><a href="https://github.com/m7248353-a11y" target="_blank" rel="noopener">GitHub</a> — {t.about.github}</li>
-      <li><a href="https://x.com/NevrN10476" target="_blank" rel="noopener">X / Twitter</a> — {t.about.twitter}</li>
-      <li><a href="mailto:hey@nevrai.com">hey@nevrai.com</a> — {t.about.email}</li>
+      <li><a href="https://github.com/m7248353-a11y" target="_blank" rel="noopener">GitHub</a> — {t.about.githubLabel}</li>
+      <li><a href="https://t.me/nevr_ai" target="_blank" rel="noopener">Telegram</a> — {t.about.tgLabel}</li>
+      <li><a href="mailto:rmn.work@yandex.ru">rmn.work@yandex.ru</a> — {t.about.emailLabel}</li>
     </ul>
 
     <h2 class="text-sm mt-8 mb-4 text-(--color-text-dim)">{t.about.nowHeading}</h2>
@@ -37,7 +30,6 @@ const t = getTranslation(lang);
       <li>{t.about.now1}</li>
       <li>{t.about.now2}</li>
       <li>{t.about.now3}</li>
-      <li>{t.about.now4}</li>
     </ul>
   </div>
 </BaseLayout>

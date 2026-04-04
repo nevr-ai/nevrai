@@ -1,12 +1,6 @@
 ---
-import { getTranslation, type Lang } from '../i18n/index';
+import t from '../content/text';
 
-interface Props {
-  lang?: Lang;
-}
-
-const { lang = 'en' } = Astro.props;
-const t = getTranslation(lang);
 const year = new Date().getFullYear();
 ---
 <footer class="max-w-3xl mx-auto px-4 sm:px-6 py-8 mt-12 border-t border-(--color-border)">
@@ -14,8 +8,8 @@ const year = new Date().getFullYear();
     <span>{t.footer.built} &middot; {t.footer.based} &middot; {year}</span>
     <div class="flex items-center gap-4">
       <a href="https://github.com/m7248353-a11y" target="_blank" rel="noopener" class="hover:text-(--color-accent)">GitHub</a>
-      <a href="https://x.com/NevrN10476" target="_blank" rel="noopener" class="hover:text-(--color-accent)">X</a>
-      <a href="mailto:hey@nevrai.com" class="hover:text-(--color-accent)">Email</a>
+      <a href="https://t.me/nevr_ai" target="_blank" rel="noopener" class="hover:text-(--color-accent)">Telegram</a>
+      <a href="mailto:rmn.work@yandex.ru" class="hover:text-(--color-accent)">Email</a>
     </div>
   </div>
 </footer>

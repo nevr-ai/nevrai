@@ -1,29 +1,55 @@
 ---
-import { getTranslation, type Lang } from '../i18n/index';
-
-interface Props {
-  lang?: Lang;
-}
-
-const { lang = 'en' } = Astro.props;
-const t = getTranslation(lang);
+import t from '../content/text';
 ---
 <div class="border border-(--color-border) p-6 bg-(--color-bg-card) card">
   <h3 class="text-sm font-semibold mb-2 !normal-case !tracking-normal">{t.newsletter.formTitle}</h3>
   <p class="text-sm text-(--color-text-dim) mb-4">{t.newsletter.formSubtitle}</p>
-  <form class="flex flex-col sm:flex-row gap-2" action="mailto:hey@nevrai.com" method="GET">
+  <form id="newsletter-form" class="flex flex-col sm:flex-row gap-2">
     <input
       type="email"
-      name="subject"
+      id="newsletter-email"
       placeholder={t.newsletter.placeholder}
       required
       class="flex-1 px-3 py-2 text-sm bg-(--color-surface) border border-(--color-border) rounded text-(--color-text) placeholder:text-(--color-text-dim) focus:outline-none focus:border-(--color-accent) font-mono"
     />
     <button
       type="submit"
+      id="newsletter-btn"
       class="px-4 py-2 text-sm font-semibold bg-(--color-accent) text-(--color-bg) rounded hover:opacity-90 transition-opacity cursor-pointer"
     >
       {t.newsletter.button}
     </button>
   </form>
+  <p id="newsletter-success" class="hidden text-sm text-green-400 mt-2">{t.newsletter.success}</p>
+  <p id="newsletter-error" class="hidden text-sm text-red-400 mt-2" />
+  <script>
+    document.getElementById('newsletter-form')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('newsletter-email').value;
+      const btn = document.getElementById('newsletter-btn');
+      const orig = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = '...';
+      try {
+        const resp = await fetch('https://nevrai-subscribe.aicpo-relay.workers.dev', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        if (resp.ok) {
+          document.getElementById('newsletter-form').classList.add('hidden');
+          document.getElementById('newsletter-success').classList.remove('hidden');
+        } else {
+          const data = await resp.json().catch(() => ({}));
+          document.getElementById('newsletter-error').textContent = data.message || 'Что-то пошло не так';
+          document.getElementById('newsletter-error').classList.remove('hidden');
+        }
+      } catch {
+        document.getElementById('newsletter-error').textContent = 'Ошибка сети. Попробуйте ещё раз.';
+        document.getElementById('newsletter-error').classList.remove('hidden');
+      }
+      btn.disabled = false;
+      btn.textContent = orig;
+    });
+  </script>
 </div>
