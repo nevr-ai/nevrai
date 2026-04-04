@@ -1,36 +1,36 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" fill="none">
   <rect width="800" height="400" fill="#0a0a0a"/>
   <!-- Pipeline: CEO → Builder → Quality → Deploy -->
-  <g transform="translate(100,160)">
+  <g transform="translate(60,160)">
     <!-- Nodes -->
-    <rect x="0" y="0" width="100" height="40" rx="6" fill="#18181b" stroke="#27272a"/>
-    <text x="50" y="25" fill="#a1a1aa" font-family="monospace" font-size="13" text-anchor="middle">CEO</text>
-    <rect x="150" y="0" width="100" height="40" rx="6" fill="#18181b" stroke="#22c55e" stroke-width="1.5"/>
-    <text x="200" y="25" fill="#22c55e" font-family="monospace" font-size="13" text-anchor="middle">Builder</text>
-    <rect x="300" y="0" width="100" height="40" rx="6" fill="#18181b" stroke="#27272a"/>
-    <text x="350" y="25" fill="#a1a1aa" font-family="monospace" font-size="13" text-anchor="middle">Quality</text>
-    <rect x="450" y="0" width="100" height="40" rx="6" fill="#18181b" stroke="#27272a"/>
-    <text x="500" y="25" fill="#a1a1aa" font-family="monospace" font-size="13" text-anchor="middle">Deploy</text>
+    <rect x="0" y="0" width="90" height="40" rx="6" fill="#18181b" stroke="#27272a"/>
+    <text x="45" y="25" fill="#a1a1aa" font-family="monospace" font-size="12" text-anchor="middle">CEO</text>
+    <rect x="130" y="0" width="90" height="40" rx="6" fill="#18181b" stroke="#22c55e" stroke-width="1.5"/>
+    <text x="175" y="25" fill="#22c55e" font-family="monospace" font-size="12" text-anchor="middle">Builder</text>
+    <rect x="260" y="0" width="90" height="40" rx="6" fill="#18181b" stroke="#27272a"/>
+    <text x="305" y="25" fill="#a1a1aa" font-family="monospace" font-size="12" text-anchor="middle">Quality</text>
+    <rect x="390" y="0" width="90" height="40" rx="6" fill="#18181b" stroke="#27272a"/>
+    <text x="435" y="25" fill="#a1a1aa" font-family="monospace" font-size="12" text-anchor="middle">Deploy</text>
     <!-- Arrows -->
-    <line x1="100" y1="20" x2="150" y2="20" stroke="#27272a" stroke-width="1.5"/>
-    <polygon points="147,15 157,20 147,25" fill="#27272a"/>
-    <line x1="250" y1="20" x2="300" y2="20" stroke="#27272a" stroke-width="1.5"/>
-    <polygon points="297,15 307,20 297,25" fill="#27272a"/>
-    <line x1="400" y1="20" x2="450" y2="20" stroke="#27272a" stroke-width="1.5"/>
-    <polygon points="447,15 457,20 447,25" fill="#27272a"/>
-    <!-- Retry loop from Quality back to Builder -->
-    <path d="M350,40 L350,70 L200,70 L200,40" fill="none" stroke="#22c55e" stroke-width="1" stroke-dasharray="4,4"/>
-    <text x="275" y="85" fill="#22c55e" font-family="monospace" font-size="10" text-anchor="middle">retry if FAIL</text>
+    <line x1="90" y1="20" x2="130" y2="20" stroke="#27272a" stroke-width="1.5"/>
+    <polygon points="127,15 137,20 127,25" fill="#27272a"/>
+    <line x1="220" y1="20" x2="260" y2="20" stroke="#27272a" stroke-width="1.5"/>
+    <polygon points="257,15 267,20 257,25" fill="#27272a"/>
+    <line x1="350" y1="20" x2="390" y2="20" stroke="#27272a" stroke-width="1.5"/>
+    <polygon points="387,15 397,20 387,25" fill="#27272a"/>
+    <!-- Retry loop -->
+    <path d="M305,40 L305,70 L175,70 L175,40" fill="none" stroke="#22c55e" stroke-width="1" stroke-dasharray="4,4"/>
+    <text x="240" y="85" fill="#22c55e" font-family="monospace" font-size="10" text-anchor="middle">retry if FAIL</text>
   </g>
-  <!-- Rules floating -->
-  <g transform="translate(620,80)">
+  <!-- Rules floating - right side -->
+  <g transform="translate(570,100)">
     <text x="0" y="0" fill="#27272a" font-family="monospace" font-size="11">P1: delegate</text>
-    <text x="0" y="20" fill="#27272a" font-family="monospace" font-size="11">P2: queue</text>
-    <text x="0" y="40" fill="#27272a" font-family="monospace" font-size="11">Q1: test gate</text>
-    <text x="0" y="60" fill="#27272a" font-family="monospace" font-size="11">S1: context</text>
-    <text x="0" y="80" fill="#27272a" font-family="monospace" font-size="11">M1: DNA read</text>
+    <text x="0" y="18" fill="#27272a" font-family="monospace" font-size="11">P2: queue</text>
+    <text x="0" y="36" fill="#27272a" font-family="monospace" font-size="11">Q1: test gate</text>
+    <text x="0" y="54" fill="#27272a" font-family="monospace" font-size="11">S1: context</text>
+    <text x="0" y="72" fill="#27272a" font-family="monospace" font-size="11">M1: DNA read</text>
     <text x="0" y="100" fill="#a1a1aa" font-family="monospace" font-size="11">15 roles</text>
-    <text x="0" y="120" fill="#a1a1aa" font-family="monospace" font-size="11">40+ rules</text>
+    <text x="0" y="118" fill="#a1a1aa" font-family="monospace" font-size="11">40+ rules</text>
   </g>
-  <text x="400" y="320" fill="#a1a1aa" font-family="monospace" font-size="14" text-anchor="middle">Factory OS: rules make agents reliable</text>
+  <text x="400" y="330" fill="#a1a1aa" font-family="monospace" font-size="14" text-anchor="middle">Factory OS: rules make agents reliable</text>
 </svg>
