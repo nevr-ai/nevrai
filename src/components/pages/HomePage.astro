@@ -41,6 +41,17 @@ const aicpoProducts = [
   { name: 'PDF Publisher', tagline: t.products.taglines.pdf_publisher, status: 'LIVE' as const, stack: ['Rails', 'HTML→PDF'], metric: t.products.metrics.pdf_publisher },
   { name: 'Vector Intelligence Engine', tagline: t.products.taglines.vector_intelligence, status: 'LIVE' as const, stack: ['pg_vector', 'cosine similarity', 'SQLite fallback'], metric: t.products.metrics.vector_intelligence },
   { name: 'Knowledge Graph', tagline: t.products.taglines.knowledge_graph, status: 'LIVE' as const, stack: ['Rails engine', '14 node types', 'edges'], metric: t.products.metrics.knowledge_graph },
+  { name: 'Admin Command Center', tagline: t.products.taglines.admin_dashboard, status: 'LIVE' as const, stack: ['Rails', 'Turbo', 'Hotkeys'], metric: t.products.metrics.admin_dashboard },
+  { name: 'CRM Engine', tagline: t.products.taglines.crm_engine, status: 'LIVE' as const, stack: ['Rails', 'cron', 'SMTP'], metric: t.products.metrics.crm_engine },
+  { name: 'Marketing Analytics', tagline: t.products.taglines.marketing_analytics, status: 'LIVE' as const, stack: ['PostHog', 'GA4', 'UTM'], metric: t.products.metrics.marketing_analytics },
+  { name: 'Ship Pipeline', tagline: t.products.taglines.ship_pipeline, status: 'LIVE' as const, stack: ['ActionCable', 'Groq', 'voting'], metric: t.products.metrics.ship_pipeline },
+  { name: 'TG Channel Publisher', tagline: t.products.taglines.tg_publisher, status: 'LIVE' as const, stack: ['CF Worker', 'Telegram API'], metric: t.products.metrics.tg_publisher },
+  { name: 'Blog Publisher', tagline: t.products.taglines.blog_publisher, status: 'LIVE' as const, stack: ['Rails', 'Markdown', 'SEO'], metric: t.products.metrics.blog_publisher },
+  { name: 'Incident → Feature Pipeline', tagline: t.products.taglines.incident_pipeline, status: 'LIVE' as const, stack: ['Claude Sonnet', 'Groq', '8 categories'], metric: t.products.metrics.incident_pipeline },
+  { name: 'P&L Economics', tagline: t.products.taglines.pnl_economics, status: 'LIVE' as const, stack: ['PostgreSQL', 'row locks', 'cron'], metric: t.products.metrics.pnl_economics },
+  { name: 'Quality Management', tagline: t.products.taglines.quality_management, status: 'LIVE' as const, stack: ['feedback', 'auto-draft', 'versioning'], metric: t.products.metrics.quality_management },
+  { name: 'System Health', tagline: t.products.taglines.system_health, status: 'LIVE' as const, stack: ['Rails', 'cron', 'ActionCable'], metric: t.products.metrics.system_health },
+  { name: 'User Management', tagline: t.products.taglines.user_management, status: 'LIVE' as const, stack: ['Rails', 'invites', 'shadow projects'], metric: t.products.metrics.user_management },
 ];
 ---
 <BaseLayout title={t.meta.title} description={t.meta.description} pagePath="/">
