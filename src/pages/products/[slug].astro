@@ -1,0 +1,159 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import { products, getProductBySlug, getRelatedProducts } from '../../content/products';
+
+export function getStaticPaths() {
+  return products.map(p => ({
+    params: { slug: p.slug },
+    props: { product: p },
+  }));
+}
+
+const { product } = Astro.props;
+const related = getRelatedProducts(product.related);
+
+const groupLabels: Record<string, string> = {
+  'indie': 'Indie Products',
+  'ai-engine': 'Corporate / AI Engine',
+  'product-intel': 'Corporate / Product Intelligence',
+  'self-evolution': 'Corporate / Self-Evolution',
+  'enterprise': 'Corporate / Enterprise',
+  'integrations': 'Corporate / Integrations',
+};
+
+const lightGroupLabels: Record<string, string> = {
+  'indie': 'Indie Products',
+  'ai-engine': 'Corporate / AI-движок',
+  'product-intel': 'Corporate / Продуктовая аналитика',
+  'self-evolution': 'Corporate / Самообучение',
+  'enterprise': 'Corporate / Корпоративные функции',
+  'integrations': 'Corporate / Интеграции',
+};
+
+const badgeClass = {
+  LIVE: 'badge-live',
+  LAUNCHING: 'badge-launching',
+  BUILDING: 'badge-building',
+  PLANNED: 'badge-planned',
+  BUILT: 'badge-built',
+}[product.status];
+---
+<BaseLayout
+  title={`${product.name} — Роман Неверов`}
+  description={product.description}
+  pagePath={`/products/${product.slug}`}
+>
+  <!-- Breadcrumbs -->
+  <nav class="text-xs text-(--color-text-dim) mb-6 font-mono">
+    <a href="/" class="hover:text-(--color-accent)">nevr</a>
+    <span class="mx-1">/</span>
+    <a href="/products" class="hover:text-(--color-accent)">products</a>
+    <span class="mx-1">/</span>
+    <span>
+      <span class="theme-dark">{groupLabels[product.group]}</span>
+      <span class="theme-light">{lightGroupLabels[product.group]}</span>
+    </span>
+    <span class="mx-1">/</span>
+    <span class="text-(--color-text)">{product.name}</span>
+  </nav>
+
+  <!-- Header -->
+  <div class="flex items-start justify-between gap-3 mb-4">
+    <h1 class="text-xl sm:text-2xl font-bold !normal-case !tracking-normal m-0">
+      {product.url ? (
+        <a href={product.url} target="_blank" rel="noopener" class="no-underline text-(--color-text) hover:text-(--color-accent)">
+          {product.name}
+        </a>
+      ) : (
+        product.name
+      )}
+    </h1>
+    <span class={`badge ${badgeClass} shrink-0`}>{product.status}</span>
+  </div>
+
+  <!-- Tagline -->
+  <p class="text-sm text-(--color-text-dim) mb-4 leading-relaxed">
+    <span class="theme-dark">{product.tagline}</span>
+    <span class="theme-light">{product.lightTagline}</span>
+  </p>
+
+  <!-- Tags -->
+  {product.stack.length > 0 && (
+    <div class="flex flex-wrap gap-1.5 mb-6">
+      {product.stack.map(tech => (
+        <span class="text-[0.625rem] px-1.5 py-0.5 border border-(--color-border) rounded text-(--color-text-dim) font-mono">
+          {tech}
+        </span>
+      ))}
+    </div>
+  )}
+
+  <!-- Metric -->
+  {product.metric && (
+    <p class="text-sm text-(--color-accent) mb-8 font-mono">
+      <span class="theme-dark">{product.metric}</span>
+      <span class="theme-light">{product.lightMetric}</span>
+    </p>
+  )}
+
+  <!-- Body -->
+  <article class="prose text-sm leading-relaxed text-(--color-text) mb-8">
+    <div class="theme-dark-block whitespace-pre-line">{product.body}</div>
+    <div class="theme-light-block whitespace-pre-line">{product.lightBody}</div>
+  </article>
+
+  <!-- How it works -->
+  <section class="mb-8">
+    <h2 class="text-sm mb-3 text-(--color-text-dim)">
+      <span class="theme-dark">## How it works</span>
+      <span class="theme-light">## Как это работает</span>
+    </h2>
+    <div class="border border-(--color-border) p-4 bg-(--color-bg-card) card text-sm leading-relaxed text-(--color-text-dim) font-mono">
+      <span class="theme-dark">{product.howItWorks}</span>
+      <span class="theme-light">{product.lightHowItWorks}</span>
+    </div>
+  </section>
+
+  <!-- Related -->
+  {related.length > 0 && (
+    <section class="mb-8">
+      <h2 class="text-sm mb-4 text-(--color-text-dim)">
+        <span class="theme-dark">## Related</span>
+        <span class="theme-light">## Связанные продукты</span>
+      </h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {related.map(r => (
+          <a href={`/products/${r.slug}`} class="no-underline">
+            <div class="card border border-(--color-border) p-4 hover:border-(--color-accent) transition-colors bg-(--color-bg-card)">
+              <h3 class="text-base font-semibold mb-1 !normal-case !tracking-normal text-(--color-text)">{r.name}</h3>
+              <p class="text-xs text-(--color-text-dim) mb-0">
+                <span class="theme-dark">{r.tagline}</span>
+                <span class="theme-light">{r.lightTagline}</span>
+              </p>
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <!-- CTA -->
+  <section class="border-t border-(--color-border) pt-6">
+    <div class="flex flex-wrap gap-3">
+      {product.url && (
+        <a href={product.url} target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-(--color-accent) text-(--color-bg) rounded hover:opacity-90 transition-opacity">
+          <span class="theme-dark">Open →</span>
+          <span class="theme-light">Открыть →</span>
+        </a>
+      )}
+      <a href="/products" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold border border-(--color-border) rounded hover:border-(--color-accent) transition-colors">
+        ← <span class="theme-dark">All products</span><span class="theme-light">Все продукты</span>
+      </a>
+      <a href="/contact" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold border border-(--color-border) rounded hover:border-(--color-accent) transition-colors">
+        <span class="theme-dark">Contact</span>
+        <span class="theme-light">Связаться</span>
+      </a>
+    </div>
+  </section>
+</BaseLayout>

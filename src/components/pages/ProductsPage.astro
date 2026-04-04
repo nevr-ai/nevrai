@@ -14,38 +14,58 @@ const standaloneProducts = [
   { name: 'FitCalc', tagline: t.products.taglines.fitcalcLong, lightTagline: t.products.taglines.light_fitcalcLong, url: 'https://fitcalc.co', status: 'LIVE' as const, stack: ['Astro', 'MDX', 'Cloudflare Pages'], metric: t.products.metrics.fitcalc, lightMetric: t.products.metrics.light_fitcalc },
 ];
 
-const aicpoProducts = [
-  { name: 'AICPO Platform', tagline: t.products.taglines.aicpo_platformLong, lightTagline: t.products.taglines.light_aicpo_platformLong, url: 'https://aicpo.ru', status: 'LIVE' as const, stack: ['Rails 8', 'ActionCable', 'Propshaft'], metric: t.products.metrics.aicpo_platform, lightMetric: t.products.metrics.light_aicpo_platform },
+const aiEngine = [
   { name: 'Autonomous LLM Runtime', tagline: t.products.taglines.llm_runtimeLong, lightTagline: t.products.taglines.light_llm_runtimeLong, status: 'LIVE' as const, stack: ['Groq', 'OpenRouter', 'Redis'], metric: t.products.metrics.llm_runtime, lightMetric: t.products.metrics.light_llm_runtime },
-  { name: 'AI Discovery Engine', tagline: t.products.taglines.discoveryLong, lightTagline: t.products.taglines.light_discoveryLong, status: 'LIVE' as const, stack: ['DuckDuckGo', 'Groq', 'PostgreSQL'], metric: t.products.metrics.discovery, lightMetric: t.products.metrics.light_discovery },
   { name: 'Dual-Brain Chat', tagline: t.products.taglines.dual_brainLong, lightTagline: t.products.taglines.light_dual_brainLong, status: 'LIVE' as const, stack: ['Groq 0.5\u0441', 'Claude', 'SSE'], metric: t.products.metrics.dual_brain, lightMetric: t.products.metrics.light_dual_brain },
-  { name: 'Artifact Pipeline', tagline: t.products.taglines.artifact_pipelineLong, lightTagline: t.products.taglines.light_artifact_pipelineLong, status: 'LIVE' as const, stack: ['Groq', 'Gemini', 'OpenRouter'], metric: t.products.metrics.artifact_pipeline, lightMetric: t.products.metrics.light_artifact_pipeline },
   { name: 'Semantic Memory', tagline: t.products.taglines.semantic_memoryLong, lightTagline: t.products.taglines.light_semantic_memoryLong, status: 'LIVE' as const, stack: ['pg_vector', 'cosine similarity'], metric: t.products.metrics.semantic_memory, lightMetric: t.products.metrics.light_semantic_memory },
-  { name: 'Product Health Monitor', tagline: t.products.taglines.health_monitorLong, lightTagline: t.products.taglines.light_health_monitorLong, status: 'LIVE' as const, stack: ['PostHog', 'Stripe', 'GA4', '\u042F\u043D\u0434\u0435\u043A\u0441 \u041C\u0435\u0442\u0440\u0438\u043A\u0430'], metric: t.products.metrics.health_monitor, lightMetric: t.products.metrics.light_health_monitor },
-  { name: 'Team OS', tagline: t.products.taglines.team_osLong, lightTagline: t.products.taglines.light_team_osLong, status: 'LIVE' as const, stack: ['SAML 2.0', 'OIDC', 'RBAC'], metric: t.products.metrics.team_os, lightMetric: t.products.metrics.light_team_os },
-  { name: 'Self-Evolving Prompts', tagline: t.products.taglines.self_evolvingLong, lightTagline: t.products.taglines.light_self_evolvingLong, status: 'LIVE' as const, stack: ['Groq', 'cron'], metric: t.products.metrics.self_evolving, lightMetric: t.products.metrics.light_self_evolving },
-  { name: 'Evolution Pipeline', tagline: t.products.taglines.evolutionLong, lightTagline: t.products.taglines.light_evolutionLong, status: 'LIVE' as const, stack: ['Claude Sonnet', 'Groq'], metric: t.products.metrics.evolution, lightMetric: t.products.metrics.light_evolution },
-  { name: 'Research Corpus', tagline: t.products.taglines.research_corpusLong, lightTagline: t.products.taglines.light_research_corpusLong, status: 'LIVE' as const, stack: ['PostgreSQL', 'SHA256'], metric: t.products.metrics.research_corpus, lightMetric: t.products.metrics.light_research_corpus },
-  { name: 'Pain Extractor', tagline: t.products.taglines.pain_extractorLong, lightTagline: t.products.taglines.light_pain_extractorLong, status: 'LIVE' as const, stack: ['Rails engine', 'Groq'], metric: t.products.metrics.pain_extractor, lightMetric: t.products.metrics.light_pain_extractor },
-  { name: 'Credit Engine', tagline: t.products.taglines.credit_engineLong, lightTagline: t.products.taglines.light_credit_engineLong, status: 'LIVE' as const, stack: ['PostgreSQL', 'row locks'], metric: t.products.metrics.credit_engine, lightMetric: t.products.metrics.light_credit_engine },
-  { name: 'Tokenomics Guard', tagline: t.products.taglines.tokenomicsLong, lightTagline: t.products.taglines.light_tokenomicsLong, status: 'LIVE' as const, stack: ['Redis', 'PostgreSQL'], metric: t.products.metrics.tokenomics, lightMetric: t.products.metrics.light_tokenomics },
-  { name: 'Email Bridge', tagline: t.products.taglines.email_bridgeLong, lightTagline: t.products.taglines.light_email_bridgeLong, status: 'LIVE' as const, stack: ['IMAP', 'SMTP', 'ActionCable'], metric: t.products.metrics.email_bridge, lightMetric: t.products.metrics.light_email_bridge },
-  { name: 'PDF Publisher', tagline: t.products.taglines.pdf_publisherLong, lightTagline: t.products.taglines.light_pdf_publisherLong, status: 'LIVE' as const, stack: ['Rails', 'HTML\u2192PDF'], metric: t.products.metrics.pdf_publisher, lightMetric: t.products.metrics.light_pdf_publisher },
-  { name: 'Vector Intelligence Engine', tagline: t.products.taglines.vector_intelligenceLong, lightTagline: t.products.taglines.light_vector_intelligenceLong, status: 'LIVE' as const, stack: ['pg_vector', 'cosine similarity', 'SQLite fallback'], metric: t.products.metrics.vector_intelligence, lightMetric: t.products.metrics.light_vector_intelligence },
+  { name: 'Vector Intelligence', tagline: t.products.taglines.vector_intelligenceLong, lightTagline: t.products.taglines.light_vector_intelligenceLong, status: 'LIVE' as const, stack: ['pg_vector', 'cosine similarity', 'SQLite fallback'], metric: t.products.metrics.vector_intelligence, lightMetric: t.products.metrics.light_vector_intelligence },
   { name: 'Knowledge Graph', tagline: t.products.taglines.knowledge_graphLong, lightTagline: t.products.taglines.light_knowledge_graphLong, status: 'LIVE' as const, stack: ['Rails engine', '14 node types', 'edges'], metric: t.products.metrics.knowledge_graph, lightMetric: t.products.metrics.light_knowledge_graph },
-  { name: 'Admin Command Center', tagline: t.products.taglines.admin_dashboardLong, lightTagline: t.products.taglines.light_admin_dashboardLong, status: 'LIVE' as const, stack: ['Rails', 'Turbo', 'Hotkeys'], metric: t.products.metrics.admin_dashboard, lightMetric: t.products.metrics.light_admin_dashboard },
-  { name: 'CRM Engine', tagline: t.products.taglines.crm_engineLong, lightTagline: t.products.taglines.light_crm_engineLong, status: 'LIVE' as const, stack: ['Rails', 'cron', 'SMTP'], metric: t.products.metrics.crm_engine, lightMetric: t.products.metrics.light_crm_engine },
-  { name: 'Marketing Analytics', tagline: t.products.taglines.marketing_analyticsLong, lightTagline: t.products.taglines.light_marketing_analyticsLong, status: 'LIVE' as const, stack: ['PostHog', 'GA4', 'UTM'], metric: t.products.metrics.marketing_analytics, lightMetric: t.products.metrics.light_marketing_analytics },
-  { name: 'Ship Pipeline', tagline: t.products.taglines.ship_pipelineLong, lightTagline: t.products.taglines.light_ship_pipelineLong, status: 'LIVE' as const, stack: ['ActionCable', 'Groq', 'voting'], metric: t.products.metrics.ship_pipeline, lightMetric: t.products.metrics.light_ship_pipeline },
-  { name: 'TG Channel Publisher', tagline: t.products.taglines.tg_publisherLong, lightTagline: t.products.taglines.light_tg_publisherLong, status: 'LIVE' as const, stack: ['CF Worker', 'Telegram API'], metric: t.products.metrics.tg_publisher, lightMetric: t.products.metrics.light_tg_publisher },
-  { name: 'Blog Publisher', tagline: t.products.taglines.blog_publisherLong, lightTagline: t.products.taglines.light_blog_publisherLong, status: 'LIVE' as const, stack: ['Rails', 'Markdown', 'SEO'], metric: t.products.metrics.blog_publisher, lightMetric: t.products.metrics.light_blog_publisher },
-  { name: 'Incident \u2192 Feature Pipeline', tagline: t.products.taglines.incident_pipelineLong, lightTagline: t.products.taglines.light_incident_pipelineLong, status: 'LIVE' as const, stack: ['Claude Sonnet', 'Groq', '8 categories'], metric: t.products.metrics.incident_pipeline, lightMetric: t.products.metrics.light_incident_pipeline },
-  { name: 'P&L Economics', tagline: t.products.taglines.pnl_economicsLong, lightTagline: t.products.taglines.light_pnl_economicsLong, status: 'LIVE' as const, stack: ['PostgreSQL', 'row locks', 'cron'], metric: t.products.metrics.pnl_economics, lightMetric: t.products.metrics.light_pnl_economics },
-  { name: 'Quality Management', tagline: t.products.taglines.quality_managementLong, lightTagline: t.products.taglines.light_quality_managementLong, status: 'LIVE' as const, stack: ['feedback', 'auto-draft', 'versioning'], metric: t.products.metrics.quality_management, lightMetric: t.products.metrics.light_quality_management },
-  { name: 'System Health', tagline: t.products.taglines.system_healthLong, lightTagline: t.products.taglines.light_system_healthLong, status: 'LIVE' as const, stack: ['Rails', 'cron', 'ActionCable'], metric: t.products.metrics.system_health, lightMetric: t.products.metrics.light_system_health },
-  { name: 'User Management', tagline: t.products.taglines.user_managementLong, lightTagline: t.products.taglines.light_user_managementLong, status: 'LIVE' as const, stack: ['Rails', 'invites', 'shadow projects'], metric: t.products.metrics.user_management, lightMetric: t.products.metrics.light_user_management },
+  { name: 'AI Discovery Engine', tagline: t.products.taglines.discoveryLong, lightTagline: t.products.taglines.light_discoveryLong, status: 'LIVE' as const, stack: ['DuckDuckGo', 'Groq', 'PostgreSQL'], metric: t.products.metrics.discovery, lightMetric: t.products.metrics.light_discovery },
+];
+
+const productIntel = [
+  { name: 'AICPO Platform', tagline: t.products.taglines.aicpo_platformLong, lightTagline: t.products.taglines.light_aicpo_platformLong, url: 'https://aicpo.ru', status: 'LIVE' as const, stack: ['Rails 8', 'ActionCable', 'Propshaft'], metric: t.products.metrics.aicpo_platform, lightMetric: t.products.metrics.light_aicpo_platform },
+  { name: 'Artifact Pipeline', tagline: t.products.taglines.artifact_pipelineLong, lightTagline: t.products.taglines.light_artifact_pipelineLong, status: 'LIVE' as const, stack: ['Groq', 'Gemini', 'OpenRouter'], metric: t.products.metrics.artifact_pipeline, lightMetric: t.products.metrics.light_artifact_pipeline },
+  { name: 'Pain Extractor', tagline: t.products.taglines.pain_extractorLong, lightTagline: t.products.taglines.light_pain_extractorLong, status: 'LIVE' as const, stack: ['Rails engine', 'Groq'], metric: t.products.metrics.pain_extractor, lightMetric: t.products.metrics.light_pain_extractor },
+  { name: 'Research Corpus', tagline: t.products.taglines.research_corpusLong, lightTagline: t.products.taglines.light_research_corpusLong, status: 'LIVE' as const, stack: ['PostgreSQL', 'SHA256'], metric: t.products.metrics.research_corpus, lightMetric: t.products.metrics.light_research_corpus },
   { name: 'Competitive Intelligence', tagline: t.products.taglines.competitive_intelLong, lightTagline: t.products.taglines.light_competitive_intelLong, status: 'LIVE' as const, stack: ['DuckDuckGo', 'Groq', 'KG', 'cron 6h'], metric: t.products.metrics.competitive_intel, lightMetric: t.products.metrics.light_competitive_intel },
   { name: 'Trend Monitoring', tagline: t.products.taglines.trend_monitorLong, lightTagline: t.products.taglines.light_trend_monitorLong, status: 'LIVE' as const, stack: ['DuckDuckGo', 'Groq', 'KG', 'weekly cron'], metric: t.products.metrics.trend_monitor, lightMetric: t.products.metrics.light_trend_monitor },
+];
+
+const autoEvolution = [
+  { name: 'Self-Evolving Prompts', tagline: t.products.taglines.self_evolvingLong, lightTagline: t.products.taglines.light_self_evolvingLong, status: 'LIVE' as const, stack: ['Groq', 'cron'], metric: t.products.metrics.self_evolving, lightMetric: t.products.metrics.light_self_evolving },
+  { name: 'Evolution Pipeline', tagline: t.products.taglines.evolutionLong, lightTagline: t.products.taglines.light_evolutionLong, status: 'LIVE' as const, stack: ['Claude Sonnet', 'Groq'], metric: t.products.metrics.evolution, lightMetric: t.products.metrics.light_evolution },
+  { name: 'Ship Pipeline', tagline: t.products.taglines.ship_pipelineLong, lightTagline: t.products.taglines.light_ship_pipelineLong, status: 'LIVE' as const, stack: ['ActionCable', 'Groq', 'voting'], metric: t.products.metrics.ship_pipeline, lightMetric: t.products.metrics.light_ship_pipeline },
+  { name: 'Quality Management', tagline: t.products.taglines.quality_managementLong, lightTagline: t.products.taglines.light_quality_managementLong, status: 'LIVE' as const, stack: ['feedback', 'auto-draft', 'versioning'], metric: t.products.metrics.quality_management, lightMetric: t.products.metrics.light_quality_management },
+  { name: 'Incident \u2192 Feature', tagline: t.products.taglines.incident_pipelineLong, lightTagline: t.products.taglines.light_incident_pipelineLong, status: 'LIVE' as const, stack: ['Claude Sonnet', 'Groq', '8 categories'], metric: t.products.metrics.incident_pipeline, lightMetric: t.products.metrics.light_incident_pipeline },
+];
+
+const enterprise = [
+  { name: 'Team OS', tagline: t.products.taglines.team_osLong, lightTagline: t.products.taglines.light_team_osLong, status: 'LIVE' as const, stack: ['SAML 2.0', 'OIDC', 'RBAC'], metric: t.products.metrics.team_os, lightMetric: t.products.metrics.light_team_os },
+  { name: 'CRM Engine', tagline: t.products.taglines.crm_engineLong, lightTagline: t.products.taglines.light_crm_engineLong, status: 'LIVE' as const, stack: ['Rails', 'cron', 'SMTP'], metric: t.products.metrics.crm_engine, lightMetric: t.products.metrics.light_crm_engine },
+  { name: 'Credit Engine', tagline: t.products.taglines.credit_engineLong, lightTagline: t.products.taglines.light_credit_engineLong, status: 'LIVE' as const, stack: ['PostgreSQL', 'row locks'], metric: t.products.metrics.credit_engine, lightMetric: t.products.metrics.light_credit_engine },
+  { name: 'Tokenomics Guard', tagline: t.products.taglines.tokenomicsLong, lightTagline: t.products.taglines.light_tokenomicsLong, status: 'LIVE' as const, stack: ['Redis', 'PostgreSQL'], metric: t.products.metrics.tokenomics, lightMetric: t.products.metrics.light_tokenomics },
+  { name: 'P&L Economics', tagline: t.products.taglines.pnl_economicsLong, lightTagline: t.products.taglines.light_pnl_economicsLong, status: 'LIVE' as const, stack: ['PostgreSQL', 'row locks', 'cron'], metric: t.products.metrics.pnl_economics, lightMetric: t.products.metrics.light_pnl_economics },
+  { name: 'User Management', tagline: t.products.taglines.user_managementLong, lightTagline: t.products.taglines.light_user_managementLong, status: 'LIVE' as const, stack: ['Rails', 'invites', 'shadow projects'], metric: t.products.metrics.user_management, lightMetric: t.products.metrics.light_user_management },
+  { name: 'Admin Command Center', tagline: t.products.taglines.admin_dashboardLong, lightTagline: t.products.taglines.light_admin_dashboardLong, status: 'LIVE' as const, stack: ['Rails', 'Turbo', 'Hotkeys'], metric: t.products.metrics.admin_dashboard, lightMetric: t.products.metrics.light_admin_dashboard },
+  { name: 'Marketing Analytics', tagline: t.products.taglines.marketing_analyticsLong, lightTagline: t.products.taglines.light_marketing_analyticsLong, status: 'LIVE' as const, stack: ['PostHog', 'GA4', 'UTM'], metric: t.products.metrics.marketing_analytics, lightMetric: t.products.metrics.light_marketing_analytics },
+];
+
+const infraGroup = [
+  { name: 'Product Health Monitor', tagline: t.products.taglines.health_monitorLong, lightTagline: t.products.taglines.light_health_monitorLong, status: 'LIVE' as const, stack: ['PostHog', 'Stripe', 'GA4', '\u042F\u043D\u0434\u0435\u043A\u0441 \u041C\u0435\u0442\u0440\u0438\u043A\u0430'], metric: t.products.metrics.health_monitor, lightMetric: t.products.metrics.light_health_monitor },
+  { name: 'Email Bridge', tagline: t.products.taglines.email_bridgeLong, lightTagline: t.products.taglines.light_email_bridgeLong, status: 'LIVE' as const, stack: ['IMAP', 'SMTP', 'ActionCable'], metric: t.products.metrics.email_bridge, lightMetric: t.products.metrics.light_email_bridge },
+  { name: 'PDF Publisher', tagline: t.products.taglines.pdf_publisherLong, lightTagline: t.products.taglines.light_pdf_publisherLong, status: 'LIVE' as const, stack: ['Rails', 'HTML\u2192PDF'], metric: t.products.metrics.pdf_publisher, lightMetric: t.products.metrics.light_pdf_publisher },
+  { name: 'TG Channel Publisher', tagline: t.products.taglines.tg_publisherLong, lightTagline: t.products.taglines.light_tg_publisherLong, status: 'LIVE' as const, stack: ['CF Worker', 'Telegram API'], metric: t.products.metrics.tg_publisher, lightMetric: t.products.metrics.light_tg_publisher },
+  { name: 'Blog Publisher', tagline: t.products.taglines.blog_publisherLong, lightTagline: t.products.taglines.light_blog_publisherLong, status: 'LIVE' as const, stack: ['Rails', 'Markdown', 'SEO'], metric: t.products.metrics.blog_publisher, lightMetric: t.products.metrics.light_blog_publisher },
+  { name: 'System Health', tagline: t.products.taglines.system_healthLong, lightTagline: t.products.taglines.light_system_healthLong, status: 'LIVE' as const, stack: ['Rails', 'cron', 'ActionCable'], metric: t.products.metrics.system_health, lightMetric: t.products.metrics.light_system_health },
+];
+
+const aicpoGroups = [
+  { category: 'Corporate', title: 'AI Engine', lightTitle: 'AI-движок', subtitle: 'LLM cascade, vector search, knowledge graph, autonomous research — AICPO build', lightSubtitle: 'Модели, память, поиск по смыслу, исследование рынка — сборка AICPO', items: aiEngine },
+  { category: 'Corporate', title: 'Product Intelligence', lightTitle: 'Продуктовая аналитика', subtitle: 'Artifacts, fact extraction, competitors, trends — AICPO build', lightSubtitle: '43 документа, мониторинг конкурентов и трендов — сборка AICPO', items: productIntel },
+  { category: 'Corporate', title: 'Self-Evolution', lightTitle: 'Самообучение', subtitle: 'Auto-improving prompts, feedback loops, incidents → features — reusable modules', lightSubtitle: 'Система учится на ошибках и развивается без участия человека', items: autoEvolution },
+  { category: 'Corporate', title: 'Enterprise', lightTitle: 'Корпоративные функции', subtitle: 'RBAC, SSO, CRM, billing, analytics, admin — reusable modules', lightSubtitle: 'Командная работа, тарификация, CRM, маркетинговая аналитика', items: enterprise },
+  { category: 'Corporate', title: 'Integrations', lightTitle: 'Интеграции', subtitle: 'Monitoring, email, PDF, TG, blog, health checks — reusable modules', lightSubtitle: 'Мониторинг метрик, email, документы, публикации', items: infraGroup },
 ];
 ---
 <BaseLayout title={t.products.title} description={t.products.description} pagePath="/products">
@@ -55,15 +75,39 @@ const aicpoProducts = [
     <span class="theme-light">{t.products.light_subtitle}</span>
   </p>
 
-  <div class="grid grid-cols-1 gap-3">
-    {standaloneProducts.map(product => (
-      <ProductCard {...product} />
-    ))}
-  </div>
-  <h2 class="text-sm mt-12 mb-6 text-(--color-text-dim)">## AICPO Platform — 31 система под одним капотом</h2>
-  <div class="grid grid-cols-1 gap-3">
-    {aicpoProducts.map(product => (
-      <ProductCard {...product} />
-    ))}
-  </div>
+  <!-- Indie Products -->
+  <section class="mb-12">
+    <h2 class="text-sm mb-1 text-(--color-text-dim)">
+      <span class="theme-dark">## Indie Products</span>
+      <span class="theme-light">## Самостоятельные продукты</span>
+    </h2>
+    <p class="text-xs text-(--color-text-dim) mb-4">
+      <span class="theme-dark">Astro, Next.js, Python, Cloudflare — standalone</span>
+      <span class="theme-light">Отдельные продукты, запущенные в продакшен</span>
+    </p>
+    <div class="grid grid-cols-1 gap-3">
+      {standaloneProducts.map(product => (
+        <ProductCard {...product} />
+      ))}
+    </div>
+  </section>
+
+  <!-- AICPO groups -->
+  {aicpoGroups.map(group => (
+    <section class="mb-12">
+      <h2 class="text-sm mb-1 text-(--color-text-dim)">
+        <span class="theme-dark">## {group.category} / {group.title}</span>
+        <span class="theme-light">## {group.category} / {group.lightTitle}</span>
+      </h2>
+      <p class="text-xs text-(--color-text-dim) mb-4">
+        <span class="theme-dark">{group.subtitle}</span>
+        <span class="theme-light">{group.lightSubtitle}</span>
+      </p>
+      <div class="grid grid-cols-1 gap-3">
+        {group.items.map(product => (
+          <ProductCard {...product} />
+        ))}
+      </div>
+    </section>
+  ))}
 </BaseLayout>

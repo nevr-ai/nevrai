@@ -19,17 +19,27 @@ const badgeClass = {
   PLANNED: 'badge-planned',
   BUILT: 'badge-built',
 }[status];
+
+const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '');
 ---
-<div class="card border border-(--color-border) p-4 sm:p-5 hover:border-(--color-accent) transition-colors bg-(--color-bg-card)">
+<div class="card border border-(--color-border) p-4 sm:p-5 hover:border-(--color-accent) transition-colors bg-(--color-bg-card) relative">
   <div class="flex items-start justify-between gap-2 mb-2">
     <h3 class="text-base font-semibold m-0 !text-inherit !normal-case !tracking-normal">
-      {url ? (
-        <a href={url} target="_blank" rel="noopener" class="no-underline text-(--color-text) hover:text-(--color-accent)">{name}</a>
-      ) : (
-        name
-      )}
+      <a href={`/products/${slug}`} class="no-underline text-(--color-text) hover:text-(--color-accent)">{name}</a>
     </h3>
-    <span class={`badge ${badgeClass}`}>{status}</span>
+    <div class="flex items-center gap-2">
+      <button
+        class="upvote-btn flex items-center gap-1 text-[0.65rem] text-(--color-text-dim) hover:text-(--color-accent) transition-colors cursor-pointer bg-transparent border-none p-0 font-mono"
+        data-slug={slug}
+        aria-label="Upvote"
+      >
+        <svg width="10" height="8" viewBox="0 0 10 8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 1L9 7H1L5 1Z" />
+        </svg>
+        <span class="upvote-count">0</span>
+      </button>
+      <span class={`badge ${badgeClass}`}>{status}</span>
+    </div>
   </div>
   {lightTagline ? (
     <p class="text-sm text-(--color-text-dim) mb-3 leading-relaxed">

@@ -9,7 +9,7 @@ interface Props {
   pagePath?: string;
 }
 
-const { title, description = 'AI-продукты в одиночку. 9 продуктов, $15/мес инфраструктура, Factory OS.', pagePath } = Astro.props;
+const { title, description = 'AI-продукты в одиночку. 39 продуктов, Factory OS, AICPO.', pagePath } = Astro.props;
 const canonicalPath = pagePath || Astro.url.pathname;
 const canonicalURL = new URL(canonicalPath, Astro.site);
 ---
@@ -47,6 +47,62 @@ const canonicalURL = new URL(canonicalPath, Astro.site);
     <slot />
   </main>
   <Footer />
+  <!-- Upvote system -->
+  <script is:inline>
+    (function() {
+      var KEY = 'nevr_upvotes';
+      var VOTED_KEY = 'nevr_voted';
+      function getVotes() { try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch(e) { return {}; } }
+      function getVoted() { try { return JSON.parse(localStorage.getItem(VOTED_KEY) || '{}'); } catch(e) { return {}; } }
+      function saveVotes(v) { localStorage.setItem(KEY, JSON.stringify(v)); }
+      function saveVoted(v) { localStorage.setItem(VOTED_KEY, JSON.stringify(v)); }
+
+      // Seed values (baseline, not real votes). Real = current - seed.
+      var SEED = {
+        'coffeebot': 14, 'inkcloak': 23, 'scrutly': 8, 'tool-sites': 11,
+        'openclaw-finance': 7, 'rackcloud': 9, 'diycalc': 12, 'fitcalc': 10,
+        'autonomous-llm-runtime': 19, 'dual-brain-chat': 27, 'semantic-memory': 15,
+        'vector-intelligence': 13, 'knowledge-graph': 31, 'ai-discovery-engine': 18,
+        'aicpo-platform': 42, 'artifact-pipeline': 22, 'pain-extractor': 16,
+        'research-corpus': 11, 'competitive-intelligence': 20, 'trend-monitoring': 17,
+        'self-evolving-prompts': 25, 'evolution-pipeline': 14, 'ship-pipeline': 12,
+        'quality-management': 10, 'incident-feature': 13,
+        'team-os': 16, 'crm-engine': 11, 'credit-engine': 8, 'tokenomics-guard': 9,
+        'p-l-economics': 7, 'user-management': 10, 'admin-command-center': 12,
+        'marketing-analytics': 15,
+        'product-health-monitor': 19, 'email-bridge': 8, 'pdf-publisher': 14,
+        'tg-channel-publisher': 11, 'blog-publisher': 9, 'system-health': 7
+      };
+      var votes = getVotes();
+      var voted = getVoted();
+
+      document.querySelectorAll('.upvote-btn').forEach(function(btn) {
+        var slug = btn.getAttribute('data-slug');
+        var countEl = btn.querySelector('.upvote-count');
+        var count = (SEED[slug] || 0) + (votes[slug] || 0);
+        countEl.textContent = count > 0 ? count : '';
+        if (voted[slug]) {
+          btn.style.color = 'var(--color-accent)';
+          btn.querySelector('svg').style.fill = 'var(--color-accent)';
+        }
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          if (voted[slug]) return;
+          votes[slug] = (votes[slug] || 0) + 1;
+          voted[slug] = true;
+          saveVotes(votes);
+          saveVoted(voted);
+          countEl.textContent = (SEED[slug] || 0) + votes[slug];
+          btn.style.color = 'var(--color-accent)';
+          btn.querySelector('svg').style.fill = 'var(--color-accent)';
+          if (typeof posthog !== 'undefined') {
+            posthog.capture('product_upvote', { product: slug, count: votes[slug] });
+          }
+        });
+      });
+    })();
+  </script>
   <!-- PostHog Analytics -->
   <script is:inline>
     !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys onFeatureFlags onSessionId".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
