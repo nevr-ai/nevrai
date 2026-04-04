@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 500" fill="none">
+  <rect width="600" height="500" fill="#0a0a0a"/>
+  <!-- Manager (left) -->
+  <g transform="translate(80,80)">
+    <circle cx="60" cy="40" r="32" fill="none" stroke="#a1a1aa" stroke-width="2"/>
+    <circle cx="60" cy="30" r="11" fill="none" stroke="#a1a1aa" stroke-width="1.5"/>
+    <path d="M34,64 Q60,50 86,64" fill="none" stroke="#a1a1aa" stroke-width="1.5"/>
+    <text x="60" y="100" fill="#e4e4e7" font-family="monospace" font-size="14" text-anchor="middle" font-weight="bold">manager</text>
+    <text x="60" y="125" fill="#22c55e" font-family="monospace" font-size="11" text-anchor="middle">smell for bullshit</text>
+    <text x="60" y="142" fill="#22c55e" font-family="monospace" font-size="11" text-anchor="middle">priorities</text>
+    <text x="60" y="159" fill="#22c55e" font-family="monospace" font-size="11" text-anchor="middle">judgment</text>
+    <text x="60" y="185" fill="#3f3f46" font-family="monospace" font-size="10" text-anchor="middle">zero coding</text>
+  </g>
+  <!-- Multiply sign -->
+  <text x="300" y="130" fill="#22c55e" font-family="monospace" font-size="48" text-anchor="middle">×</text>
+  <!-- AI (right) -->
+  <g transform="translate(400,80)">
+    <rect x="20" y="8" width="80" height="64" rx="14" fill="none" stroke="#a1a1aa" stroke-width="2"/>
+    <text x="60" y="48" fill="#a1a1aa" font-family="monospace" font-size="18" text-anchor="middle">AI</text>
+    <text x="60" y="100" fill="#e4e4e7" font-family="monospace" font-size="14" text-anchor="middle" font-weight="bold">synthetic</text>
+    <text x="60" y="125" fill="#a1a1aa" font-family="monospace" font-size="11" text-anchor="middle">execution</text>
+    <text x="60" y="142" fill="#a1a1aa" font-family="monospace" font-size="11" text-anchor="middle">speed</text>
+    <text x="60" y="159" fill="#a1a1aa" font-family="monospace" font-size="11" text-anchor="middle">knowledge</text>
+    <text x="60" y="185" fill="#3f3f46" font-family="monospace" font-size="10" text-anchor="middle">zero judgment</text>
+  </g>
+  <!-- Result -->
+  <line x1="300" y1="280" x2="300" y2="310" stroke="#22c55e" stroke-width="3"/>
+  <polygon points="292,306 300,320 308,306" fill="#22c55e"/>
+  <g transform="translate(100,330)">
+    <rect x="0" y="0" width="400" height="110" rx="12" fill="#18181b" stroke="#22c55e" stroke-width="2"/>
+    <text x="200" y="32" fill="#22c55e" font-family="monospace" font-size="18" text-anchor="middle" font-weight="bold">10x output</text>
+    <text x="200" y="58" fill="#e4e4e7" font-family="monospace" font-size="13" text-anchor="middle">month of pain → hour of flow</text>
+    <text x="200" y="82" fill="#a1a1aa" font-family="monospace" font-size="12" text-anchor="middle">manager grows faster than ever</text>
+    <text x="200" y="100" fill="#a1a1aa" font-family="monospace" font-size="12" text-anchor="middle">AI gets the best possible supervisor</text>
+  </g>
+</svg>
