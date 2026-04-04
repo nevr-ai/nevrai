@@ -31,6 +31,8 @@ const aicpoProducts = [
   { name: 'Tokenomics Guard', tagline: t.products.taglines.tokenomicsLong, status: 'LIVE' as const, stack: ['Redis', 'PostgreSQL'], metric: t.products.metrics.tokenomics },
   { name: 'Email Bridge', tagline: t.products.taglines.email_bridgeLong, status: 'LIVE' as const, stack: ['IMAP', 'SMTP', 'ActionCable'], metric: t.products.metrics.email_bridge },
   { name: 'PDF Publisher', tagline: t.products.taglines.pdf_publisherLong, status: 'LIVE' as const, stack: ['Rails', 'HTML→PDF'], metric: t.products.metrics.pdf_publisher },
+  { name: 'Vector Intelligence Engine', tagline: t.products.taglines.vector_intelligenceLong, status: 'LIVE' as const, stack: ['pg_vector', 'cosine similarity', 'SQLite fallback'], metric: t.products.metrics.vector_intelligence },
+  { name: 'Knowledge Graph', tagline: t.products.taglines.knowledge_graphLong, status: 'LIVE' as const, stack: ['Rails engine', '14 node types', 'edges'], metric: t.products.metrics.knowledge_graph },
 ];
 ---
 <BaseLayout title={t.products.title} description={t.products.description} pagePath="/products">

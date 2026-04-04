@@ -1,4 +1,4 @@
-const PRODUCT_COUNT = 24;
+const PRODUCT_COUNT = 26;
 
 const t = {
   meta: {
@@ -83,6 +83,10 @@ const t = {
       email_bridgeLong: 'IMAP poll каждые 2 минуты. SMTP отправка приглашений и артефактов. Маршрутизация по In-Reply-To → subject tag → EmailChannel → User. Защита от auto-reply и bounce.',
       pdf_publisher: 'Публичные PDF-ссылки на артефакты с замороженным контентом',
       pdf_publisherLong: 'Генерация публичных ссылок (/pdf/:token). Контент замораживается на момент создания. Print-ready B4 формат. Watermark. Счётчик просмотров. Без логина.',
+      vector_intelligence: '4-уровневая модель данных: текст → факты → векторы → граф',
+      vector_intelligenceLong: 'Сырые сообщения → LLM extraction → структурированные факты (5 измерений, веса 10-100) → pg_vector embeddings + cosine similarity → Knowledge Graph. Каждый уровень обогащает предыдущий. SQLite fallback для dev.',
+      knowledge_graph: 'Графовое хранилище: 14 типов нод, evidence trail до слов пользователя',
+      knowledge_graphLong: 'Отдельный Rails engine. 14 типов нод: pain, job, segment, competitor, feature, trend, metric, constraint, person, channel, solution, trigger, emotion, criteria. Edges с confidence. Полная трассируемость: рекомендация → факт → сообщение пользователя.',
     },
     metrics: {
       coffeebot: '82 кофейных профиля сгенерировано',
@@ -109,6 +113,8 @@ const t = {
       tokenomics: '$5/день, алерт 80%',
       email_bridge: 'poll 2 мин, auto-routing',
       pdf_publisher: 'B4, watermark, public links',
+      vector_intelligence: '4 уровня, pg_vector, 5 измерений',
+      knowledge_graph: '14 типов нод, edges, evidence trail',
     },
   },
   stack: {
