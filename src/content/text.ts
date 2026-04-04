@@ -17,6 +17,9 @@ const t = {
     blog: 'Блог',
     about: 'Обо мне',
     contact: 'Контакты',
+    docs: 'Docs',
+    pricing: 'Тарифы',
+    dashboard: 'Dashboard',
   },
   sections: {
     products: '## Продукты',

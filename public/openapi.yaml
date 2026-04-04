@@ -1,0 +1,1104 @@
+openapi: 3.1.0
+info:
+  title: nevrai API Gateway
+  description: AI-powered product research API — chat, escalation detection, data extraction, PDF generation, market research.
+  version: 0.4.0
+  contact:
+    name: nevrai
+    url: https://nevrai.com
+  license:
+    name: Proprietary
+
+servers:
+  - url: https://api.nevrai.com
+    description: Production
+  - url: http://localhost:8787
+    description: Local development
+
+security:
+  - BearerAuth: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: "API key (nvr_live_<32hex> / nvr_test_<32hex>) or session token (nvr_session_<32hex>)"
+
+  headers:
+    X-Request-Id:
+      description: Unique request identifier
+      schema:
+        type: string
+        example: req_a1b2c3d4e5f6
+    X-RateLimit-Limit:
+      description: Max requests per minute for your tier
+      schema:
+        type: integer
+    X-RateLimit-Remaining:
+      description: Remaining requests in current window
+      schema:
+        type: integer
+    X-RateLimit-Reset:
+      description: Unix timestamp when limit resets
+      schema:
+        type: integer
+
+  schemas:
+    Error:
+      type: object
+      required: [request_id, error, message, status]
+      properties:
+        request_id:
+          type: string
+          example: req_a1b2c3d4e5f6
+        error:
+          type: string
+          enum: [unauthorized, rate_limited, quota_exceeded, invalid_request, provider_error, internal_error, service_unavailable, gateway_timeout, bad_gateway, not_found]
+        message:
+          type: string
+        status:
+          type: integer
+
+    ChatMessage:
+      type: object
+      required: [role, content]
+      properties:
+        role:
+          type: string
+          enum: [system, user, assistant]
+        content:
+          type: string
+          maxLength: 10000
+
+    ChatRequest:
+      type: object
+      required: [messages]
+      properties:
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatMessage'
+          minItems: 1
+          maxItems: 50
+        config:
+          type: object
+          properties:
+            strategy:
+              type: string
+              enum: [speed_first, quality_first, auto]
+              default: speed_first
+            stream:
+              type: boolean
+              default: false
+            temperature:
+              type: number
+              minimum: 0
+              maximum: 2
+              default: 0.7
+            max_tokens:
+              type: integer
+              minimum: 1
+              maximum: 32768
+
+    ChatResponse:
+      type: object
+      required: [request_id, id, content, model, provider, finish_reason, escalated, usage]
+      properties:
+        request_id:
+          type: string
+        id:
+          type: string
+          example: nvr_chat_a1b2c3d4e5f6
+        content:
+          type: string
+        model:
+          type: string
+        provider:
+          type: string
+        finish_reason:
+          type: string
+        escalated:
+          type: boolean
+        usage:
+          type: object
+          properties:
+            input_tokens:
+              type: integer
+            output_tokens:
+              type: integer
+            estimated_cost_usd:
+              type: number
+            cascade_attempts:
+              type: integer
+            latency_ms:
+              type: integer
+
+    EscalationHistoryMessage:
+      type: object
+      required: [role, content]
+      properties:
+        role:
+          type: string
+          enum: [user, assistant]
+        content:
+          type: string
+          maxLength: 5000
+
+    EscalationRequest:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+          maxLength: 5000
+          description: Current user message to analyze
+        history:
+          type: array
+          items:
+            $ref: '#/components/schemas/EscalationHistoryMessage'
+          maxItems: 10
+          description: Recent conversation history for context
+
+    EscalationResponse:
+      type: object
+      required: [request_id, escalate, trigger, confidence, triggers_detected, recommended_action, recommended_tier, detection_method]
+      properties:
+        request_id:
+          type: string
+        escalate:
+          type: boolean
+          description: Whether escalation is recommended
+        trigger:
+          type: string
+          enum: [negative_sentiment, explicit_request, repetition, stagnation, tone_mismatch, none]
+          description: Primary trigger detected
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Detection confidence score
+        triggers_detected:
+          type: array
+          items:
+            type: string
+          description: All triggers found
+        recommended_action:
+          type: string
+          enum: [switch_to_premium_model, continue_standard]
+        recommended_tier:
+          type: string
+          enum: [standard, premium, analyst]
+        detection_method:
+          type: string
+          enum: [regex, llm, mock]
+        usage:
+          type: object
+          properties:
+            input_tokens:
+              type: integer
+            output_tokens:
+              type: integer
+            latency_ms:
+              type: integer
+
+    ExtractRequest:
+      type: object
+      required: [text]
+      properties:
+        text:
+          type: string
+          maxLength: 50000
+          description: Text to extract data points from
+        format:
+          type: string
+          enum: [plain]
+          default: plain
+          description: Input text format (only "plain" for MVP)
+        language:
+          type: string
+          enum: [auto, ru, en]
+          default: auto
+          description: Text language hint
+
+    JobEntry:
+      type: object
+      properties:
+        statement:
+          type: string
+          description: "Job statement in format: When X, I want Y, so Z"
+        type:
+          type: string
+          enum: [core_job, related_job, emotional_job]
+        level:
+          type: string
+          enum: [coreJob, subJob]
+
+    ExtractDataPoints:
+      type: object
+      description: "19 AJTBD data points. Satisfaction scale: 1-10."
+      properties:
+        niche:
+          type: [string, "null"]
+        pain:
+          type: array
+          items:
+            type: string
+        audience:
+          type: [string, "null"]
+        jobs:
+          type: array
+          items:
+            $ref: '#/components/schemas/JobEntry'
+        triggers:
+          type: array
+          items:
+            type: string
+        current_solutions:
+          type: array
+          items:
+            type: string
+        satisfaction:
+          type: [integer, "null"]
+          minimum: 1
+          maximum: 10
+          description: "Satisfaction with current solutions (1-10 scale)"
+        frequency:
+          type: [string, "null"]
+        willingness_to_pay:
+          type: [string, "null"]
+        switching_triggers:
+          type: array
+          items:
+            type: string
+        emotions_negative:
+          type: array
+          items:
+            type: string
+        emotions_positive:
+          type: array
+          items:
+            type: string
+        success_criteria:
+          type: array
+          items:
+            type: string
+        constraints:
+          type: array
+          items:
+            type: string
+        competitors:
+          type: array
+          items:
+            type: string
+        channel:
+          type: [string, "null"]
+        context:
+          type: [string, "null"]
+        deep_needs:
+          type: array
+          items:
+            type: string
+        dormant_jobs:
+          type: array
+          items:
+            type: string
+
+    PdfRequest:
+      type: object
+      required: [content]
+      properties:
+        content:
+          type: string
+          maxLength: 100000
+          description: Markdown content to render as PDF
+        format:
+          type: string
+          enum: [markdown]
+          default: markdown
+        options:
+          type: object
+          properties:
+            title:
+              type: string
+              maxLength: 200
+            watermark:
+              type: string
+              maxLength: 100
+
+    PdfResponse:
+      type: object
+      required: [request_id, document_id, pdf_url, verify_url, created_at, usage]
+      properties:
+        request_id:
+          type: string
+        document_id:
+          type: string
+          example: NEVRAI-202604-A3F2B1
+        pdf_url:
+          type: string
+          format: uri
+        verify_url:
+          type: string
+          format: uri
+        created_at:
+          type: string
+          format: date-time
+        usage:
+          type: object
+          properties:
+            latency_ms:
+              type: integer
+
+    ResearchRequest:
+      type: object
+      required: [query]
+      properties:
+        query:
+          type: string
+          maxLength: 1000
+          description: Research query
+        depth:
+          type: string
+          enum: [quick, deep]
+          default: quick
+        sources:
+          type: array
+          items:
+            type: string
+            enum: [web, telegram, articles]
+          default: [web]
+        language:
+          type: string
+          enum: [auto, ru, en]
+          default: auto
+
+    ResearchCreateResponse:
+      type: object
+      required: [request_id, job_id, status, estimated_seconds, poll_url]
+      properties:
+        request_id:
+          type: string
+        job_id:
+          type: string
+          example: nvr_res_xyz789
+        status:
+          type: string
+          enum: [processing]
+        estimated_seconds:
+          type: integer
+        poll_url:
+          type: string
+          format: uri
+
+    ResearchInsight:
+      type: object
+      properties:
+        text:
+          type: string
+        relevance:
+          type: number
+          minimum: 0
+          maximum: 1
+
+    ResearchPollResponse:
+      type: object
+      required: [request_id, job_id, status]
+      properties:
+        request_id:
+          type: string
+        job_id:
+          type: string
+        status:
+          type: string
+          enum: [processing, completed, failed]
+        results:
+          type: object
+          properties:
+            insights:
+              type: array
+              items:
+                $ref: '#/components/schemas/ResearchInsight'
+            channels:
+              type: array
+              items:
+                type: object
+            sources_checked:
+              type: integer
+            rounds_completed:
+              type: integer
+
+    ExtractResponse:
+      type: object
+      required: [request_id, data_points, coverage, confidence, language_detected, usage]
+      properties:
+        request_id:
+          type: string
+        data_points:
+          $ref: '#/components/schemas/ExtractDataPoints'
+        coverage:
+          type: object
+          required: [filled, total, missing]
+          properties:
+            filled:
+              type: integer
+              description: Number of data points extracted
+            total:
+              type: integer
+              description: Total data points (always 19)
+              example: 19
+            missing:
+              type: array
+              items:
+                type: string
+              description: Keys of data points not found in text
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+        language_detected:
+          type: string
+          example: en
+        usage:
+          type: object
+          properties:
+            input_tokens:
+              type: integer
+            output_tokens:
+              type: integer
+            latency_ms:
+              type: integer
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: ok
+        version:
+          type: string
+        environment:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+paths:
+  /v1/health:
+    get:
+      summary: Health check
+      operationId: getHealth
+      security: []
+      tags: [System]
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /v1/chat:
+    post:
+      summary: LLM chat with cascade fallback
+      operationId: postChat
+      tags: [Chat]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+      responses:
+        '200':
+          description: Chat completion
+          headers:
+            X-Request-Id:
+              $ref: '#/components/headers/X-Request-Id'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+            text/event-stream:
+              schema:
+                type: string
+                description: SSE stream (when config.stream=true)
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '402':
+          description: Quota exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '502':
+          description: Provider error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /v1/escalation:
+    post:
+      summary: Detect user frustration and recommend escalation
+      operationId: postEscalation
+      tags: [Escalation]
+      description: |
+        Analyzes a user message (and optional conversation history) for frustration signals.
+        Uses regex detection first (fast, free), falls back to LLM if inconclusive.
+        Returns escalation recommendation with confidence score.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EscalationRequest'
+            example:
+              message: "This is useless, nothing works!"
+              history:
+                - role: user
+                  content: "How do I analyze my product?"
+                - role: assistant
+                  content: "You can start by..."
+      responses:
+        '200':
+          description: Escalation analysis result
+          headers:
+            X-Request-Id:
+              $ref: '#/components/headers/X-Request-Id'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EscalationResponse'
+              example:
+                request_id: req_a1b2c3d4e5f6
+                escalate: true
+                trigger: negative_sentiment
+                confidence: 0.87
+                triggers_detected: [negative_sentiment]
+                recommended_action: switch_to_premium_model
+                recommended_tier: premium
+                detection_method: regex
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '502':
+          description: LLM provider error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /v1/extract:
+    post:
+      summary: Extract 19 AJTBD data points from text
+      operationId: postExtract
+      tags: [Extraction]
+      description: |
+        Sends text to an LLM for structured extraction of 19 product discovery data points.
+        Returns extracted fields, coverage report, and confidence score.
+        Satisfaction is on a 1-10 scale.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExtractRequest'
+            example:
+              text: "Our users are small business owners who struggle with inventory management..."
+              format: plain
+              language: auto
+      responses:
+        '200':
+          description: Extraction result with 19 data points
+          headers:
+            X-Request-Id:
+              $ref: '#/components/headers/X-Request-Id'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExtractResponse'
+        '400':
+          description: Invalid request (missing or invalid fields)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Text exceeds 50,000 character limit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '502':
+          description: LLM provider error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /v1/pdf:
+    post:
+      summary: Generate PDF from markdown content
+      operationId: postPdf
+      tags: [PDF]
+      description: |
+        Renders markdown content as a styled PDF document.
+        Returns a public URL for the generated PDF and a verification link.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PdfRequest'
+            example:
+              content: "# Market Analysis\n\nKey findings..."
+              format: markdown
+              options:
+                title: "Market Analysis Report"
+                watermark: "Generated by nevrai"
+      responses:
+        '200':
+          description: PDF generated successfully
+          headers:
+            X-Request-Id:
+              $ref: '#/components/headers/X-Request-Id'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PdfResponse'
+        '400':
+          description: Invalid request (missing content, bad format)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Content exceeds 100,000 character limit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '502':
+          description: Backend error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Backend service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '504':
+          description: Backend timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /v1/research:
+    post:
+      summary: Create market research job
+      operationId: postResearch
+      tags: [Research]
+      description: |
+        Starts an async multi-round market research job.
+        Returns a job_id and poll_url for checking status.
+        Searches web, Telegram channels, and articles based on sources parameter.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResearchRequest'
+            example:
+              query: "AI text detection market"
+              depth: quick
+              sources: [web, telegram]
+              language: en
+      responses:
+        '200':
+          description: Research job created
+          headers:
+            X-Request-Id:
+              $ref: '#/components/headers/X-Request-Id'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResearchCreateResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '502':
+          description: Backend error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /v1/research/{job_id}:
+    get:
+      summary: Poll research job status
+      operationId: getResearchJob
+      tags: [Research]
+      description: |
+        Polls the status of an async research job.
+        Returns results when status is "completed".
+        Not metered (only POST /v1/research counts toward usage).
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: nvr_res_xyz789
+      responses:
+        '200':
+          description: Research job status
+          headers:
+            X-Request-Id:
+              $ref: '#/components/headers/X-Request-Id'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResearchPollResponse'
+        '404':
+          description: Research job not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /v1/auth/login:
+    post:
+      summary: Request magic link login
+      operationId: postAuthLogin
+      security: []
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email:
+                  type: string
+                  format: email
+            example:
+              email: dev@example.com
+      responses:
+        '200':
+          description: Magic link sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  request_id:
+                    type: string
+                  message:
+                    type: string
+        '400':
+          description: Invalid email
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too many login attempts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /v1/auth/verify:
+    get:
+      summary: Verify magic link and create session
+      operationId: getAuthVerify
+      security: []
+      tags: [Auth]
+      parameters:
+        - name: token
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: email
+          in: query
+          required: true
+          schema:
+            type: string
+            format: email
+      responses:
+        '302':
+          description: Redirect to dashboard with session token
+        '401':
+          description: Invalid or expired token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /v1/keys:
+    post:
+      summary: Create new API key
+      operationId: postKeys
+      tags: [Keys]
+      description: Requires session token auth. Key value shown only once in response.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 100
+            example:
+              name: Production key
+      responses:
+        '201':
+          description: API key created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  request_id:
+                    type: string
+                  key:
+                    type: string
+                    description: Full API key (shown once)
+                  key_id:
+                    type: string
+                  name:
+                    type: string
+                  created_at:
+                    type: string
+                    format: date-time
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    get:
+      summary: List API keys
+      operationId: getKeys
+      tags: [Keys]
+      description: Returns keys with prefix only (not full key values).
+      responses:
+        '200':
+          description: Key list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  request_id:
+                    type: string
+                  keys:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        key_id:
+                          type: string
+                        name:
+                          type: string
+                        prefix:
+                          type: string
+                        tier:
+                          type: string
+                        created_at:
+                          type: string
+                          format: date-time
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /v1/keys/{key_id}:
+    delete:
+      summary: Revoke API key
+      operationId: deleteKey
+      tags: [Keys]
+      parameters:
+        - name: key_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Key deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  request_id:
+                    type: string
+                  deleted:
+                    type: boolean
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Key not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /v1/usage:
+    get:
+      summary: Get current month usage
+      operationId: getUsage
+      tags: [Usage]
+      description: Accepts either session token or API key auth.
+      responses:
+        '200':
+          description: Usage data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  request_id:
+                    type: string
+                  user_id:
+                    type: string
+                  month:
+                    type: string
+                    example: "2026-04"
+                  tier:
+                    type: string
+                  usage:
+                    type: object
+                    properties:
+                      chat:
+                        type: integer
+                      escalation:
+                        type: integer
+                      extract:
+                        type: integer
+                      pdf:
+                        type: integer
+                      research:
+                        type: integer
+                      total:
+                        type: integer
+                  limits:
+                    type: object
+                    properties:
+                      monthly:
+                        type: integer
+                      remaining:
+                        type: integer
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+tags:
+  - name: System
+    description: Health and status endpoints
+  - name: Auth
+    description: Magic link authentication
+  - name: Chat
+    description: LLM chat with provider cascade
+  - name: Escalation
+    description: User frustration detection
+  - name: Extraction
+    description: Structured data extraction from text
+  - name: PDF
+    description: PDF document generation from markdown
+  - name: Research
+    description: Async market research with multi-round analysis
+  - name: Keys
+    description: API key management (requires session auth)
+  - name: Usage
+    description: Usage and quota tracking

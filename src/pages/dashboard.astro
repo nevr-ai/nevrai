@@ -1,0 +1,332 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout title="Dashboard — nevrai" description="Manage your API keys and monitor usage." pagePath="/dashboard">
+
+<div id="app-login" style="display:none;">
+  <h2 class="text-xl font-semibold mb-4 text-(--color-text)">Dashboard</h2>
+  <p class="text-(--color-text-dim) mb-6">Enter your email to get a magic login link.</p>
+  <div class="flex flex-col sm:flex-row gap-3 max-w-md">
+    <input
+      type="email"
+      id="login-email"
+      placeholder="you@example.com"
+      class="flex-1 px-3 py-2 rounded border border-(--color-border) bg-(--color-surface) text-(--color-text) text-sm focus:outline-none focus:border-(--color-accent)"
+    />
+    <button
+      id="login-btn"
+      class="px-4 py-2 rounded bg-(--color-accent) text-(--color-bg) text-sm font-semibold hover:bg-(--color-accent-hover) transition-colors cursor-pointer"
+    >
+      Send login link
+    </button>
+  </div>
+  <p id="login-status" class="mt-4 text-sm text-(--color-text-dim)"></p>
+</div>
+
+<div id="app-dashboard" style="display:none;">
+  <div class="flex items-center justify-between mb-8">
+    <h2 class="text-xl font-semibold text-(--color-text)">Dashboard</h2>
+    <button
+      id="logout-btn"
+      class="px-3 py-1.5 rounded border border-(--color-border) text-sm text-(--color-text-dim) hover:text-(--color-text) hover:border-(--color-accent) transition-colors cursor-pointer"
+    >
+      Logout
+    </button>
+  </div>
+
+  <!-- API Keys -->
+  <section class="mb-10">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-semibold text-(--color-text)">API Keys</h3>
+      <button
+        id="create-key-btn"
+        class="px-3 py-1.5 rounded bg-(--color-accent) text-(--color-bg) text-sm font-semibold hover:bg-(--color-accent-hover) transition-colors cursor-pointer"
+      >
+        + Create new key
+      </button>
+    </div>
+
+    <!-- New key form (hidden) -->
+    <div id="new-key-form" style="display:none;" class="mb-4 p-4 rounded border border-(--color-border) bg-(--color-surface)">
+      <label class="block text-sm text-(--color-text-dim) mb-2">Key name</label>
+      <div class="flex gap-3">
+        <input
+          type="text"
+          id="new-key-name"
+          placeholder="e.g. production, staging"
+          class="flex-1 px-3 py-2 rounded border border-(--color-border) bg-(--color-bg) text-(--color-text) text-sm focus:outline-none focus:border-(--color-accent)"
+        />
+        <button
+          id="confirm-create-btn"
+          class="px-4 py-2 rounded bg-(--color-accent) text-(--color-bg) text-sm font-semibold hover:bg-(--color-accent-hover) transition-colors cursor-pointer"
+        >
+          Create
+        </button>
+        <button
+          id="cancel-create-btn"
+          class="px-4 py-2 rounded border border-(--color-border) text-sm text-(--color-text-dim) hover:text-(--color-text) transition-colors cursor-pointer"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+
+    <!-- Newly created key display (hidden) -->
+    <div id="new-key-display" style="display:none;" class="mb-4 p-4 rounded border border-(--color-accent) bg-(--color-surface)">
+      <p class="text-sm text-(--color-accent) font-semibold mb-2">Key created! Copy it now — you won't see it again.</p>
+      <div class="flex gap-2 items-center">
+        <code id="new-key-value" class="flex-1 text-sm break-all"></code>
+        <button
+          id="copy-key-btn"
+          class="px-3 py-1.5 rounded border border-(--color-border) text-sm text-(--color-text-dim) hover:text-(--color-accent) transition-colors cursor-pointer"
+        >
+          Copy
+        </button>
+      </div>
+    </div>
+
+    <div id="keys-list" class="space-y-2">
+      <p class="text-sm text-(--color-text-dim)">Loading...</p>
+    </div>
+  </section>
+
+  <!-- Usage -->
+  <section>
+    <h3 class="text-lg font-semibold text-(--color-text) mb-4">Usage (this month)</h3>
+    <div id="usage-data">
+      <p class="text-sm text-(--color-text-dim)">Loading...</p>
+    </div>
+  </section>
+</div>
+
+<!-- Verify token from magic link -->
+<div id="app-verifying" style="display:none;">
+  <p class="text-(--color-text-dim)">Verifying your login...</p>
+</div>
+
+<script is:inline>
+(function() {
+  const API = 'https://api.nevrai.com';
+  const loginEl = document.getElementById('app-login');
+  const dashEl = document.getElementById('app-dashboard');
+  const verifyEl = document.getElementById('app-verifying');
+
+  // Check for verify token in URL
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('token');
+
+  if (token) {
+    verifyEl.style.display = '';
+    verifyToken(token);
+  } else {
+    const session = localStorage.getItem('nevrai_session');
+    if (session) {
+      showDashboard(session);
+    } else {
+      showLogin();
+    }
+  }
+
+  async function verifyToken(t) {
+    try {
+      const res = await fetch(API + '/v1/auth/verify?token=' + encodeURIComponent(t));
+      const data = await res.json();
+      if (res.ok && data.session_token) {
+        localStorage.setItem('nevrai_session', data.session_token);
+        window.history.replaceState({}, '', '/dashboard');
+        showDashboard(data.session_token);
+      } else {
+        verifyEl.style.display = 'none';
+        showLogin();
+        document.getElementById('login-status').textContent = data.message || 'Verification failed. Please try again.';
+      }
+    } catch (e) {
+      verifyEl.style.display = 'none';
+      showLogin();
+      document.getElementById('login-status').textContent = 'Network error. Please try again.';
+    }
+  }
+
+  function showLogin() {
+    loginEl.style.display = '';
+    dashEl.style.display = 'none';
+    verifyEl.style.display = 'none';
+  }
+
+  function showDashboard(session) {
+    loginEl.style.display = 'none';
+    dashEl.style.display = '';
+    verifyEl.style.display = 'none';
+    loadKeys(session);
+    loadUsage(session);
+  }
+
+  function logout() {
+    localStorage.removeItem('nevrai_session');
+    showLogin();
+  }
+
+  // Login
+  document.getElementById('login-btn').addEventListener('click', async function() {
+    var email = document.getElementById('login-email').value.trim();
+    if (!email) return;
+    var btn = this;
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+    try {
+      var res = await fetch(API + '/v1/auth/login', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({email: email})
+      });
+      var data = await res.json();
+      document.getElementById('login-status').textContent = data.message || 'Check your email for a login link.';
+    } catch (e) {
+      document.getElementById('login-status').textContent = 'Network error. Please try again.';
+    }
+    btn.disabled = false;
+    btn.textContent = 'Send login link';
+  });
+
+  document.getElementById('login-email').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') document.getElementById('login-btn').click();
+  });
+
+  // Logout
+  document.getElementById('logout-btn').addEventListener('click', logout);
+
+  // Create key
+  document.getElementById('create-key-btn').addEventListener('click', function() {
+    document.getElementById('new-key-form').style.display = '';
+    document.getElementById('new-key-display').style.display = 'none';
+    document.getElementById('new-key-name').focus();
+  });
+
+  document.getElementById('cancel-create-btn').addEventListener('click', function() {
+    document.getElementById('new-key-form').style.display = 'none';
+  });
+
+  document.getElementById('confirm-create-btn').addEventListener('click', async function() {
+    var name = document.getElementById('new-key-name').value.trim();
+    if (!name) return;
+    var session = localStorage.getItem('nevrai_session');
+    try {
+      var res = await fetch(API + '/v1/keys', {
+        method: 'POST',
+        headers: {'Authorization': 'Bearer ' + session, 'Content-Type': 'application/json'},
+        body: JSON.stringify({name: name})
+      });
+      if (res.status === 401) { logout(); return; }
+      var data = await res.json();
+      document.getElementById('new-key-form').style.display = 'none';
+      document.getElementById('new-key-name').value = '';
+      if (data.key) {
+        document.getElementById('new-key-value').textContent = data.key;
+        document.getElementById('new-key-display').style.display = '';
+      }
+      loadKeys(session);
+    } catch (e) {
+      console.error('Create key error:', e);
+    }
+  });
+
+  document.getElementById('copy-key-btn').addEventListener('click', function() {
+    var val = document.getElementById('new-key-value').textContent;
+    navigator.clipboard.writeText(val).then(function() {
+      document.getElementById('copy-key-btn').textContent = 'Copied!';
+      setTimeout(function() { document.getElementById('copy-key-btn').textContent = 'Copy'; }, 2000);
+    });
+  });
+
+  // Load keys
+  async function loadKeys(session) {
+    var container = document.getElementById('keys-list');
+    try {
+      var res = await fetch(API + '/v1/keys', {
+        headers: {'Authorization': 'Bearer ' + session}
+      });
+      if (res.status === 401) { logout(); return; }
+      var data = await res.json();
+      var keys = data.keys || [];
+      if (keys.length === 0) {
+        container.innerHTML = '<p class="text-sm text-(--color-text-dim)">No API keys yet. Create one to get started.</p>';
+        return;
+      }
+      container.innerHTML = keys.map(function(k) {
+        return '<div class="flex items-center justify-between p-3 rounded border border-(--color-border) bg-(--color-surface)">' +
+          '<div>' +
+            '<span class="text-sm font-semibold text-(--color-text)">' + esc(k.name) + '</span>' +
+            '<span class="ml-3 text-xs text-(--color-text-dim)">' + esc(k.prefix || k.id) + '...</span>' +
+          '</div>' +
+          '<button onclick="deleteKey(\'' + esc(k.id) + '\')" class="text-xs text-(--color-text-dim) hover:text-red-400 transition-colors cursor-pointer">Delete</button>' +
+        '</div>';
+      }).join('');
+    } catch (e) {
+      container.innerHTML = '<p class="text-sm text-red-400">Failed to load keys.</p>';
+    }
+  }
+
+  // Delete key (global)
+  window.deleteKey = async function(keyId) {
+    if (!confirm('Delete this API key? This cannot be undone.')) return;
+    var session = localStorage.getItem('nevrai_session');
+    try {
+      var res = await fetch(API + '/v1/keys/' + keyId, {
+        method: 'DELETE',
+        headers: {'Authorization': 'Bearer ' + session}
+      });
+      if (res.status === 401) { logout(); return; }
+      loadKeys(session);
+    } catch (e) {
+      console.error('Delete key error:', e);
+    }
+  };
+
+  // Load usage
+  async function loadUsage(session) {
+    var container = document.getElementById('usage-data');
+    try {
+      var res = await fetch(API + '/v1/usage', {
+        headers: {'Authorization': 'Bearer ' + session}
+      });
+      if (res.status === 401) { logout(); return; }
+      var data = await res.json();
+      var usage = data.usage || data;
+
+      if (usage.requests_this_month !== undefined) {
+        var limit = usage.request_limit || '∞';
+        var used = usage.requests_this_month || 0;
+        var pct = usage.request_limit ? Math.round((used / usage.request_limit) * 100) : 0;
+        var barColor = pct > 90 ? 'bg-red-500' : pct > 70 ? 'bg-yellow-500' : 'bg-(--color-accent)';
+
+        container.innerHTML =
+          '<div class="space-y-4">' +
+            '<div>' +
+              '<div class="flex justify-between text-sm mb-1">' +
+                '<span class="text-(--color-text-dim)">Requests</span>' +
+                '<span class="text-(--color-text)">' + used.toLocaleString() + ' / ' + limit.toLocaleString() + '</span>' +
+              '</div>' +
+              '<div class="w-full h-2 rounded bg-(--color-surface) border border-(--color-border)">' +
+                '<div class="h-full rounded ' + barColor + '" style="width:' + Math.min(pct, 100) + '%"></div>' +
+              '</div>' +
+            '</div>' +
+            (usage.tier ? '<p class="text-sm text-(--color-text-dim)">Plan: <span class="text-(--color-text) font-semibold">' + esc(usage.tier) + '</span></p>' : '') +
+          '</div>';
+      } else {
+        container.innerHTML = '<p class="text-sm text-(--color-text-dim)">No usage data available yet.</p>';
+      }
+    } catch (e) {
+      container.innerHTML = '<p class="text-sm text-red-400">Failed to load usage data.</p>';
+    }
+  }
+
+  function esc(s) {
+    if (!s) return '';
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+})();
+</script>
+
+</BaseLayout>

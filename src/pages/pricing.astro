@@ -1,0 +1,75 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout title="Pricing — nevrai" description="Simple, predictable pricing for the nevrai API. Start free, scale as you grow." pagePath="/pricing">
+
+<h2 class="text-xl font-semibold mb-2 text-(--color-text)">Pricing</h2>
+<p class="text-(--color-text-dim) mb-8">Simple, predictable pricing. Start free, scale as you grow.</p>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+  <!-- Free -->
+  <div class="p-5 rounded border border-(--color-border) bg-(--color-surface) flex flex-col">
+    <h3 class="text-base font-semibold text-(--color-text) mb-1">Free</h3>
+    <div class="text-2xl font-bold text-(--color-text) mb-1">$0<span class="text-sm font-normal text-(--color-text-dim)">/mo</span></div>
+    <ul class="text-sm text-(--color-text-dim) space-y-1.5 mt-3 mb-5 flex-1">
+      <li>> 1,000 requests/mo</li>
+      <li>> 2 modules</li>
+      <li>> Community support</li>
+    </ul>
+    <a href="/dashboard" class="block text-center px-4 py-2 rounded bg-(--color-accent) text-(--color-bg) text-sm font-semibold hover:bg-(--color-accent-hover) transition-colors no-underline hover:no-underline">
+      Get started free
+    </a>
+  </div>
+
+  <!-- Starter -->
+  <div class="p-5 rounded border border-(--color-border) bg-(--color-surface) flex flex-col">
+    <h3 class="text-base font-semibold text-(--color-text) mb-1">Starter</h3>
+    <div class="text-2xl font-bold text-(--color-text) mb-1">$49<span class="text-sm font-normal text-(--color-text-dim)">/mo</span></div>
+    <ul class="text-sm text-(--color-text-dim) space-y-1.5 mt-3 mb-5 flex-1">
+      <li>> 10,000 requests/mo</li>
+      <li>> 5 modules</li>
+      <li>> Email support</li>
+    </ul>
+    <button disabled class="block w-full text-center px-4 py-2 rounded border border-(--color-border) text-sm text-(--color-text-dim) cursor-not-allowed">
+      Coming soon
+    </button>
+  </div>
+
+  <!-- Pro -->
+  <div class="p-5 rounded border-2 border-(--color-accent) bg-(--color-surface) flex flex-col relative">
+    <span class="absolute -top-2.5 left-4 px-2 py-0.5 text-xs font-semibold bg-(--color-accent) text-(--color-bg) rounded">POPULAR</span>
+    <h3 class="text-base font-semibold text-(--color-text) mb-1">Pro</h3>
+    <div class="text-2xl font-bold text-(--color-text) mb-1">$149<span class="text-sm font-normal text-(--color-text-dim)">/mo</span></div>
+    <ul class="text-sm text-(--color-text-dim) space-y-1.5 mt-3 mb-5 flex-1">
+      <li>> 100,000 requests/mo</li>
+      <li>> All modules</li>
+      <li>> Priority support</li>
+    </ul>
+    <button disabled class="block w-full text-center px-4 py-2 rounded border border-(--color-border) text-sm text-(--color-text-dim) cursor-not-allowed">
+      Coming soon
+    </button>
+  </div>
+
+  <!-- Business -->
+  <div class="p-5 rounded border border-(--color-border) bg-(--color-surface) flex flex-col">
+    <h3 class="text-base font-semibold text-(--color-text) mb-1">Business</h3>
+    <div class="text-2xl font-bold text-(--color-text) mb-1">$399<span class="text-sm font-normal text-(--color-text-dim)">/mo</span></div>
+    <ul class="text-sm text-(--color-text-dim) space-y-1.5 mt-3 mb-5 flex-1">
+      <li>> 1,000,000 requests/mo</li>
+      <li>> All modules + SLA</li>
+      <li>> Dedicated support</li>
+    </ul>
+    <a href="mailto:hi@nevrai.com" class="block text-center px-4 py-2 rounded border border-(--color-border) text-sm text-(--color-text-dim) hover:text-(--color-text) hover:border-(--color-accent) transition-colors no-underline hover:no-underline">
+      Contact us
+    </a>
+  </div>
+
+</div>
+
+<div class="mt-8 p-4 rounded border border-(--color-border) bg-(--color-surface) text-sm text-(--color-text-dim)">
+  <p><strong class="text-(--color-text)">All plans include:</strong> API access, rate limiting headers, request logging, OpenAPI docs.</p>
+  <p class="mt-2">Need a custom plan? <a href="mailto:hi@nevrai.com">Contact us</a>.</p>
+</div>
+
+</BaseLayout>
