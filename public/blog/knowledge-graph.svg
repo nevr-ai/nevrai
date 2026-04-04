@@ -1,35 +1,35 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" fill="none">
-  <rect width="800" height="400" fill="#0a0a0a"/>
-  <!-- Graph nodes -->
-  <g transform="translate(400,200)">
-    <!-- Central node -->
-    <circle cx="0" cy="0" r="20" fill="#22c55e" opacity="0.2" stroke="#22c55e" stroke-width="1.5"/>
-    <text x="0" y="5" fill="#22c55e" font-family="monospace" font-size="10" text-anchor="middle">pain</text>
-    <!-- Connected nodes -->
-    <circle cx="-140" cy="-80" r="16" fill="#18181b" stroke="#27272a"/>
-    <text x="-140" y="-76" fill="#a1a1aa" font-family="monospace" font-size="9" text-anchor="middle">job</text>
-    <circle cx="140" cy="-80" r="16" fill="#18181b" stroke="#27272a"/>
-    <text x="140" y="-76" fill="#a1a1aa" font-family="monospace" font-size="9" text-anchor="middle">segment</text>
-    <circle cx="-160" cy="60" r="16" fill="#18181b" stroke="#27272a"/>
-    <text x="-160" y="64" fill="#a1a1aa" font-family="monospace" font-size="9" text-anchor="middle">trigger</text>
-    <circle cx="160" cy="60" r="16" fill="#18181b" stroke="#27272a"/>
-    <text x="160" y="64" fill="#a1a1aa" font-family="monospace" font-size="9" text-anchor="middle">trend</text>
-    <circle cx="0" cy="120" r="16" fill="#18181b" stroke="#27272a"/>
-    <text x="0" y="124" fill="#a1a1aa" font-family="monospace" font-size="9" text-anchor="middle">solution</text>
-    <circle cx="-80" cy="-130" r="14" fill="#18181b" stroke="#27272a"/>
-    <text x="-80" y="-126" fill="#a1a1aa" font-family="monospace" font-size="8" text-anchor="middle">competitor</text>
-    <circle cx="80" cy="-130" r="14" fill="#18181b" stroke="#27272a"/>
-    <text x="80" y="-126" fill="#a1a1aa" font-family="monospace" font-size="8" text-anchor="middle">feature</text>
-    <!-- Edges -->
-    <line x1="-18" y1="-8" x2="-124" y2="-68" stroke="#27272a" stroke-width="1"/>
-    <line x1="18" y1="-8" x2="124" y2="-68" stroke="#27272a" stroke-width="1"/>
-    <line x1="-18" y1="8" x2="-144" y2="48" stroke="#27272a" stroke-width="1"/>
-    <line x1="18" y1="8" x2="144" y2="48" stroke="#27272a" stroke-width="1"/>
-    <line x1="0" y1="20" x2="0" y2="104" stroke="#27272a" stroke-width="1"/>
-    <line x1="-130" y1="-88" x2="-86" y2="-118" stroke="#27272a" stroke-width="0.5"/>
-    <line x1="130" y1="-88" x2="86" y2="-118" stroke="#27272a" stroke-width="0.5"/>
-    <!-- Evidence trail highlight -->
-    <line x1="0" y1="20" x2="0" y2="104" stroke="#22c55e" stroke-width="1.5" stroke-dasharray="4,4"/>
-  </g>
-  <text x="400" y="370" fill="#a1a1aa" font-family="monospace" font-size="14" text-anchor="middle">every recommendation traces back to user's words</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 500" fill="none">
+  <rect width="600" height="500" fill="#0a0a0a"/>
+  <!-- Central node -->
+  <circle cx="300" cy="200" r="36" fill="#22c55e" opacity="0.15" stroke="#22c55e" stroke-width="2"/>
+  <text x="300" y="196" fill="#22c55e" font-family="monospace" font-size="14" text-anchor="middle">pain</text>
+  <text x="300" y="212" fill="#22c55e" font-family="monospace" font-size="10" text-anchor="middle" opacity="0.7">central</text>
+  <!-- Surrounding nodes -->
+  <circle cx="140" cy="100" r="28" fill="#18181b" stroke="#27272a" stroke-width="2"/>
+  <text x="140" y="104" fill="#a1a1aa" font-family="monospace" font-size="13" text-anchor="middle">job</text>
+  <circle cx="460" cy="100" r="28" fill="#18181b" stroke="#27272a" stroke-width="2"/>
+  <text x="460" y="104" fill="#a1a1aa" font-family="monospace" font-size="13" text-anchor="middle">segment</text>
+  <circle cx="100" cy="280" r="28" fill="#18181b" stroke="#27272a" stroke-width="2"/>
+  <text x="100" y="284" fill="#a1a1aa" font-family="monospace" font-size="13" text-anchor="middle">trigger</text>
+  <circle cx="500" cy="280" r="28" fill="#18181b" stroke="#27272a" stroke-width="2"/>
+  <text x="500" y="284" fill="#a1a1aa" font-family="monospace" font-size="13" text-anchor="middle">trend</text>
+  <circle cx="300" cy="360" r="28" fill="#18181b" stroke="#27272a" stroke-width="2"/>
+  <text x="300" y="364" fill="#a1a1aa" font-family="monospace" font-size="13" text-anchor="middle">solution</text>
+  <circle cx="200" cy="50" r="22" fill="#18181b" stroke="#27272a" stroke-width="1.5"/>
+  <text x="200" y="54" fill="#a1a1aa" font-family="monospace" font-size="11" text-anchor="middle">competitor</text>
+  <circle cx="400" cy="50" r="22" fill="#18181b" stroke="#27272a" stroke-width="1.5"/>
+  <text x="400" y="54" fill="#a1a1aa" font-family="monospace" font-size="11" text-anchor="middle">feature</text>
+  <!-- Edges -->
+  <line x1="268" y1="180" x2="165" y2="120" stroke="#27272a" stroke-width="1.5"/>
+  <line x1="332" y1="180" x2="435" y2="120" stroke="#27272a" stroke-width="1.5"/>
+  <line x1="270" y1="215" x2="125" y2="260" stroke="#27272a" stroke-width="1.5"/>
+  <line x1="330" y1="215" x2="475" y2="260" stroke="#27272a" stroke-width="1.5"/>
+  <line x1="300" y1="236" x2="300" y2="332" stroke="#22c55e" stroke-width="2" stroke-dasharray="6,4"/>
+  <line x1="155" y1="80" x2="185" y2="66" stroke="#27272a" stroke-width="1"/>
+  <line x1="445" y1="80" x2="415" y2="66" stroke="#27272a" stroke-width="1"/>
+  <!-- Evidence trail label -->
+  <text x="340" y="295" fill="#22c55e" font-family="monospace" font-size="11" transform="rotate(90,340,295)">evidence trail</text>
+  <!-- Bottom -->
+  <text x="300" y="440" fill="#a1a1aa" font-family="monospace" font-size="16" text-anchor="middle">14 node types · 18 edge types</text>
+  <text x="300" y="468" fill="#22c55e" font-family="monospace" font-size="14" text-anchor="middle">every recommendation traces back to user's words</text>
 </svg>
