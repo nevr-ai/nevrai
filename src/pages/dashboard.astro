@@ -142,10 +142,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       >
         Copy
       </button>
-      <pre class="text-sm text-(--color-text) overflow-x-auto leading-relaxed"><code id="curl-example">curl -X POST https://api.nevrai.com/v1/chat/completions \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"messages":[{"role":"user","content":"Hello"}]}'</code></pre>
+      <pre class="text-sm text-(--color-text) overflow-x-auto leading-relaxed"><code id="curl-example" set:text={`curl -X POST https://api.nevrai.com/v1/chat/completions \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{"messages":[{"role":"user","content":"Hello"}]}'`}></code></pre>
     </div>
   </section>
 </div>
