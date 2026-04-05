@@ -17,6 +17,7 @@ const t = {
     blog: 'Блог',
     about: 'Обо мне',
     contact: 'Контакты',
+    modules: 'Модули',
     docs: 'Docs',
     pricing: 'Тарифы',
     dashboard: 'Dashboard',

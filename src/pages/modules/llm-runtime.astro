@@ -1,0 +1,65 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const curlExample = `curl -X POST https://api.nevrai.com/v1/chat \\
+  -H "Authorization: Bearer nvr_live_YOUR_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "messages": [
+      {"role": "user", "content": "What is JTBD?"}
+    ]
+  }'`;
+---
+<BaseLayout title="LLM Runtime — nevrai API" description="Drop-in LLM proxy with 7 levels of fallback. Auto-calibrates model per request. Zero downtime." pagePath="/modules/llm-runtime">
+
+<div class="mb-8">
+  <a href="/modules" class="text-xs text-(--color-text-dim) hover:text-(--color-accent) transition-colors no-underline">← All modules</a>
+</div>
+
+<div class="flex items-center gap-3 mb-4">
+  <h2 class="text-xl font-semibold text-(--color-text) m-0">LLM Runtime</h2>
+  <span class="text-[0.625rem] px-1.5 py-0.5 border rounded font-mono text-purple-400 border-purple-400/30">AI Core</span>
+</div>
+
+<p class="text-(--color-text-dim) mb-6 leading-relaxed">
+  Your LLM calls fail at 3am. You don't know until morning. Switching models means rewriting code.
+</p>
+
+<h3 class="text-base font-semibold text-(--color-text) mb-3">### How it works</h3>
+<p class="text-sm text-(--color-text-dim) mb-6 leading-relaxed">
+  Drop-in LLM proxy with 7 levels of fallback. Auto-calibrates model per request strategy. Detects user frustration and escalates to premium model. Tracks every token spent. Send one API call — the runtime handles provider selection, failover, streaming, and budget tracking automatically.
+</p>
+
+<h3 class="text-base font-semibold text-(--color-text) mb-3">### API Example</h3>
+<div class="p-4 rounded border border-(--color-border) bg-(--color-surface) mb-6 overflow-x-auto">
+  <pre class="text-xs font-mono text-(--color-text-dim) whitespace-pre m-0"><code set:text={curlExample} /></pre>
+</div>
+
+<h3 class="text-base font-semibold text-(--color-text) mb-3">### Key Features</h3>
+<ul class="text-sm text-(--color-text-dim) space-y-2 mb-6 list-none p-0">
+  <li>> 7-level cascade (Groq → OpenRouter → bootstrap fallback)</li>
+  <li>> speed_first / quality_first strategy selection</li>
+  <li>> Auto-escalation on user frustration detection</li>
+  <li>> SSE streaming out of the box</li>
+  <li>> Per-request budget tracking and token accounting</li>
+</ul>
+
+<h3 class="text-base font-semibold text-(--color-text) mb-3">### Pricing</h3>
+<div class="p-4 rounded border border-(--color-border) bg-(--color-surface) mb-8">
+  <div class="text-sm text-(--color-text-dim) space-y-1.5">
+    <p class="m-0"><strong class="text-(--color-text)">Free:</strong> 1,000 req/mo</p>
+    <p class="m-0"><strong class="text-(--color-text)">Starter ($49):</strong> 10,000 req/mo</p>
+    <p class="m-0"><strong class="text-(--color-text)">Pro ($149):</strong> 100,000 req/mo</p>
+  </div>
+</div>
+
+<div class="flex gap-3">
+  <a href="/dashboard" class="inline-block px-4 py-2 rounded bg-(--color-accent) text-(--color-bg) text-sm font-semibold hover:bg-(--color-accent-hover) transition-colors no-underline hover:no-underline">
+    Get API key →
+  </a>
+  <a href="/docs" class="inline-block px-4 py-2 rounded border border-(--color-border) text-sm text-(--color-text-dim) hover:text-(--color-text) hover:border-(--color-accent) transition-colors no-underline hover:no-underline">
+    See docs →
+  </a>
+</div>
+
+</BaseLayout>
