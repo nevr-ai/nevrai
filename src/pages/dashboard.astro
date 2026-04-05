@@ -223,7 +223,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             '<span class="text-sm font-semibold text-(--color-text)">' + esc(k.name) + '</span>' +
             '<span class="ml-3 text-xs text-(--color-text-dim)">' + esc(k.prefix || k.id) + '...</span>' +
           '</div>' +
-          '<button onclick="deleteKey(\'' + esc(k.id) + '\')" class="text-xs text-(--color-text-dim) hover:text-red-400 transition-colors cursor-pointer">Delete</button>' +
+          '<button onclick="deleteKey(\'' + esc(k.key_id) + '\')" class="text-xs text-(--color-text-dim) hover:text-red-400 transition-colors cursor-pointer">Delete</button>' +
         '</div>';
       }).join('');
     } catch (e) {
@@ -258,10 +258,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       var data = await res.json();
       var usage = data.usage || data;
 
-      if (usage.requests_this_month !== undefined) {
-        var limit = usage.request_limit || '∞';
-        var used = usage.requests_this_month || 0;
-        var pct = usage.request_limit ? Math.round((used / usage.request_limit) * 100) : 0;
+      var limits = data.limits || {};
+      if (usage.total !== undefined) {
+        var limit = limits.monthly || '∞';
+        var used = usage.total || 0;
+        var pct = limits.monthly ? Math.round((used / limits.monthly) * 100) : 0;
         var barColor = pct > 90 ? 'bg-red-500' : pct > 70 ? 'bg-yellow-500' : 'bg-(--color-accent)';
 
         container.innerHTML =
@@ -275,7 +276,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                 '<div class="h-full rounded ' + barColor + '" style="width:' + Math.min(pct, 100) + '%"></div>' +
               '</div>' +
             '</div>' +
-            (usage.tier ? '<p class="text-sm text-(--color-text-dim)">Plan: <span class="text-(--color-text) font-semibold">' + esc(usage.tier) + '</span></p>' : '') +
+            (data.tier ? '<p class="text-sm text-(--color-text-dim)">Plan: <span class="text-(--color-text) font-semibold">' + esc(data.tier) + '</span></p>' : '') +
           '</div>';
       } else {
         container.innerHTML = '<p class="text-sm text-(--color-text-dim)">No usage data available yet.</p>';
