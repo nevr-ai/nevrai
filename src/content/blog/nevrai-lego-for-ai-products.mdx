@@ -1,0 +1,154 @@
+---
+title: "nevrai: LEGO for AI Products"
+description: "5 API modules that handle LLM routing, frustration detection, data extraction, PDF generation, and market research. Plug them in, ship faster."
+date: 2026-04-05
+readingTime: "6 min read"
+---
+
+What if adding AI to your app was as easy as `npm install`?
+
+Not "spend two weeks building LLM routing, error handling, auth, and billing" easy. Actually easy -- one API call and you have a working LLM chat with automatic failover across three providers.
+
+That is what nevrai does.
+
+## The problem every AI app rebuilds
+
+You have an idea for an AI product. Maybe it is a customer support bot, a research tool, or an internal knowledge assistant. You start building, and within a week you are deep in infrastructure code that has nothing to do with your actual product:
+
+1. **LLM routing** -- which model do I use? What happens when it is down? How do I switch providers without rewriting everything?
+2. **Error handling** -- rate limits, timeouts, malformed responses, provider outages at 3 AM.
+3. **User frustration detection** -- your users are getting angry and your bot keeps responding with the same cheerful tone.
+4. **Structured data extraction** -- the LLM gives you prose when you need JSON. Every time.
+5. **Document generation** -- turning AI output into something shareable and verifiable.
+
+Every AI startup solves these problems from scratch. Most solve them poorly. Some never ship because they got stuck on infrastructure.
+
+## 5 modules, 5 API calls
+
+nevrai is a set of independent API modules. Use one, use all five -- they work together but do not depend on each other.
+
+### 1. LLM Runtime
+
+Drop-in chat API with a 3-step cascade: Groq (fast, free) -> OpenRouter (wide model selection) -> bootstrap fallback (always available). You send messages, nevrai picks the fastest available model and streams the response back via SSE.
+
+```bash
+curl -X POST https://api.nevrai.com/v1/chat \
+  -H "Authorization: Bearer nvr_live_YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "messages": [
+      {"role": "user", "content": "What is JTBD?"}
+    ]
+  }'
+```
+
+Two routing strategies out of the box: `speed_first` (default, picks the lowest-latency model) and `quality_first` (picks the most capable model within budget). You do not manage API keys for Groq, OpenRouter, or any other provider. nevrai handles all of that.
+
+### 2. Escalation Detector
+
+Detects when a user is frustrated, stuck, or about to churn. Uses a dual-layer approach: fast regex patterns catch obvious signals ("this is useless", "nothing works"), then an LLM classifies ambiguous cases. Returns a structured verdict with trigger type and recommended action.
+
+```bash
+curl -X POST https://api.nevrai.com/v1/escalation \
+  -H "Authorization: Bearer nvr_live_YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "This is useless, nothing works!",
+    "history": []
+  }'
+```
+
+Five trigger types: explicit request, negative sentiment, tone mismatch, stagnation (user going in circles), and repetition. Works in English and Russian. The typical use case: when escalation is detected, upgrade the user to a more capable (and more expensive) model. Which brings us back to module 1.
+
+### 3. Data Extractor
+
+Send raw text -- a chat log, interview transcript, support ticket -- and get back structured JSON with up to 19 JTBD data points: pains, jobs-to-be-done, triggers, audience segments, willingness to pay, and more.
+
+```bash
+curl -X POST https://api.nevrai.com/v1/extract \
+  -H "Authorization: Bearer nvr_live_YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "User: I hate waiting 30 min for a charger...",
+    "language": "en"
+  }'
+```
+
+This is the module that turns conversations into data. Instead of reading 500 support tickets manually, pipe them through the extractor and get a structured dataset of what your users actually need.
+
+### 4. PDF Publisher
+
+Send markdown, get a signed PDF with a unique document ID. The document is verifiable -- anyone can check its authenticity against the nevrai registry.
+
+```bash
+curl -X POST https://api.nevrai.com/v1/pdf \
+  -H "Authorization: Bearer nvr_live_YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "content": "# Report\n\nKey findings...",
+    "format": "markdown"
+  }'
+```
+
+Use case: your AI generates a report, analysis, or recommendation. You need to share it with stakeholders who want a real document, not a chat screenshot. PDF Publisher handles rendering, signing, and hosting.
+
+### 5. Discovery Engine
+
+Multi-round market research via API. Give it a query, and it searches the web and Telegram channels, filters results through an LLM, and returns structured insights. Results are cached for 90 days, so repeated queries for the same niche are instant.
+
+```bash
+curl -X POST https://api.nevrai.com/v1/research \
+  -H "Authorization: Bearer nvr_live_YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "AI text detection market",
+    "depth": "quick"
+  }'
+```
+
+This is the heaviest module -- it runs asynchronously and can take 30-60 seconds for a deep search. The `quick` depth returns in under 10 seconds with fewer sources.
+
+## Why the cascade matters
+
+The LLM Runtime cascade is the core of nevrai's reliability story. Here is what happens on every request:
+
+1. **Groq** -- fastest inference available. Sub-second time to first token. Free tier models. If Groq is up, your users get responses in under a second.
+2. **OpenRouter** -- if Groq is down or rate-limited, nevrai automatically falls through to OpenRouter, which aggregates dozens of model providers. Same API call, same response format.
+3. **Bootstrap fallback** -- if both Groq and OpenRouter are unreachable (it happens), nevrai falls back to a known-good model configuration that is always available.
+
+Dead models are auto-blacklisted for one hour after a 403, 404, or empty response. Model availability is refreshed every 12 hours from provider APIs. You do not manage any of this.
+
+The result: your app gets 99.9%+ effective uptime for LLM calls, even though individual providers go down regularly.
+
+## Pricing
+
+Start free, scale when you need to.
+
+| Plan | Price | Requests/mo | Modules |
+|------|-------|-------------|---------|
+| Free | $0 | 1,000 | Chat + Escalation |
+| Starter | $49/mo | 10,000 | All 5 modules |
+| Pro | $149/mo | 100,000 | All 5 modules |
+| Business | $399/mo | 1,000,000 | All 5 + SLA + dedicated support |
+
+The free tier is not a trial. There is no expiration. If 1,000 requests per month covers your use case, it is free forever.
+
+## Get started
+
+1. Go to [nevrai.com/dashboard](https://nevrai.com/dashboard)
+2. Sign in with Google
+3. Create an API key
+4. Make your first call
+
+No credit card required for the free tier. No SDK required -- it is just HTTP.
+
+```bash
+curl -X POST https://api.nevrai.com/v1/chat \
+  -H "Authorization: Bearer nvr_live_YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"messages":[{"role":"user","content":"Hello"}]}'
+```
+
+If you are building an AI product and spending more time on infrastructure than on your actual product, nevrai exists so you can stop doing that.
+
+[Get your API key](https://nevrai.com/dashboard)
