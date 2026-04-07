@@ -1,0 +1,107 @@
+---
+title: "PostgreSQL как граф-база: CTE + pgvector + pg_trgm = Neo4j не нужен"
+description: "Как реализовать Knowledge Graph на PostgreSQL без специализированных граф-баз. CTE для обхода, pgvector для семантики, pg_trgm для fuzzy-поиска."
+date: 2026-04-21
+readingTime: "10 мин чтения"
+image: "/blog/knowledge-graph.svg"
+---
+
+«Для графов нужна графовая база данных» — звучит убедительно, но рассыпается при контакте с реальностью. Мы построили production knowledge graph на PostgreSQL. Без Neo4j. Вот как и почему.
+
+## Миф: для графов нужна графовая БД
+
+Графовые БД решают конкретную проблему: обход связей произвольной глубины. "Друзья друзей друзей на 6 уровней" — да, Neo4j оправдан. Но knowledge graph для продуктовой аналитики, где типичный запрос depth 2-3 — PostgreSQL справится не хуже.
+
+**PostgreSQL покрывает ~95% use cases** для графов до 100K нод с traversal depth ≤ 4.
+
+## Наш стек: четыре расширения
+
+| Задача | Инструмент | Что даёт |
+|--------|-----------|----------|
+| Semantic search | `pgvector` | Cosine similarity, HNSW-индексы |
+| Fuzzy matching | `pg_trgm` | Trigram similarity, Levenshtein |
+| Graph traversal | Recursive CTE | BFS/DFS произвольной глубины |
+| Full-text search | Native `tsvector` | Keyword search с морфологией |
+
+Один сервер, один `pg_dump`, одна точка мониторинга.
+
+## Hybrid Search: три сигнала → RRF fusion
+
+```sql
+-- Сигнал 1: Vector search (pgvector)
+SELECT id FROM kg2_nodes
+WHERE embedding IS NOT NULL
+ORDER BY embedding <=> $query_embedding
+LIMIT 40;
+
+-- Сигнал 2: Keyword search (tsvector)
+SELECT id FROM kg2_nodes
+WHERE to_tsvector('simple', label || ' ' || COALESCE(summary, ''))
+      @@ plainto_tsquery('simple', $query);
+
+-- Сигнал 3: Graph traversal (recursive CTE)
+WITH RECURSIVE graph AS (
+  SELECT target_node_id AS node_id, 1 AS depth
+  FROM kg2_edges WHERE source_node_id IN ($seed_ids) AND invalid_at IS NULL
+  UNION
+  SELECT e.target_node_id, g.depth + 1
+  FROM kg2_edges e JOIN graph g ON e.source_node_id = g.node_id
+  WHERE g.depth < $max_depth AND e.invalid_at IS NULL
+)
+SELECT DISTINCT node_id FROM graph;
+```
+
+RRF fusion в Ruby:
+
+```ruby
+RRF_K = 60
+def fuse(vector, keyword, graph, limit)
+  scores = Hash.new(0.0)
+  [vector, keyword, graph].each do |results|
+    results.each_with_index do |node, rank|
+      scores[node.id] += 1.0 / (RRF_K + rank + 1)
+    end
+  end
+  scores.sort_by { |_, s| -s }.first(limit)
+end
+```
+
+## Performance: реальные цифры
+
+| Операция | Объём | Время |
+|----------|-------|-------|
+| Depth-2 CTE | 1000 нод, 650 рёбер | < 5ms |
+| pgvector nearest neighbor | 1000 нод | < 2ms |
+| Keyword search | 1000 нод | < 1ms |
+| Full hybrid search | 1000 нод | < 15ms |
+| Community detection (BFS) | 1000 нод | < 50ms |
+
+## Scaling Roadmap
+
+| Этап | Триггер | Что делаем |
+|------|---------|-----------|
+| S0 | — | CTE + pgvector |
+| S1 | >5K нод | Real embeddings, HNSW tune |
+| S2 | >20K нод | Materialized views, partitioning |
+| S3 | >50K нод | Read replica |
+| S4 | >100K + variable-length paths | Apache AGE (расширение PostgreSQL!) |
+
+Даже S4 — не "переехать на Neo4j". Apache AGE добавляет Cypher как расширение. Данные в той же базе.
+
+## Когда РЕАЛЬНО нужен Neo4j
+
+- **>100K нод + variable-length paths** — `MATCH (a)-[*1..10]->(b)` в Cypher быстрее CTE
+- **Graph algorithms из коробки** — PageRank, centrality через GDS
+- **Команда уже знает Cypher**
+
+Сколько из этих пунктов актуальны *сегодня*?
+
+## Заключение
+
+PostgreSQL — не компромисс. CTE + pgvector + pg_trgm + tsvector = полноценный графовый стек. 1000 нод, 650 рёбер, hybrid search, bi-temporal model — и ни одного повода смотреть в сторону Neo4j.
+
+**Не добавляйте инфраструктуру, пока нет проблемы.**
+
+---
+
+Наш Knowledge Graph на PostgreSQL — [AICPO](https://aicpo.ru) или напишите [nevr@aicpo.com](mailto:nevr@aicpo.com)

@@ -1,0 +1,133 @@
+---
+title: "Крутейшая KG система бесполезна при 1 пользователе: tech vs PMF"
+description: "38 capabilities, temporal graph, semantic search, read replica. 7 юзеров, 1 активный. Технология 10/10, PMF 0/10. Честная рефлексия: когда tech-first оправдан."
+date: 2026-04-16
+readingTime: "8 мин чтения"
+image: "/blog/knowledge-graph.svg"
+---
+
+<img src="/blog/knowledge-graph.svg" alt="Knowledge Graph with zero users" style="width:100%;margin-bottom:2rem;border-radius:8px;" />
+
+У меня есть четырёхслойный темпоральный Knowledge Graph. Bi-temporal nodes. Semantic search с RRF fusion. Автоматическое обнаружение сообществ через BFS-кластеризацию. Ontology validation. Cross-project intelligence с промоцией сущностей на уровень организации. Confidence decay. Read replica для тяжёлых запросов.
+
+38 capabilities. 415 нод. 230 рёбер. 9 фаз разработки.
+
+7 зарегистрированных пользователей. 1 активный. Это я.
+
+## Анатомия overengineering
+
+Вот полный список того, что я построил за месяц:
+
+| # | Capability | Статус |
+|---|-----------|--------|
+| 1 | Entity extraction через LLM | Работает |
+| 2 | Entity resolution (exact + fuzzy + LLM confirm) | Работает |
+| 3 | Relation discovery с ontology validation | Работает |
+| 4 | Bi-temporal edges (valid_at / invalid_at) | Работает |
+| 5 | Contradiction detection и resolution | Работает |
+| 6 | Confidence scoring (0-100) | Работает |
+| 7 | Monthly confidence decay | Работает |
+| 8 | Auto-archive low confidence nodes | Работает |
+| 9 | Vector embeddings (hash-based dev, API prod) | Работает |
+| 10 | Hybrid search: vector + BM25 + graph traversal | Работает |
+| 11 | RRF fusion для результатов | Работает |
+| 12 | Community detection через BFS clustering | Работает |
+| 13 | LLM summaries для каждого кластера | Работает |
+| 14 | Cross-project entity promotion | Работает |
+| 15 | Org-level shared knowledge injection | Работает |
+| 16 | Episode-based immutable data layer | Работает |
+| 17 | Ontology schema (YAML, 10 node types, 18 relation types) | Работает |
+| 18 | KG context builder для чата | Работает |
+| 19 | KG context builder для артефактов | Работает |
+| 20 | 6 graph-native artifact types | Работает |
+| 21 | Evidence trail API | Работает |
+| 22 | Subgraph extraction с depth | Работает |
+| 23 | Full graph export (JSON/CSV) | Работает |
+| 24 | KG health monitoring job | Работает |
+| 25 | Orphan node detection | Работает |
+| 26 | Broken edge cleanup | Работает |
+| 27 | LLM quality sampling (10 random edges) | Работает |
+| 28 | Competitive intelligence → KG pipeline | Работает |
+| 29 | Trend monitoring → KG pipeline | Работает |
+| 30 | Feature flag rollback (KG2 → KG1) | Работает |
+| 31 | Bulk file ingest (PDF/DOCX/CSV/TXT/JSON) | Работает |
+| 32 | ActionCable real-time KG updates | Работает |
+| 33 | Backfill job для существующих фактов | Работает |
+| 34 | Cascade extraction fallback (Groq → OpenRouter) | Работает |
+| 35 | Gap analysis (orphan + low-connectivity nodes) | Работает |
+| 36 | Graph stats API | Работает |
+| 37 | Enterprise-only export gate | Работает |
+| 38 | TG alerts на критические метрики | Работает |
+
+Каждая строчка — рабочий код. Покрыт тестами. Задеплоен на прод.
+
+И каждая строчка бесполезна, потому что ни один человек, кроме меня, не видит эти графы.
+
+## Ловушка, в которую я попал
+
+Ловушка называется "следующая фича решит проблему роста". У меня не было пользователей — и я решил, что проблема в продукте. Граф недостаточно умный. Поиск недостаточно семантический. Контекст недостаточно глубокий.
+
+Я добавлял слой за слоем. Temporal? Добавим. Communities? Добавим. Cross-project intelligence? Конечно. Каждая фича была технически обоснована. Каждая решала реальную проблему. Проблему, которая возникает при 1000 пользователей и 50 000 нод.
+
+При 1 пользователе и 415 нодах все эти слои — архитектурный балласт.
+
+Простой JSON с фактами + keyword search решил бы 95% задач текущих пользователей. Я это знал. Я всё равно строил граф.
+
+## Честный разбор: почему так вышло
+
+Три причины, от наименее приятной к наиболее:
+
+**1. Инженерный кайф.** Строить граф знаний — это интересно. Ontology design, temporal reasoning, entity resolution — задачи уровня PhD. С AI-ассистентом можно решать их за часы, а не за месяцы. Соблазн непреодолимый.
+
+**2. Survivorship bias из статей.** Я читал, как Neo4j трансформирует enterprise, как Knowledge Graphs спасают продукт. Не читал о тысячах проектов, где граф построили и выбросили, потому что некому было им пользоваться.
+
+**3. Подмена метрики.** Вместо "сколько пользователей получают ценность" я мерил "сколько capabilities реализовано". 38 — звучит впечатляюще. На самом деле это число показывает масштаб моей ошибки.
+
+## Но вот что интересно
+
+Через неделю после осознания я начал делать demo для B2B-лидов. Показывал граф. Показывал, как из хаотичного чата возникает структурированная картина: сегменты связаны с болями, боли — с конкурентами, конкуренты — с трендами. Evidence trail от каждого узла до конкретного сообщения.
+
+Реакция: "Это можно поставить on-premise?"
+
+Не "зачем мне это?". Не "какой ROI?". А сразу вопрос о deployment.
+
+Enterprise покупает инфраструктуру. Не фичи. Инфраструктуру, которая выглядит как инфраструктура. Knowledge Graph с ontology, temporal layers и audit trail — это то, что procurement может обосновать перед CFO.
+
+Фичу "AI-чатбот для продуктовых исследований" продать enterprise невозможно. "Управление организационными знаниями с темпоральным графом и evidence trail" — можно.
+
+## Когда tech-first оправдан: три сценария
+
+После месяца рефлексии я выделил три случая, когда строить технологию до PMF — осознанный выбор, а не ошибка:
+
+**Сценарий 1: Enterprise sales с длинным циклом.** Enterprise покупает "платформу", не "тулзу". Им нужен compliance, audit trail, data sovereignty, SSO. Если ваш продукт — это красивый чат с GPT-обёрткой, разговор заканчивается на первом звонке с безопасниками. Полноценный KG с ontology, export, role-based access — это пропуск на второй звонок.
+
+**Сценарий 2: Technical moat в мире обёрток.** 90% AI-продуктов — промпт + API-ключ. Их можно воспроизвести за выходные. Темпоральный граф с 38 capabilities — нельзя. Даже зная архитектуру. Даже с тем же AI-ассистентом. Потому что devil in the edge cases: entity resolution при конфликтующих фактах, confidence decay при устаревании данных, community detection при sparse графах. Каждый edge case — это неделя отладки, которую конкурент не будет делать.
+
+**Сценарий 3: Инфраструктура как продукт.** Если KG — не фича вашего SaaS, а сам продукт, который вы лицензируете. "Embedded knowledge graph для AI-приложений". Тогда 38 capabilities — это не overengineering, а feature checklist для enterprise RFP.
+
+## Мой честный вердикт
+
+Я попал в первый сценарий случайно. Строил для SMB, оказался в enterprise. KG, который был overengineering для одиночного продакт-менеджера, стал competitive advantage для enterprise demo.
+
+Но вот правда: если бы я потратил этот месяц на 100 cold emails вместо 38 capabilities, у меня сейчас было бы больше пользователей. И я бы точно знал, нужен ли им граф вообще.
+
+Технология не заменяет дистрибуцию. 38 capabilities при 1 пользователе — это не продукт. Это технологическая демонстрация.
+
+## Что я делаю сейчас
+
+1. Заморозил KG-разработку. Никаких новых capabilities, пока нет 50 активных пользователей.
+2. Вытащил KG-demo в отдельный лендинг. Enterprise видит граф, а не чат.
+3. 80% времени — дистрибуция. Cold outreach, контент, партнёрства.
+4. KPI сменил с "capabilities shipped" на "users who saw value this week".
+
+Граф никуда не денется. 38 capabilities терпеливо ждут своих пользователей. Вопрос в том, хватит ли у меня дисциплины не добавить 39-ю, пока не появятся те, кому нужны первые 38.
+
+## Правило, которое я вывел
+
+**Строй инфраструктуру после того, как нашёл 10 человек, готовых платить. Или до того, как начал искать — если твой покупатель это enterprise, а инфраструктура и есть продукт.**
+
+Всё остальное — инженерный кайф за свой счёт. Иногда он окупается. Чаще — нет. Честность в различении одного от другого — единственный навык, который не автоматизируешь с помощью AI.
+
+---
+
+Посмотрите на 38 capabilities (и решите сами, overengineering это или нет) — [AICPO](https://aicpo.ru) или напишите [nevr@aicpo.com](mailto:nevr@aicpo.com)

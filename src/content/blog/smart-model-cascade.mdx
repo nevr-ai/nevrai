@@ -1,0 +1,221 @@
+---
+title: "Smart model cascade: как не умереть от rate limits на бесплатных моделях"
+description: "Free Groq → exhausted → OpenRouter free → exhausted → FAIL. Как мы построили каскад моделей, который никогда не падает: free first, paid fallback, автоматическая эскалация."
+date: 2026-04-09
+readingTime: "8 мин чтения"
+image: "/blog/knowledge-graph.svg"
+---
+
+Три часа субботнего вечера. Пользователи пишут в чат — ответа нет. Логи: `429 Too Many Requests` от Groq. Переключаемся на OpenRouter — тоже 429. Бесплатные модели исчерпали лимиты одновременно. Продукт лежит.
+
+Один YAML-файл и ~200 строк Ruby решили проблему навсегда.
+
+## Почему бесплатные модели — ловушка
+
+Groq даёт бесплатный доступ к Llama 3.3 70B. Быстро, качественно, $0. OpenRouter раздаёт Gemini Flash бесплатно. Идеальный стартап-стек: ноль расходов на LLM.
+
+Проблема: бесплатное = разделяемое. Тысячи разработчиков бьют в один endpoint. Rate limits:
+
+| Провайдер | Бесплатный лимит | Реальность при 50 юзерах |
+|-----------|-----------------|--------------------------|
+| Groq | 30 req/min, 14.4K tokens/min | Исчерпывается за 2-3 минуты активности |
+| OpenRouter `:free` | Варьируется, обычно 20 req/min | Исчерпывается через 5-10 минут |
+
+Когда один провайдер падает — переключаешь вручную. Когда оба — ложишься.
+
+## Наивный подход: if/else
+
+Первая версия выглядела так:
+
+```ruby
+def call_llm(prompt)
+  begin
+    groq_call("llama-3.3-70b-versatile", prompt)
+  rescue RateLimitError
+    openrouter_call("gemini-2.0-flash:free", prompt)
+  end
+end
+```
+
+Три проблемы:
+1. **Модели умирают** — Groq снимает модели без предупреждения (403), OpenRouter меняет ID
+2. **Два fallback'а мало** — оба бесплатных лимита кончаются одновременно в пиковые часы
+3. **Хардкод** — при каждом изменении модели правишь код, деплоишь, ждёшь
+
+## Решение: динамический каскад
+
+Архитектура из трёх слоёв:
+
+```
+ModelDiscoveryService (каждые 12ч)
+  → Fetches models from Groq API + OpenRouter API
+  → Filters by criteria (context window, cost, size)
+  → Ranks: free first, then cheapest paid
+  → Caches to Redis (24h TTL)
+
+model_cascade.yml (декларативная конфигурация)
+  → Какие провайдеры, в каком порядке
+  → Фильтры: min_context, free_only, max_cost
+  → Preferred models (приоритет, если доступны)
+
+ModelCascadeRunner (каждый запрос)
+  → Берёт каскад из Redis
+  → Пропускает dead models (помечены на 1ч)
+  → Пробует по очереди: stream/complete
+  → На 429/403 → помечает dead, следующая модель
+  → Последний рубеж: GigaChat (платный, всегда живой)
+```
+
+## Конфигурация: один YAML вместо кода
+
+```yaml
+# config/model_cascade.yml
+extraction:
+  strategy: speed_first
+  providers:
+    - groq
+    - openrouter
+  preferred:
+    - provider: groq
+      model: llama-3.3-70b-versatile
+    - provider: openrouter
+      model: google/gemma-4-27b-it  # $0.14/M — paid fallback
+  min_other_providers: 3
+  filters:
+    min_context: 8000
+    max_cost_per_1m: 0.5
+    exclude_patterns:
+      - vision
+      - guard
+      - whisper
+      - embed
+  cascade_size: 10
+```
+
+Что здесь происходит:
+
+1. **`strategy: speed_first`** — сортировка моделей по скорости (TTFT), не по качеству
+2. **`preferred`** — эти модели всегда первые в каскаде, если живы
+3. **`min_other_providers: 3`** — минимум 3 модели НЕ от основного провайдера. Это страховка: если Groq целиком ляжет, есть 3 альтернативы
+4. **`max_cost_per_1m: 0.5`** — допускаем платные модели до $0.50 за миллион токенов. Это копейки, но гарантирует, что каскад никогда не пустой
+5. **`cascade_size: 10`** — держим 10 моделей в каскаде. Избыточно? Нет — это надёжность
+
+## Dead model detection
+
+Ключевой механизм — автоматическая пометка мёртвых моделей:
+
+```ruby
+def stream(&block)
+  models = load_models  # из Redis
+  models.each do |entry|
+    next unless model_alive?(entry["model"])
+
+    begin
+      result = call_provider(entry, &block)
+      if result.blank?
+        mark_model_dead(entry["model"])  # Пустой ответ = мёртвая модель
+        next
+      end
+      return  # Успех — выходим
+    rescue StandardError => e
+      if e.message.match?(/403|404|429/)
+        mark_model_dead(entry["model"])  # Бан на 1 час
+      end
+      next  # Следующая модель
+    end
+  end
+
+  # Все 10 моделей мертвы? GigaChat (платный, всегда живой)
+  gigachat_fallback(&block)
+end
+```
+
+`mark_model_dead` ставит флаг в Redis с TTL 1 час. Через час модель автоматически вернётся в ротацию. Никакого ручного вмешательства.
+
+## Dynamic discovery: модели находят себя сами
+
+Каждые 12 часов `ModelDiscoveryJob` делает два API-вызова:
+
+```ruby
+# Groq: GET https://api.groq.com/openai/v1/models
+# OpenRouter: GET https://openrouter.ai/api/v1/models
+
+models = fetch_from_providers
+filtered = models.select do |m|
+  m.context_length >= config.min_context &&
+  (config.free_only ? m.free? : m.cost <= config.max_cost) &&
+  config.exclude_patterns.none? { |p| m.id.include?(p) }
+end
+ranked = sort_by_strategy(filtered, config.strategy)
+cache_to_redis(cascade_name, ranked.first(config.cascade_size))
+```
+
+Зачем это нужно:
+- Groq добавил Qwen3 235B — он автоматически появился в каскаде
+- OpenRouter убрал бесплатный Gemini — он автоматически исчез
+- Появилась новая дешёвая модель — она автоматически встала в fallback
+
+Мы не отслеживаем релизы моделей. Система делает это сама.
+
+## Четыре каскада для четырёх задач
+
+Не все LLM-вызовы одинаковые. Чат требует скорости (TTFT < 1 сек). Артефакты требуют качества (сложные 2000-слов документы). Разные каскады:
+
+| Каскад | Стратегия | Бесплатные | Платный fallback | Размер |
+|--------|-----------|------------|------------------|--------|
+| `chat_standard` | speed_first | Groq → OpenRouter | — | 5 |
+| `chat_escalated` | quality_first | — | До $5/M | 3 |
+| `artifacts` | quality_first | OpenRouter → Groq | — | 4 |
+| `extraction` | speed_first | Groq → OpenRouter | До $0.50/M | 10 |
+
+`chat_escalated` — отдельная история. Когда пользователь фрустрирован (детектим автоматически), переключаем на Claude Sonnet через OpenRouter. Дорого ($3/M input), но удерживает юзера. Это не каскад ради экономии — это каскад ради качества.
+
+## Биллинг: $0.14/M вместо простоя
+
+Главный инсайт: paid fallback за копейки лучше, чем даунтайм.
+
+Google Gemma 4 27B на OpenRouter стоит $0.14 за миллион токенов. Средний запрос — 2K токенов. Цена одного fallback-вызова: $0.00028. За доллар — 3500 запросов.
+
+Мы установили `max_cost_per_1m: 0.5` для extraction-каскада. Это значит: система допускает модели до 50 центов за миллион токенов. В реальности выбирает самые дешёвые ($0.10–0.20/M). Бесплатные идут первыми, платные — только когда все free исчерпаны.
+
+Результат за месяц: $2.40 на paid fallback при 50 активных пользователях. Без единого даунтайма.
+
+## Мониторинг: Telegram-алерты
+
+`ModelDiscoveryJob` отправляет уведомление в Telegram при каждом изменении каскада:
+
+```
+🔄 Model cascade updated
+chat_standard: +qwen3-235b (groq), -llama-guard (removed)
+extraction: no changes
+artifacts: gemini-2.0-flash-001:free → gemini-2.5-flash:free (upgraded)
+```
+
+Мы видим что происходит, но не вмешиваемся. Система адаптируется сама.
+
+## GigaChat как последний рубеж
+
+Все 10 моделей в каскаде мертвы — бывает крайне редко, но бывает. Последний fallback — GigaChat от Сбера. Платный, российский, не зависит от западных провайдеров. Медленнее, дороже, но всегда доступен.
+
+Трёхуровневая защита:
+1. **Free models** (бесплатно, быстро) — 95% трафика
+2. **Cheap paid models** (копейки) — 4.5% трафика
+3. **GigaChat** (дороже, но гарантированно) — 0.5% трафика
+
+## Итого: чеклист для вашего каскада
+
+Если вы строите AI-продукт на бесплатных моделях:
+
+1. **Никогда один провайдер.** Минимум два, лучше три
+2. **Dead model detection обязателен.** 429/403 → бан на час → автовосстановление
+3. **Paid fallback за копейки** лучше, чем даунтайм. $0.14/M — это ничто
+4. **Dynamic discovery** — модели появляются и исчезают еженедельно. Хардкод = техдолг
+5. **Разные каскады для разных задач.** Чат и артефакты — разные требования
+6. **Декларативная конфигурация** — YAML, не код. Меняется без деплоя (Redis cache)
+7. **Мониторинг** — знать что происходит, не вмешиваясь
+
+Три часа даунтайма научили нас одному: бесплатное — это прекрасно, но без fallback'а это бомба с таймером.
+
+---
+
+Smart cascade в работе — попробуйте [AICPO](https://aicpo.ru) или напишите [nevr@aicpo.com](mailto:nevr@aicpo.com)
