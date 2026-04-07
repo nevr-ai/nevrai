@@ -4,11 +4,52 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 <BaseLayout title="API Docs — nevrai" description="nevrai API reference documentation. OpenAPI 3.1 spec with interactive explorer." pagePath="/docs">
 
 <h2 class="text-xl font-semibold mb-2 text-(--color-text)">API Documentation</h2>
-<p class="text-(--color-text-dim) mb-6">Interactive API reference powered by <a href="https://scalar.com" target="_blank" rel="noopener">Scalar</a>.</p>
+<p class="text-(--color-text-dim) mb-6">Interactive API reference.</p>
 
-<div id="api-docs" class="rounded border border-(--color-border) overflow-hidden" style="min-height:600px;">
-  <script is:inline src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
-  <api-reference spec-url="/openapi.yaml" />
-</div>
+<div id="swagger-ui" class="rounded border border-(--color-border) overflow-hidden"></div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css" />
+<script is:inline src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', function() {
+    SwaggerUIBundle({
+      url: '/openapi.yaml',
+      dom_id: '#swagger-ui',
+      presets: [SwaggerUIBundle.presets.apis],
+      layout: 'BaseLayout',
+      defaultModelsExpandDepth: -1,
+    });
+
+    // Inject theme overrides AFTER Swagger renders
+    setTimeout(function() {
+      var style = document.createElement('style');
+      style.textContent = '\
+        #swagger-ui .swagger-ui, #swagger-ui .swagger-ui * { font-family: "JetBrains Mono", ui-monospace, monospace !important; }\
+        #swagger-ui .swagger-ui { background: var(--color-bg) !important; color: var(--color-text) !important; }\
+        #swagger-ui .swagger-ui p, #swagger-ui .swagger-ui span, #swagger-ui .swagger-ui td,\
+        #swagger-ui .swagger-ui th, #swagger-ui .swagger-ui li, #swagger-ui .swagger-ui label,\
+        #swagger-ui .swagger-ui small, #swagger-ui .swagger-ui h1, #swagger-ui .swagger-ui h2,\
+        #swagger-ui .swagger-ui h3, #swagger-ui .swagger-ui h4, #swagger-ui .swagger-ui select,\
+        #swagger-ui .swagger-ui .btn { color: var(--color-text) !important; }\
+        #swagger-ui .swagger-ui a { color: var(--color-accent) !important; }\
+        #swagger-ui .swagger-ui .topbar { display: none !important; }\
+        #swagger-ui .swagger-ui .scheme-container, #swagger-ui .swagger-ui .information-container,\
+        #swagger-ui .swagger-ui .wrapper { background: var(--color-bg) !important; }\
+        #swagger-ui .swagger-ui .scheme-container { background: var(--color-surface) !important; border-color: var(--color-border) !important; border-radius: 4px !important; }\
+        #swagger-ui .swagger-ui .opblock { background: var(--color-bg-card) !important; border-color: var(--color-border) !important; box-shadow: none !important; }\
+        #swagger-ui .swagger-ui .opblock-tag { border-color: var(--color-border) !important; }\
+        #swagger-ui .swagger-ui pre, #swagger-ui .swagger-ui .microlight,\
+        #swagger-ui .swagger-ui .model-box, #swagger-ui .swagger-ui .opblock-section-header { background: var(--color-surface) !important; color: var(--color-text) !important; }\
+        #swagger-ui .swagger-ui input, #swagger-ui .swagger-ui textarea, #swagger-ui .swagger-ui select { background: var(--color-surface) !important; color: var(--color-text) !important; border-color: var(--color-border) !important; }\
+        #swagger-ui .swagger-ui .btn.authorize, #swagger-ui .swagger-ui .authorization__btn { color: var(--color-accent) !important; border-color: var(--color-accent) !important; background: transparent !important; }\
+        #swagger-ui .swagger-ui .btn.execute { background: var(--color-accent) !important; color: var(--color-bg) !important; }\
+        #swagger-ui .swagger-ui .opblock-summary-method { color: #fff !important; }\
+        #swagger-ui .swagger-ui .info .version-stamp span { color: var(--color-bg) !important; background: var(--color-accent) !important; }\
+        #swagger-ui .swagger-ui table tbody tr td { border-color: var(--color-border) !important; }\
+      ';
+      document.head.appendChild(style);
+    }, 500);
+  });
+</script>
 
 </BaseLayout>

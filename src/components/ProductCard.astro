@@ -22,8 +22,8 @@ const badgeClass = {
 
 const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '');
 ---
-<a href={`/products/${slug}`} class="block no-underline group">
-  <div class="card border border-(--color-border) p-4 sm:p-5 group-hover:border-(--color-accent) transition-colors bg-(--color-bg-card) relative cursor-pointer">
+<a href={`/products/${slug}`} class="block no-underline group h-full">
+  <div class="card border border-(--color-border) p-4 sm:p-5 group-hover:border-(--color-accent) transition-colors bg-(--color-bg-card) relative cursor-pointer h-full flex flex-col">
     <div class="flex items-start justify-between gap-2 mb-2">
       <h3 class="text-base font-semibold m-0 !text-inherit !normal-case !tracking-normal text-(--color-text) group-hover:text-(--color-accent) transition-colors">
         {name}
@@ -43,12 +43,12 @@ const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '');
       </div>
     </div>
     {lightTagline ? (
-      <p class="text-sm text-(--color-text-dim) mb-3 leading-relaxed">
+      <p class="text-sm text-(--color-text-dim) mb-3 leading-relaxed flex-grow">
         <span class="theme-dark">{tagline}</span>
         <span class="theme-light">{lightTagline}</span>
       </p>
     ) : (
-      <p class="text-sm text-(--color-text-dim) mb-3 leading-relaxed">{tagline}</p>
+      <p class="text-sm text-(--color-text-dim) mb-3 leading-relaxed flex-grow">{tagline}</p>
     )}
     {stack.length > 0 && (
       <div class="flex flex-wrap gap-1.5 mb-2">
