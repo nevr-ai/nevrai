@@ -141,6 +141,12 @@ const currentPath = Astro.url.pathname;
     display: flex;
     align-items: center;
     gap: 0.2rem;
+    color: var(--color-text-dim);
+    transition: color 0.15s;
+  }
+
+  .api-dropdown-trigger:hover {
+    color: var(--color-accent);
   }
 
   .dropdown-arrow {
@@ -152,18 +158,29 @@ const currentPath = Astro.url.pathname;
   .api-dropdown-menu {
     display: none;
     position: absolute;
-    top: calc(100% + 0.5rem);
+    top: 100%;
     left: 50%;
     transform: translateX(-50%);
     min-width: 130px;
     background: var(--color-bg);
     border: 1px solid var(--color-border);
     border-radius: 4px;
-    padding: 0.25rem 0;
+    padding: 0.5rem 0;
+    padding-top: 0.75rem;
     z-index: 100;
     font-family: var(--font-mono, monospace);
     font-size: 0.8rem;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+
+  /* Invisible bridge between trigger and menu */
+  .api-dropdown-menu::before {
+    content: '';
+    position: absolute;
+    top: -0.5rem;
+    left: 0;
+    right: 0;
+    height: 0.5rem;
   }
 
   .api-dropdown-wrapper:hover .api-dropdown-menu,
