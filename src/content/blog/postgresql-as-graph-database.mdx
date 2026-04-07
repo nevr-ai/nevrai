@@ -6,7 +6,7 @@ readingTime: "10 мин чтения"
 image: "/blog/knowledge-graph.svg"
 ---
 
-«Для графов нужна графовая база данных» — звучит убедительно, но рассыпается при контакте с реальностью. Мы построили production knowledge graph на PostgreSQL. Без Neo4j. Вот как и почему.
+«Для графов нужна графовая база данных» — звучит убедительно, но рассыпается при контакте с реальностью. Я построил production knowledge graph на PostgreSQL. Без Neo4j. Вот как и почему.
 
 ## Миф: для графов нужна графовая БД
 
@@ -14,7 +14,7 @@ image: "/blog/knowledge-graph.svg"
 
 **PostgreSQL покрывает ~95% use cases** для графов до 100K нод с traversal depth ≤ 4.
 
-## Наш стек: четыре расширения
+## Мой стек: четыре расширения
 
 | Задача | Инструмент | Что даёт |
 |--------|-----------|----------|
@@ -104,4 +104,4 @@ PostgreSQL — не компромисс. CTE + pgvector + pg_trgm + tsvector = 
 
 ---
 
-Наш Knowledge Graph на PostgreSQL — [AICPO](https://aicpo.ru) или напишите [nevr@aicpo.com](mailto:nevr@aicpo.com)
+Мой Knowledge Graph на PostgreSQL — [AICPO](https://aicpo.ru) или напишите [nevr@aicpo.com](mailto:nevr@aicpo.com)
