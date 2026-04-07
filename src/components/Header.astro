@@ -1,6 +1,5 @@
 ---
 import ThemeToggle from './ThemeToggle.astro';
-import LanguageSwitcher from './LanguageSwitcher.astro';
 import { getTranslation, type Lang } from '../i18n/index';
 
 interface Props {
@@ -9,22 +8,26 @@ interface Props {
   pagePath?: string;
 }
 
-const { lang = 'en', hideLanguageSwitcher = false, pagePath } = Astro.props;
+const { lang = 'en' } = Astro.props;
 const t = getTranslation(lang);
-const prefix = lang === 'en' ? '' : `/${lang}`;
 
 const navLinks = [
-  { href: `${prefix}/products`, label: t.nav.products },
-  { href: `${prefix}/stack`, label: t.nav.stack },
+  { href: '/products', label: t.nav.products },
   { href: '/blog', label: t.nav.blog },
-  { href: `${prefix}/about`, label: t.nav.about },
+  { href: '/about', label: t.nav.about },
+];
+
+const apiLinks = [
+  { href: '/modules', label: 'Modules' },
+  { href: '/docs', label: 'Docs' },
+  { href: '/dashboard', label: 'Dashboard' },
+  { href: '/pricing', label: 'Pricing' },
 ];
 
 const currentPath = Astro.url.pathname;
-const homePath = lang === 'en' ? '/' : `/${lang}`;
 ---
 <header class="max-w-3xl mx-auto px-4 sm:px-6 py-6 flex items-center justify-between">
-  <a href={homePath} class="text-lg font-semibold tracking-tight no-underline hover:no-underline text-(--color-text) hover:text-(--color-accent)">
+  <a href="/" class="text-lg font-semibold tracking-tight no-underline hover:no-underline text-(--color-text) hover:text-(--color-accent)">
     [nevrai]
   </a>
   <nav class="hidden sm:flex items-center gap-6 text-sm">
@@ -41,9 +44,39 @@ const homePath = lang === 'en' ? '/' : `/${lang}`;
         {link.label}
       </a>
     ))}
+    <!-- API dropdown -->
+    <div class="api-dropdown-wrapper">
+      <button
+        class:list={[
+          'api-dropdown-trigger transition-colors',
+          currentPath.startsWith('/modules') || currentPath.startsWith('/docs') || currentPath.startsWith('/dashboard') || currentPath.startsWith('/pricing')
+            ? 'text-(--color-accent)'
+            : 'text-(--color-text-dim) hover:text-(--color-accent)',
+        ]}
+        aria-haspopup="true"
+        aria-expanded="false"
+      >
+        API <span class="dropdown-arrow">▾</span>
+      </button>
+      <div class="api-dropdown-menu" role="menu">
+        {apiLinks.map(link => (
+          <a
+            href={link.href}
+            class:list={[
+              'api-dropdown-item no-underline',
+              currentPath.startsWith(link.href)
+                ? 'text-(--color-accent)'
+                : 'text-(--color-text-dim) hover:text-(--color-accent)',
+            ]}
+            role="menuitem"
+          >
+            {link.label}
+          </a>
+        ))}
+      </div>
+    </div>
   </nav>
   <div class="flex items-center gap-3">
-    {!hideLanguageSwitcher && <LanguageSwitcher lang={lang} currentPath={pagePath || Astro.url.pathname} />}
     <ThemeToggle />
     <!-- Mobile menu button -->
     <button
@@ -73,8 +106,86 @@ const homePath = lang === 'en' ? '/' : `/${lang}`;
         {link.label}
       </a>
     ))}
+    <div class="border-t border-(--color-border) pt-3 mt-1">
+      <span class="text-(--color-text-dim) text-xs uppercase tracking-wider">API</span>
+      <div class="flex flex-col gap-2 mt-2">
+        {apiLinks.map(link => (
+          <a
+            href={link.href}
+            class:list={[
+              'no-underline pl-2',
+              currentPath.startsWith(link.href)
+                ? 'text-(--color-accent)'
+                : 'text-(--color-text-dim) hover:text-(--color-accent)',
+            ]}
+          >
+            {link.label}
+          </a>
+        ))}
+      </div>
+    </div>
   </div>
 </nav>
+
+<style>
+  .api-dropdown-wrapper {
+    position: relative;
+  }
+
+  .api-dropdown-trigger {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+  }
+
+  .dropdown-arrow {
+    font-size: 0.65rem;
+    opacity: 0.7;
+    transition: transform 0.15s;
+  }
+
+  .api-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 50%;
+    transform: translateX(-50%);
+    min-width: 130px;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: 0.25rem 0;
+    z-index: 100;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.8rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+
+  .api-dropdown-wrapper:hover .api-dropdown-menu,
+  .api-dropdown-wrapper:focus-within .api-dropdown-menu {
+    display: block;
+  }
+
+  .api-dropdown-wrapper:hover .dropdown-arrow {
+    transform: rotate(180deg);
+  }
+
+  .api-dropdown-item {
+    display: block;
+    padding: 0.4rem 0.9rem;
+    transition: background 0.1s, color 0.1s;
+  }
+
+  .api-dropdown-item:hover {
+    background: var(--color-border);
+  }
+</style>
+
 <script is:inline>
   document.getElementById('mobile-menu-btn').addEventListener('click', function() {
     document.getElementById('mobile-menu').classList.toggle('hidden');

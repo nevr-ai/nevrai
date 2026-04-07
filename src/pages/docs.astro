@@ -1,0 +1,14 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout title="API Docs — nevrai" description="nevrai API reference documentation. OpenAPI 3.1 spec with interactive explorer." pagePath="/docs">
+
+<h2 class="text-xl font-semibold mb-2 text-(--color-text)">API Documentation</h2>
+<p class="text-(--color-text-dim) mb-6">Interactive API reference powered by <a href="https://scalar.com" target="_blank" rel="noopener">Scalar</a>.</p>
+
+<div id="api-docs" class="rounded border border-(--color-border) overflow-hidden" style="min-height:600px;">
+  <script is:inline src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+  <api-reference spec-url="/openapi.yaml" />
+</div>
+
+</BaseLayout>

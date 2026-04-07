@@ -1,0 +1,82 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout title="Privacy Policy — nevrai" description="nevrai privacy policy. What we collect, what we don't, and how to delete your data." pagePath="/privacy">
+
+<h2 class="text-xl font-semibold mb-2 text-(--color-text)">Privacy Policy</h2>
+<p class="text-(--color-text-dim) mb-8">Last updated: April 5, 2026</p>
+
+<div class="prose text-sm leading-relaxed space-y-8 text-(--color-text)">
+
+  <section>
+    <h3 class="text-base font-semibold text-(--color-text) mb-3">The short version</h3>
+    <p class="text-(--color-text-dim)">We collect only what we need to run the service. We do not read or store your API request and response content. We do not sell your data.</p>
+  </section>
+
+  <section>
+    <h3 class="text-base font-semibold text-(--color-text) mb-3">What we collect</h3>
+    <ul class="mt-2 space-y-1 list-none p-0 text-(--color-text-dim)">
+      <li>> <strong class="text-(--color-text)">Email address</strong> — collected via Google OAuth when you sign up. Used for account identification and billing notifications.</li>
+      <li>> <strong class="text-(--color-text)">Usage metrics</strong> — request counts, latency, error rates, and token usage per API key. Used for billing and rate limiting.</li>
+      <li>> <strong class="text-(--color-text)">IP address</strong> — logged at the edge for rate limiting. Not linked to your account beyond rate limit enforcement.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h3 class="text-base font-semibold text-(--color-text) mb-3">What we do NOT collect</h3>
+    <ul class="mt-2 space-y-1 list-none p-0 text-(--color-text-dim)">
+      <li>> API request content (your prompts)</li>
+      <li>> API response content (LLM outputs)</li>
+      <li>> Personal data you send through the API</li>
+      <li>> Behavioral tracking or fingerprinting</li>
+    </ul>
+  </section>
+
+  <section>
+    <h3 class="text-base font-semibold text-(--color-text) mb-3">Cookies and local storage</h3>
+    <p class="text-(--color-text-dim)">We use localStorage to store your session token after login. We do not use tracking cookies, advertising cookies, or third-party cookie networks. No cookie banners needed.</p>
+  </section>
+
+  <section>
+    <h3 class="text-base font-semibold text-(--color-text) mb-3">Analytics</h3>
+    <p class="text-(--color-text-dim)">We use PostHog for product analytics. Data is collected anonymously — we track page views and feature usage, not individual users. PostHog is configured with IP anonymization enabled.</p>
+  </section>
+
+  <section>
+    <h3 class="text-base font-semibold text-(--color-text) mb-3">Where your data is stored</h3>
+    <p class="text-(--color-text-dim)">Account data and usage metrics are stored in Cloudflare Workers KV, distributed across Cloudflare edge locations globally. No single data center stores all your data.</p>
+  </section>
+
+  <section>
+    <h3 class="text-base font-semibold text-(--color-text) mb-3">Third-party services</h3>
+    <p class="text-(--color-text-dim)">We work with the following third parties:</p>
+    <ul class="mt-2 space-y-1 list-none p-0 text-(--color-text-dim)">
+      <li>> <strong class="text-(--color-text)">Google</strong> — OAuth login. Subject to Google's privacy policy.</li>
+      <li>> <strong class="text-(--color-text)">Cloudflare</strong> — Hosting, edge compute, and KV storage. Your requests pass through Cloudflare infrastructure.</li>
+      <li>> <strong class="text-(--color-text)">Groq and OpenRouter</strong> — LLM providers. Your API prompts and responses pass through their infrastructure to reach the underlying models. Review their privacy policies before sending sensitive data.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h3 class="text-base font-semibold text-(--color-text) mb-3">GDPR</h3>
+    <p class="text-(--color-text-dim)">We collect minimal personally identifiable information. If you are in the EU or EEA, you have the right to access, correct, or delete your data at any time. To exercise these rights, email <a href="mailto:support@nevrai.com">support@nevrai.com</a>.</p>
+  </section>
+
+  <section>
+    <h3 class="text-base font-semibold text-(--color-text) mb-3">Data deletion</h3>
+    <p class="text-(--color-text-dim)">To delete your account and all associated data, email <a href="mailto:support@nevrai.com">support@nevrai.com</a> with the subject "Delete my account". We will process your request within 30 days.</p>
+  </section>
+
+  <section>
+    <h3 class="text-base font-semibold text-(--color-text) mb-3">Changes to this policy</h3>
+    <p class="text-(--color-text-dim)">If we make material changes to how we handle your data, we will notify you by email before the changes take effect.</p>
+  </section>
+
+  <section>
+    <h3 class="text-base font-semibold text-(--color-text) mb-3">Contact</h3>
+    <p class="text-(--color-text-dim)">Privacy questions: <a href="mailto:support@nevrai.com">support@nevrai.com</a></p>
+  </section>
+
+</div>
+
+</BaseLayout>

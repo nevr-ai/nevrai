@@ -1,0 +1,69 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout title="Terms of Service — nevrai" description="nevrai API terms of service. Plain language." pagePath="/terms">
+
+<h2 class="text-xl font-semibold mb-2 text-(--color-text)">Terms of Service</h2>
+<p class="text-(--color-text-dim) mb-8">Last updated: April 5, 2026</p>
+
+<div class="prose text-sm leading-relaxed space-y-8 text-(--color-text)">
+
+  <section>
+    <h3 class="text-base font-semibold text-(--color-text) mb-3">Who we are</h3>
+    <p class="text-(--color-text-dim)">nevrai is an AI API marketplace operated by Nevr Neverov, registered in the Republic of Georgia. By using nevrai, you agree to these terms.</p>
+  </section>
+
+  <section>
+    <h3 class="text-base font-semibold text-(--color-text) mb-3">API usage</h3>
+    <p class="text-(--color-text-dim)">Your plan includes a monthly request quota. We enforce rate limits per key to ensure fair usage across all users. You may not:</p>
+    <ul class="mt-2 space-y-1 list-none p-0 text-(--color-text-dim)">
+      <li>> Share API keys publicly or between separate organizations</li>
+      <li>> Use the API to scrape, spam, or harm third parties</li>
+      <li>> Attempt to bypass rate limits or quotas</li>
+      <li>> Resell raw API access without a written agreement</li>
+    </ul>
+  </section>
+
+  <section>
+    <h3 class="text-base font-semibold text-(--color-text) mb-3">AI-generated content</h3>
+    <p class="text-(--color-text-dim)">nevrai routes your requests to LLM providers (Groq, OpenRouter, and others). AI-generated content is provided as-is. nevrai is not liable for decisions made based on API outputs. Always review AI outputs before using them in production systems or making business decisions.</p>
+  </section>
+
+  <section>
+    <h3 class="text-base font-semibold text-(--color-text) mb-3">Uptime and SLA</h3>
+    <p class="text-(--color-text-dim)">Free and Starter plans have no uptime guarantee. We aim for high availability but make no SLA commitments at these tiers. Pro and Business plans include an SLA — see your plan details. We may perform maintenance with or without advance notice.</p>
+  </section>
+
+  <section>
+    <h3 class="text-base font-semibold text-(--color-text) mb-3">API key security</h3>
+    <p class="text-(--color-text-dim)">Your API keys are your responsibility. Treat them like passwords. If a key is compromised, revoke it immediately from your dashboard. nevrai is not liable for unauthorized usage resulting from a leaked key.</p>
+  </section>
+
+  <section>
+    <h3 class="text-base font-semibold text-(--color-text) mb-3">Account termination</h3>
+    <p class="text-(--color-text-dim)">We may suspend or revoke access immediately if you violate these terms, attempt to abuse the platform, or engage in activity that harms other users or third parties. If we terminate your account without cause, we will refund any unused prepaid credit on a pro-rata basis.</p>
+  </section>
+
+  <section>
+    <h3 class="text-base font-semibold text-(--color-text) mb-3">Data retention</h3>
+    <p class="text-(--color-text-dim)">We do <strong>not</strong> store your API request or response content. We only retain usage metrics (request counts, latency, error rates) for billing and rate limiting. These metrics are retained for 90 days.</p>
+  </section>
+
+  <section>
+    <h3 class="text-base font-semibold text-(--color-text) mb-3">Pricing changes</h3>
+    <p class="text-(--color-text-dim)">We will give 30 days notice before changing paid plan prices. Free tier limits may change with shorter notice. Notifications will be sent to your registered email address.</p>
+  </section>
+
+  <section>
+    <h3 class="text-base font-semibold text-(--color-text) mb-3">Governing law</h3>
+    <p class="text-(--color-text-dim)">These terms are governed by the laws of the Republic of Georgia. Disputes will be resolved in Georgian courts.</p>
+  </section>
+
+  <section>
+    <h3 class="text-base font-semibold text-(--color-text) mb-3">Contact</h3>
+    <p class="text-(--color-text-dim)">Questions about these terms? Email <a href="mailto:support@nevrai.com">support@nevrai.com</a>.</p>
+  </section>
+
+</div>
+
+</BaseLayout>

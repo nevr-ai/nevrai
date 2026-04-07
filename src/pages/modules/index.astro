@@ -1,0 +1,86 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const modules = [
+  {
+    name: 'LLM Runtime',
+    slug: 'llm-runtime',
+    tagline: 'Drop-in LLM proxy with 7 levels of fallback. Zero downtime.',
+    layer: 'AI Core',
+    stack: ['Groq', 'OpenRouter', 'SSE', 'Redis'],
+    metric: '0 downtime, 2K tokens/req instead of 25K',
+  },
+  {
+    name: 'Escalation Detector',
+    slug: 'escalation',
+    tagline: 'Detects user frustration before they leave. Regex + LLM dual analysis.',
+    layer: 'Intelligence',
+    stack: ['Regex', 'Groq', 'EN + RU'],
+    metric: '5 triggers, 0.87 avg confidence',
+  },
+  {
+    name: 'Data Extractor',
+    slug: 'extract',
+    tagline: 'Paste chat logs, get 19 structured JTBD data points in seconds.',
+    layer: 'Data',
+    stack: ['Groq', 'AJTBD', 'Multi-format'],
+    metric: '19 data points, coverage tracking',
+  },
+  {
+    name: 'PDF Publisher',
+    slug: 'pdf',
+    tagline: 'Markdown in, signed PDF out. Verifiable document ID.',
+    layer: 'Channels',
+    stack: ['Markdown', 'PDF', 'Digital signature'],
+    metric: 'Document ID + verification',
+  },
+  {
+    name: 'Discovery Engine',
+    slug: 'research',
+    tagline: 'Multi-round market research. Web + Telegram. LLM-filtered insights.',
+    layer: 'Intelligence',
+    stack: ['DuckDuckGo', 'Telegram', 'Groq', 'Cache'],
+    metric: '3 rounds, 90-day cache',
+  },
+];
+
+const layerColors: Record<string, string> = {
+  'AI Core': 'text-purple-400 border-purple-400/30',
+  'Intelligence': 'text-blue-400 border-blue-400/30',
+  'Data': 'text-green-400 border-green-400/30',
+  'Channels': 'text-orange-400 border-orange-400/30',
+};
+---
+<BaseLayout title="API Modules — nevrai" description="5 production-ready AI modules. LLM Runtime, Escalation Detector, Data Extractor, PDF Publisher, Discovery Engine." pagePath="/modules">
+
+<h2 class="text-xl font-semibold mb-2 text-(--color-text)">API Modules</h2>
+<p class="text-(--color-text-dim) mb-8">5 production-ready AI modules. Pick what you need.</p>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+  {modules.map(mod => (
+    <a href={`/modules/${mod.slug}`} class="block no-underline hover:no-underline group">
+      <div class="card border border-(--color-border) p-5 hover:border-(--color-accent) transition-colors bg-(--color-bg-card) h-full flex flex-col">
+        <div class="flex items-start justify-between gap-2 mb-2">
+          <h3 class="text-base font-semibold m-0 text-(--color-text) group-hover:text-(--color-accent) transition-colors !normal-case !tracking-normal">
+            {mod.name}
+          </h3>
+          <span class={`text-[0.625rem] px-1.5 py-0.5 border rounded font-mono ${layerColors[mod.layer] || 'text-(--color-text-dim) border-(--color-border)'}`}>
+            {mod.layer}
+          </span>
+        </div>
+        <p class="text-sm text-(--color-text-dim) mb-3 leading-relaxed">{mod.tagline}</p>
+        <div class="flex flex-wrap gap-1.5 mb-3">
+          {mod.stack.map(tech => (
+            <span class="text-[0.625rem] px-1.5 py-0.5 border border-(--color-border) rounded text-(--color-text-dim) font-mono">
+              {tech}
+            </span>
+          ))}
+        </div>
+        <p class="text-xs text-(--color-accent) mt-auto mb-0 font-mono">{mod.metric}</p>
+        <span class="text-xs text-(--color-text-dim) mt-3 group-hover:text-(--color-accent) transition-colors">Learn more →</span>
+      </div>
+    </a>
+  ))}
+</div>
+
+</BaseLayout>
