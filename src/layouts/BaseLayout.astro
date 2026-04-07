@@ -41,9 +41,9 @@ const canonicalURL = new URL(canonicalPath, Astro.site);
     })();
   </script>
 </head>
-<body class="min-h-screen bg-(--color-bg) text-(--color-text)">
+<body class="min-h-screen bg-(--color-bg) text-(--color-text) flex flex-col">
   <Header pagePath={pagePath} />
-  <main class="max-w-3xl mx-auto px-4 sm:px-6 py-12">
+  <main class="max-w-3xl mx-auto px-4 sm:px-6 py-12 flex-grow w-full">
     <slot />
   </main>
   <Footer />

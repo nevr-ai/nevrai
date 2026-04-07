@@ -3,13 +3,18 @@ import t from '../content/text';
 
 const year = new Date().getFullYear();
 ---
-<footer class="max-w-3xl mx-auto px-4 sm:px-6 py-8 mt-12 border-t border-(--color-border)">
+<div class="sticky bottom-0 z-50 bg-(--color-bg) border-t border-(--color-border)">
+<footer class="max-w-3xl mx-auto px-4 sm:px-6 py-3">
   <div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-(--color-text-dim)">
     <span>{t.footer.built} &middot; {t.footer.based} &middot; {year}</span>
     <div class="flex items-center gap-4">
+      <a href="/methodology" class="hover:text-(--color-accent)">Технология</a>
+      <a href="/about" class="hover:text-(--color-accent)">{t.nav.about}</a>
+      <a href="/contact" class="hover:text-(--color-accent)">{t.nav.contact}</a>
       <a href={t.links.githubUrl} target="_blank" rel="noopener" class="hover:text-(--color-accent)">GitHub</a>
       <a href={t.links.telegramUrl} target="_blank" rel="noopener" class="hover:text-(--color-accent)">Telegram</a>
       <a href={`mailto:${t.links.email}`} class="hover:text-(--color-accent)">Email</a>
     </div>
   </div>
 </footer>
+</div>
