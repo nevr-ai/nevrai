@@ -7,7 +7,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 <p class="text-(--color-text-dim) mb-6">Interactive API reference powered by <a href="https://scalar.com" target="_blank" rel="noopener">Scalar</a>.</p>
 
 <div id="api-docs" class="rounded border border-(--color-border) overflow-hidden" style="min-height:600px;">
-  <api-reference spec-url="https://nevrai.com/openapi.yaml" />
+  <div data-spec-url="https://nevrai.com/openapi.yaml" style="min-height:600px;"></div>
   <script is:inline src="https://cdn.jsdelivr.net/npm/@scalar/api-reference@1.25.100"></script>
 </div>
 
