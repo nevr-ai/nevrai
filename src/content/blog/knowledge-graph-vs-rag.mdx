@@ -1,0 +1,90 @@
+---
+title: "Knowledge Graph for Product Research: Why RAG Is Not Enough"
+description: "RAG is great for finding text. Product research requires understanding relationships. Here is why I built a methodology-native Knowledge Graph instead."
+date: 2026-04-08
+readingTime: "8 min read"
+---
+
+"Show me all the pains that have no solution on the market."
+
+This is a reasonable question during product research. It is not a text search problem. It requires knowing which pains exist, which competitors exist, which pains each competitor addresses, and which pains remain unaddressed — then traversing those relationships to find gaps.
+
+RAG cannot do this. RAG finds similar text. It does not traverse relationships.
+
+## What RAG Is Actually Good For
+
+RAG — Retrieval-Augmented Generation — works well for a specific pattern: user asks a question, system finds semantically similar documents, LLM synthesizes an answer from those documents.
+
+For FAQ-style queries, it is excellent. "What is your refund policy?" → find the refund policy document → answer. Clean, reliable, fast.
+
+The failure mode appears when the question requires connecting entities across documents. "Which customer segments have the highest churn risk?" is not answered by finding documents that mention churn. It requires knowing which segments exist, what behaviors each segment shows, which behaviors correlate with churn, and how that relationship distributes across the segment population.
+
+That is a graph traversal problem disguised as a search problem.
+
+## Why Product Research Is a Graph Problem
+
+Product research has a natural ontology. There are pains — specific problems users experience. There are jobs — what users are trying to accomplish. There are segments — groups of users with common characteristics. There are competitors — products that address some subset of pains for some subset of segments. There are solutions — how competitors address those pains.
+
+The interesting questions in product research all sit at the intersections:
+
+- Which pains does this segment have that no competitor addresses?
+- Which competitors are targeting the same segment with different solutions?
+- What jobs do users in pain X have that correlate with willingness to pay?
+- Which solution approach is gaining traction in segment Y?
+
+These questions require explicit relationships between typed entities. Without the graph, you are guessing.
+
+## Microsoft GraphRAG: An Improvement, But Still Not Enough
+
+GraphRAG builds a graph from documents — entities, their relationships, a hierarchy of summaries. It is a meaningful improvement over flat vector search.
+
+But it is methodology-agnostic. It extracts whatever entities appear in the source text, without domain knowledge of what entities *should* exist and how they *should* relate.
+
+For product research specifically, you need an extraction layer that knows: this entity is a pain, this entity is a segment, this is a competitor, this relationship type means "addresses" vs. "partially addresses" vs. "ignores." Without that methodology layer, you get a graph that reflects the text, not the product domain.
+
+## The Architecture I Built
+
+AICPO's Knowledge Graph is methodology-native — built around the Product DNA framework, which defines 26 data points across pain, audience, economics, and competition dimensions.
+
+**10 node types:** Pain, Job, Segment, Competitor, Solution, Feature, Metric, Trend, Channel, Constraint.
+
+**18+ edge types:** `has_pain`, `solves`, `addresses_partially`, `targets_segment`, `competes_with`, `correlated_with`, `blocks`, `enables`, and more.
+
+Every entity extraction prompt knows the full ontology. The LLM is not finding generic entities — it is classifying facts into a domain-specific schema.
+
+**Bi-temporal tracking:** Every node has `valid_from` and `valid_to` timestamps. When a competitor changes strategy or a pain becomes less acute, the old state is preserved. You can query the graph as it existed at any point in time.
+
+**Hybrid retrieval:** The query layer combines three signals through Reciprocal Rank Fusion:
+1. Vector similarity (semantic closeness)
+2. BM25 (keyword matching)
+3. Graph traversal (relationship depth and confidence)
+
+The combination matters. Semantic search finds relevant nodes. Graph traversal finds the connected context. BM25 handles exact-match requirements that embedding models sometimes miss.
+
+## RAG = Search. Knowledge Graph = Understanding.
+
+This is not a positioning statement — it is an architectural description.
+
+RAG retrieves. It finds the most relevant text for a query. It is excellent at this.
+
+A Knowledge Graph understands structure. It knows that this entity is a pain, that entity is a segment, and there is no edge of type "addressed_by" connecting them — which means this is a market gap.
+
+For product research — where the goal is to find what does not exist as much as what does — structure is the whole game.
+
+The query "show me unaddressed pains in this segment" returns nothing meaningful from a vector store. From a properly structured graph, it is three traversal steps.
+
+## When to Use Which
+
+**Use RAG when:**
+- Questions are document retrieval problems
+- Source material is unstructured prose
+- The ontology is unknown or variable
+- Speed of setup matters more than depth of analysis
+
+**Use a Knowledge Graph when:**
+- Questions require relationship traversal
+- The domain has a well-defined ontology
+- You need to find gaps (absences, not just presences)
+- Analysis requires temporal reasoning
+
+Most production systems benefit from both — RAG for fast, broad retrieval, graph for structured analysis. The hybrid query layer is where the real work happens.

@@ -1,0 +1,89 @@
+---
+title: "Self-Evolving Prompts: A System That Improves Without You"
+description: "Most AI products run on static prompts that never change. Here's how to build a feedback loop that automatically improves prompt quality every week."
+date: 2026-03-28
+readingTime: "7 min read"
+---
+
+Most AI products run on static prompts. Write them, deploy them, forget them. When quality drops — manual audit, manual edits, manual deploy. The cycle takes months.
+
+In AICPO, prompts improve themselves. Weekly. Without anyone touching them.
+
+## The Closed Loop
+
+Here's how it works:
+
+1. User rates a response (thumbs up or down)
+2. Daily aggregation of negative feedback (FeedbackDigestJob)
+3. Weekly AI pattern analysis (PromptImprovementJob)
+4. AI proposes specific changes to the prompt
+5. Versioning: the old version is archived
+6. Quality measurement: if scores drop — automatic rollback
+
+Every step is automated. The only manual action is approving the change — and that's optional. You can automate approval too.
+
+## Three Components
+
+### 1. Feedback Collection
+
+Every AICPO response is rated on three dimensions:
+
+- **Accuracy** — how correct was it
+- **Completeness** — how thorough was it
+- **Relevance** — how on-target was it
+
+A negative rating with a comment is the most valuable signal. The user tells you exactly what was wrong — a data point that feeds directly into improvement.
+
+### 2. Pattern Detection
+
+Weekly, AI analyzes all negative feedback and looks for patterns:
+
+- "The bot answers too abstractly on questions about competitors"
+- "The 'Segments' artifact doesn't account for B2B"
+- "The bot doesn't ask clarifying questions"
+
+The output is specific proposed changes to prompt instructions — not vague suggestions, but concrete edits.
+
+### 3. Versioning + Quality Gates
+
+Every prompt is versioned. On each change:
+
+1. Old version is archived (rollback available in one step)
+2. Performance snapshot: how many positive and negative ratings did this version receive
+3. After the change — monitoring: if negatives increase — automatic rollback
+
+This is automated A/B testing of prompts without manual setup.
+
+## Chat Audit — The Parallel Signal
+
+Alongside direct feedback, the system uses an indirect signal: Chat Audit. Weekly, AI reads all sessions and finds:
+
+- Where the bot was unhelpful (user rephrased 3+ times)
+- Where conversation stalled (no new facts for 5+ messages)
+- Where the user left after the bot's response (implicit negative)
+
+These insights go into the same backlog as direct feedback.
+
+## Why This Beats Fine-Tuning
+
+Fine-tuning a model is expensive, slow, and unpredictable. It needs a dataset, GPU time, experiments. The result might be worse — the model overfit, lost generalization ability.
+
+Self-evolving prompts work at a different layer: the instruction changes, not the model. Cheaper (zero cost), faster (minutes vs hours), safer (rollback is one line).
+
+The model stays the same. Its behavior improves.
+
+## For Engineering Teams
+
+This approach applies to any AI product:
+
+1. Collect structured feedback — by dimension, not just like/dislike
+2. Automate pattern analysis — weekly cron + LLM
+3. Version prompts like code — git
+4. Measure quality — baseline → change → compare
+5. Automatic rollback on quality drop
+
+A product that learns from mistakes compounds over time. That's a competitive advantage that grows the longer you run it.
+
+---
+
+[AICPO](https://aicpo.ru) | [nevr@aicpo.com](mailto:nevr@aicpo.com)

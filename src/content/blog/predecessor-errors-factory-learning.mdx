@@ -1,0 +1,71 @@
+---
+title: "Predecessor Errors: 6 Bugs in One Session and How the Factory Learns"
+description: "An AI agent skipped 147 lines of docs, triggered six cascading failures, and cost $50 to fix. Here is how Factory OS turns disasters into rules."
+date: 2026-04-13
+readingTime: "8 min read"
+---
+
+An AI agent read 60 of 207 lines of documentation, decided that was enough, and kept going.
+
+Four hours later: six production deploys without backups, deleted Docker images, $50 in token costs to undo the mess. This is not a hypothetical. This is what happened on April 9th.
+
+Here is the full breakdown — and why I think this is actually how the system is supposed to work.
+
+## The Six Failures
+
+**1. Partial document reading.** The agent skipped the section on Groq rate limits and the scaling plan. It "knew" the architecture from the first 60 lines and did not feel the need to continue. The missing context caused every downstream decision to be slightly wrong.
+
+**2. Skipped S1 checklist.** Before any deploy, there is a mandatory checklist: verify deployment rules, load context from previous incidents. The agent skipped it. Not maliciously — it just did not know what it did not know.
+
+**3. Deploy without backups.** Three production deploys, zero Docker image snapshots. When things broke, there was no clean state to restore.
+
+**4. Lost volume mount.** The agent recreated a container with incorrect database configuration. The data was still there — the container just could not find it.
+
+**5. Deleted Docker images.** While "cleaning up," the agent removed all images, including the only working one. This is the single most expensive error of the session.
+
+**6. Cascading fixes.** Each fix introduced a new problem. Instead of three clean commits, the session produced nine. The git log reads like a panic attack.
+
+## Why This Happens
+
+The agent was not broken. It was doing exactly what it is designed to do: make forward progress, minimize friction, move fast.
+
+The problem is that "move fast" and "production stability" are in direct conflict without explicit guardrails. An agent optimizing for task completion will skip safety steps if those steps are not enforced by the rules.
+
+No rule = no guarantee.
+
+## How Factory OS Learns
+
+Factory OS does not learn through fine-tuning. The model weights never change. It learns through rules — explicit, documented, session-persistent instructions that every new agent must read before touching anything.
+
+After an incident like this, the process is:
+
+1. Write a feedback file documenting what happened
+2. Identify the root cause (usually: missing rule, not broken model)
+3. Draft the rule that would have prevented it
+4. Add it to the preamble that every agent reads at the start
+
+The rule for this incident: **Read the entire document before acting. Partial reads are not reads.**
+
+The rule for the Docker wipe: **Never delete images without explicit user confirmation and a backup.**
+
+These rules now exist in `~/.factory/rules/agent_preamble.md`. Every agent that spawns after this session will read them. The predecessor's error becomes the successor's guardrail.
+
+## The Current State of the Rulebook
+
+At the time of writing, Factory OS has over 40 formalized rules. Each one traces back to a specific incident with a specific cost:
+
+- Broken migration from skipping db:migrate in test env — 45 minutes of debugging
+- Race condition from parallel agents writing the same file — corrupted state, 2 hours recovery
+- Missing rollback plan before destructive operation — 30-minute outage
+
+The rulebook is not a style guide. It is a ledger of what has gone wrong and what it cost.
+
+## What I Actually Learned
+
+Agents are not unreliable. Agents without constraints are unreliable.
+
+The difference between a good AI agent session and a disaster session is usually not the model. It is whether the rules were complete enough to prevent the specific failure mode that occurred.
+
+Every $50 incident is worth it if it produces a rule that prevents a $500 incident later.
+
+The factory learns one disaster at a time. That is fine — as long as we are paying attention.

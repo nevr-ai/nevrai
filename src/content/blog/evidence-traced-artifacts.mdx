@@ -1,0 +1,57 @@
+---
+title: "Evidence-Traced Artifacts: Every Claim in Your PRD Has a Source"
+date: 2026-04-17
+description: "How a four-layer Knowledge Graph architecture makes every AI-generated statement verifiable — so you can trace any claim back to its source interview."
+readingTime: "7 min read"
+---
+
+When an LLM generates a PRD that says "customers value fast delivery," there's no way to know where that came from. Fifty interviews? One offhand comment? The model's training data? AI can't distinguish between conclusions drawn from evidence and plausible-sounding assumptions. They look identical in the output.
+
+This is the core problem with AI-generated product documents.
+
+## A Four-Layer Architecture
+
+The solution is structural, not prompt-based.
+
+**Layer 1: Episodes (Raw Data)**
+Immutable logs. Exactly what was said, when, and by whom. These can't be edited. They're the source of truth everything else derives from.
+
+**Layer 2: Nodes (Extracted Entities)**
+LLM extractors parse episodes and identify structured objects — pain points, customer segments, competitors, features, metrics. Each node holds a reference to its source episode.
+
+**Layer 3: Edges (Relationships)**
+Automated discovery of connections between nodes, validated against an ontology of 18 permitted relationship types. Relations can't be arbitrary — they have to match the defined schema.
+
+**Layer 4: Artifact Context (Assembly)**
+When generating documents, the system collects relevant nodes and edges and enriches each with evidence chains. Every claim in the output traces back to a node, which traces back to an episode, which traces back to a specific message.
+
+## What the Pipeline Looks Like
+
+Each user message flows through:
+
+1. Message stored in database
+2. Immutable episode created with source attribution
+3. LLM extracts entities from the episode
+4. Entity resolution checks for duplicates and merges as needed
+5. Relationship discovery runs between new and existing nodes
+6. Temporal tags applied to track knowledge evolution
+
+## Three Mechanisms Against Hallucination
+
+**Confidence Scoring.** A fact mentioned once gets confidence 60-70. Multi-source confirmation pushes it to 80-90. Low-confidence claims are labeled as such in generated artifacts.
+
+**Temporal Tracking.** Nodes include validity periods. Outdated information can't contaminate current analysis — the system knows what was true when.
+
+**Contradiction Detection.** Conflicting claims about the same entity surface automatically. The system prompts for clarification rather than silently picking one version.
+
+## What Else This Enables
+
+**Research gap detection.** If a segment has no associated pain points, the system flags it. If pain points have no documented competitive solutions, that gap appears in the coverage map.
+
+**Organizational memory.** Decision chains persist across team transitions. When a new team member asks "why did we price it this way?", the answer traces back through nodes to the interviews that informed it.
+
+**Cross-project promotion.** Insights that appear across multiple projects automatically elevate to organization-level. Patterns become visible at scale.
+
+---
+
+AI still generates text. That part hasn't changed. But now every sentence has a foundation you can verify — a node, an episode, a specific moment in a conversation where someone said exactly this. That's a meaningful difference.

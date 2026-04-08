@@ -1,0 +1,85 @@
+---
+title: "Factory OS: How to Turn AI Agents Into a Reliable Engineering Team"
+description: "A methodology for AI-native development — 15 specialized roles, 40+ explicit rules, and independent quality gates that make autonomous coding reliable."
+date: 2026-04-03
+readingTime: "10 min read"
+---
+
+AI code generation works about 70% of the time. The other 30% is bugs, hallucinations, and lost context.
+
+A single AI agent can't scale reliably because it's simultaneously acting as developer, tester, and decision-maker — a single point of failure with no checks. Factory OS fixes this through specialization.
+
+## What Factory OS Is
+
+Not a framework. Not a tool. A methodology that operates above Claude Code — a set of rules, roles, and processes that transforms AI agents into a reliable engineering team.
+
+The core insight: reliability comes from constraints, not capability. A smarter model that has no rules will still make the same class of mistakes. An agent that cannot deploy cannot accidentally break production.
+
+## 15 Specialized Roles
+
+Each role has defined capabilities and hard restrictions:
+
+**CEO** — reads code, decomposes tasks, delegates work, makes decisions. Never writes code. If the CEO writes code, the architecture has failed — one agent is now doing everything and nothing is being checked.
+
+**Builder** — writes code, runs tests, commits. Cannot deploy. Cannot change architecture without CEO approval.
+
+**Quality** — reviews code, finds bugs, writes reports. Only reports — never fixes. If Quality could fix, it would stop being an independent check.
+
+**DevOps** — deploys, configures infrastructure. Doesn't touch business logic. Cannot approve its own deploys.
+
+The restriction structure is the point. An agent that can do everything has no accountability boundary. An agent with explicit "cannot" rules creates a system where failures are contained.
+
+## Rules Emerge From Incidents
+
+The 40+ rules in Factory OS didn't come from planning. They came from things that broke.
+
+"CEO never writes code" — came from a session where the CEO made a small HTML edit to "save time." It broke the frontend. Two hours to diagnose.
+
+"Full context reload at session start" — came from an agent that forgot an architectural decision made three sessions earlier and implemented a conflicting approach. Neither agent knew about the other's work.
+
+"Quality gate is mandatory, never skippable" — came from a feature that passed Builder review and failed in production because Builder reviewed its own code.
+
+Each incident became a rule. Rules are permanent — they don't expire when the incident is forgotten. The system learns from failures instead of repeating them.
+
+## The Quality Gate
+
+The independent Quality agent is what separates Factory OS from a single-agent setup.
+
+Builder writes code → commits → Quality reviews from a fresh context with no knowledge of Builder's decisions. Quality doesn't care why Builder made a choice — it only cares whether the result is correct, tested, and doesn't break existing behavior.
+
+Five verification levels:
+1. Rules check before every task — does this violate any constraints?
+2. Smoke tests mandatory before commit
+3. Quality agent independent review
+4. Post-deploy verification (33 checks)
+5. Any incident → new rule → system never repeats the same failure
+
+## Memory Across Sessions
+
+A single AI agent has no memory between sessions. Factory OS uses file-based memory:
+
+- **DNA.md** — architecture decisions, data model, key design choices
+- **Rules** — accumulated constraints from incidents
+- **Knowledge** — domain expertise built up over time
+- **Session digest** — what happened in the last session, decisions made, state left
+
+Every agent reads these files at session start. Context isn't in anyone's head — it's in files. New agents have the same context as agents that have been working on the project for months.
+
+## Reported Results
+
+- 39 products in production
+- 500+ commits
+- 0 critical bugs in production
+- Average feature build time: 2-8 hours
+
+The reliability metric matters most. "Zero critical bugs in production" doesn't come from perfect AI — it comes from the Quality gate catching problems before they reach production, and rules preventing entire classes of mistakes from occurring.
+
+## The Central Principle
+
+Rules matter more than intelligence.
+
+A highly capable agent without constraints will produce inconsistent results. A constrained system with clear roles and quality gates produces reliable results — even if individual agents are less capable than the most powerful available model.
+
+This is counterintuitive in an environment where the conversation is always about which model is smarter. The question that matters more is: what structure prevents failures regardless of model capability?
+
+Factory OS is an answer to that question.

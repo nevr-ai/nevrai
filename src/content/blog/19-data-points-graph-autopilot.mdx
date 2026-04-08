@@ -1,0 +1,145 @@
+---
+title: "26 Data Points × Knowledge Graph = Autopilot for Product Research"
+date: 2026-04-18
+description: "How combining 26 JTBD data points with a Knowledge Graph turns manual research coding into real-time autopilot."
+readingTime: "9 min read"
+---
+
+Product research always fights the same battle: incomplete data. You need to understand the customer, the job the product does, the obstacles, the competitive landscape — but systematizing all of this requires interviews, spreadsheets, tagging, and summaries. It's a lot of manual work.
+
+AICPO handles this through two mechanisms: DP Tracker (26 data points from Product DNA methodology) and Knowledge Graph. Useful individually — together they create a system that identifies missing information on its own.
+
+## What Are the 26 Data Points?
+
+Product DNA establishes that understanding a customer means understanding not just the job they're hiring the product to do, but also switching forces, adoption barriers, solution economics, and trend context.
+
+The 26 data points form a completeness checklist. Each represents a critical category of customer knowledge:
+
+**Segment and Context:**
+- Customer identity (demographics, role, context)
+- When the need emerges (triggers)
+- Preceding situation (circumstances)
+
+**Work and Motivation:**
+- Functional work (tasks to complete)
+- Emotional work (desired feelings)
+- Social work (how they want to appear)
+- Undesired outcomes (what they're avoiding)
+
+**Alternatives and Barriers:**
+- Current solutions in use
+- Satisfaction gaps with those solutions
+- Switching obstacles
+- Success criteria
+
+**Economics:**
+- Payment willingness
+- Budget and purchase process
+- Decision influencers — makers, saboteurs, champions
+
+**Competitive Environment:**
+- Competing solutions
+- Competitor weaknesses
+- Unique assets
+
+**Trends:**
+- External forces reshaping customer work
+- Need evolution vectors
+
+**Adoption and Retention:**
+- Previous unsuccessful attempts
+- Transition fears and resistance
+- Expected ROI and time-to-value
+- Previous solution abandonment reasons
+- Success vision
+- Cognitive load at first use
+- Catalyst event triggering the solution search
+
+Each point is a boolean: `true` (data exists) or `false` (gap). AICPO tracks coverage in real-time.
+
+## How the Graph Relates to Data Points
+
+DP Tracker starts with keyword matching — checking extracted facts against dictionaries for each data point. Found keywords close the item.
+
+That's the first layer. Knowledge Graph adds the second.
+
+When "customer is a procurement manager in B2B" gets extracted, it enters the graph as:
+
+```
+Node(segment): "procurement manager"
+  properties: { industry: "B2B", role: "procurement" }
+  source_message: #12
+  confidence: 87
+```
+
+When "difficult to coordinate with finance director" appears later:
+
+```
+Node(constraint): "coordination with CFO"
+  properties: { type: "organizational" }
+  source_message: #24
+
+Edge: segment → constraint (type: faces, confidence: 82)
+```
+
+DP Tracker now checks not just for "decision-maker" text but for `Node(segment)` with organizational constraint edges. Keyword matching becomes semantic coverage.
+
+## Autopilot: What Happens Without Your Input
+
+After each user message, a pipeline runs:
+
+1. `FactExtractorService` — LLM extracts structured facts
+2. `DpCoverageService` — maps facts to 26 data points
+3. `Kg2::EpisodeService` — creates an episode from facts
+4. `Kg2::BuilderJob` — EntityExtractor + EntityResolver + RelationDiscoverer
+5. `BriefUpdaterJob` — regenerates project summary
+
+This entire pipeline runs asynchronously while the user keeps talking.
+
+Result: after 20-30 minutes of interviews, you see a heatmap of 26 cells. Green = closed, red = gap. Next to each gap is a suggested question.
+
+That's autopilot. Not "what should I do next?" — "here's what's still unknown, here's the question to ask."
+
+## Why 26, Not 10 or 50?
+
+**10 is not enough.** Classic frameworks like "problem/solution/market" miss critical zones: switching barriers, social work, trend vectors, abandonment reasons.
+
+**50 paralyzes.** Researchers drown in details, lose focus, closure never happens.
+
+**26 is the minimally sufficient set** for high-confidence product decisions. The first 19 cover the classics (segment through trends). Seven additional items address B2B, retention, and onboarding — zones that conventional frameworks overlook.
+
+Skip "switching barriers" and you build products with excellent value propositions that users never actually adopt. "We're used to Excel." "Our contract runs through year-end." "The team needs training." These aren't objections you can close with a better demo.
+
+Skip "emotional work" and you solve the technical problem while missing the narrative. Users want to feel in control or appear professional — not "save two hours weekly."
+
+## Data Points Connected to Artifacts
+
+Each of 46 AICPO artifacts requires minimum coverage thresholds before it can be generated:
+
+- **Value Proposition Canvas** — functional + emotional work + undesired outcomes + success criteria + current solution (minimum 5 of 26)
+- **Competitive Analysis** — competitor identity + weaknesses + unique assets (minimum 3 specific points)
+- **Pricing Strategy** — payment willingness + budget + decision-maker (mandatory three)
+
+Unclosed data points mark artifacts incomplete. The bot asks for missing information before generating.
+
+This is different from "ChatGPT generates anything." AICPO recognizes insufficient data and says so.
+
+## Graph as Cross-Session Memory
+
+Research knowledge scatters across time. Monday interview, Friday follow-up, three weeks later another round — analysts reconstruct context from scratch each time.
+
+Knowledge Graph holds everything. When a segment from interview three intersects with a pain point from interview one, the graph automatically creates the edge.
+
+Data points work the same way: interview one closes items 1-10, interview two closes 11-20 — after the second session, DP Tracker shows 20/26 without reanalyzing the first. Research accumulates instead of restarting.
+
+## What You Actually Get
+
+Standard researchers after 3-4 interviews manually code data: open spreadsheets, apply tags, find patterns. Two to three hours of work.
+
+With AICPO this happens in real-time. After the final interview, you open the coverage map and immediately see:
+
+- Which data points are closed with high confidence
+- Which are closed but have graph contradictions
+- Which are still open with recommended closing questions
+
+It doesn't replace the researcher. It handles the mechanical coding and structuring — you keep the interpretation.

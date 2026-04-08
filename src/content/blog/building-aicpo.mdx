@@ -1,0 +1,85 @@
+---
+title: "How I Built a 31-Subsystem SaaS Platform Solo in One Month"
+description: "Building AICPO — a product research platform with 31 interconnected subsystems — without writing a single line of code manually."
+date: 2026-04-04
+readingTime: "12 min read"
+---
+
+About a month ago I decided to automate product research — a process that traditionally takes months of interviews, competitive analysis, and documentation. I wanted a platform where founders could describe an idea and get AI-driven answers: who are the customers, what are their pains, who else is solving this, what are the economics.
+
+What I ended up with was AICPO: a platform with 31 interconnected subsystems. Built by one person. Zero lines of code written manually.
+
+Here's what that actually looked like.
+
+## Why 31 Subsystems?
+
+The naive version of this product is a chat interface with a big prompt. You describe your idea, the LLM responds. Done.
+
+The naive version breaks immediately in production:
+
+- The same model handles "hi" and "analyze my unit economics" — at the same cost
+- The LLM forgets what the user said in message 5 by message 30
+- Every recommendation is a hallucination with no traceable source
+- User feedback has nowhere to go and nothing changes
+
+Each of those failure modes required its own subsystem to fix.
+
+**Dual-Brain Chat** routes simple messages to fast, free models and complex ones to premium models. Around 80% of chat messages are routine — greetings, clarifications, "tell me more." There's no reason to run those through Claude. Groq's Qwen3 handles them in 0.5 seconds for free. Claude gets called when the conversation actually needs it.
+
+**Semantic Memory** stores information by meaning, not keywords. When a user says "my customers complain about slow charging" in message 5 and "the main problem is the 40-minute wait" in message 23 — the system recognizes these as the same pain point, not two separate facts.
+
+**Knowledge Graph** maps relationships between 14 node types: pain points, customer segments, competitors, features, trends, metrics, constraints, and more. Every connection has a confidence score and a link back to the original message. When the system makes a recommendation, you can trace it back to specific words from specific conversations.
+
+**Artifact Pipeline** generates documents — PRDs, competitive maps, segment analyses — and validates them before delivery. The pipeline runs: structure outline → generate → validate → retry if quality score is below threshold.
+
+**Evolution Pipeline** reads user feedback weekly, finds patterns in what went wrong, and drafts improvements to system prompts automatically. The prompts improve without me touching them.
+
+## How Development Actually Worked
+
+I used Factory OS — my AI agent orchestration system — to build this. Every feature went through the same pipeline:
+
+1. I describe what I want to the CEO agent
+2. CEO decomposes it into tasks
+3. Builder agent writes the code
+4. Quality agent reviews independently
+5. DevOps agent deploys and runs post-deploy verification
+
+My role: approve results, reject what's wrong, describe the next thing.
+
+Adding the Knowledge Graph — 7 new database tables, extraction services, API endpoints, integration with the existing pipeline — took 1.5 hours and produced 8,500 lines of code. I didn't write any of it. I described what I wanted, evaluated what came back, and said "approved" or "this is wrong, here's why."
+
+That's the pattern repeated across all 31 subsystems.
+
+## The Numbers
+
+- One month of development
+- 31 interconnected subsystems
+- 500+ commits
+- 0 critical bugs in production
+- Average time to add a new subsystem: 2-8 hours
+
+The speed comes from removing coordination overhead. With a team, adding a subsystem means: spec review, architecture discussion, implementation, code review, QA, deployment. Multiple people, multiple handoffs, multiple wait times.
+
+With Factory OS: I describe it, agents build it, I approve it. No meetings. No standups. No "waiting for review."
+
+## What Actually Required Human Judgment
+
+The things I couldn't hand to AI:
+
+**Deciding what to build.** Which of the 50 possible subsystems would actually matter for users? Which problems were real versus hypothetical? That required talking to people and making judgment calls.
+
+**Evaluating whether a result was good.** This is the core managerial skill. The Quality agent catches technical problems — wrong data types, missing error handling, tests failing. It doesn't catch "this response pattern is annoying after you've used it for 30 minutes." That requires a human who's used the product.
+
+**Architecture decisions with long-term consequences.** Using SQLite versus PostgreSQL, ActionCable versus polling, storing embeddings as vectors versus text — these choices compound. AI can present tradeoffs, but the decision needs human accountability.
+
+## What This Demonstrates
+
+One person with the right AI architecture can ship what traditionally requires a team of 10-15 engineers. Not by being faster — by eliminating coordination overhead entirely.
+
+This doesn't mean solo development is always better. Teams have advantages: diverse perspectives, accumulated institutional knowledge, redundancy when someone gets sick. But the ceiling for what one person can build has moved dramatically.
+
+The constraint is no longer "how many engineers do you have." It's "how clearly can you describe what you want and evaluate what you get."
+
+That's a managerial skill, not an engineering skill.
+
+If you want to see the platform: [aicpo.ru](https://aicpo.ru). If you want to talk about building something similar: [nevr@aicpo.com](mailto:nevr@aicpo.com).

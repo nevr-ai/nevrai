@@ -1,0 +1,57 @@
+---
+title: "Dual-Brain: How to Cut AI Costs 90% Without Losing Quality"
+description: "Most AI chats route every message through the same expensive model. A two-tier routing system cuts costs dramatically while keeping response quality the same."
+date: 2026-03-30
+readingTime: "8 min read"
+---
+
+A typical AI chat sends every message to the same model. "Hi there" and "analyze my unit economics" cost the same. That's like sending a package and a postcard by the same courier service.
+
+AICPO uses Dual-Brain — two models with automatic switching between them.
+
+## How It Works
+
+**Fast Brain** — Groq (Qwen3-235B). Free. Response in 0.5 seconds. Handles 80% of messages: greetings, clarifications, simple questions, "tell me more."
+
+**Smart Brain** — Claude via OpenRouter. Paid. Only activates when needed. Complex analytical tasks, user frustration, unusual requests.
+
+### Five Switching Triggers
+
+| Trigger | What it detects | Example |
+|---------|-----------------|---------|
+| Negative tone | Frustration marker words | "this is useless", "nothing works" |
+| Stagnation | No new facts for 4+ messages | User going in circles |
+| Repetition | >60% word overlap with previous messages | Asking the same thing again |
+| Explicit request | User asks to "switch to the smart model" | Direct request |
+| Technical complexity | Intent = artifact or complex analysis | Document generation, deep analysis |
+
+## De-escalation
+
+Easy to escalate, harder to de-escalate. The system tracks conversation normalization. When tone stabilizes and new facts start appearing — it automatically returns to the fast brain without notifying the user.
+
+## The Economics
+
+| Metric | Without Dual-Brain | With Dual-Brain |
+|--------|-------------------|-----------------|
+| Average session cost | $0.12 | $0.01 |
+| Time to first response | 2-4 sec | 0.5 sec |
+| % messages on expensive model | 100% | ~15% |
+| Response quality | same | same |
+
+90% savings — not at the expense of quality, but because 80% of messages simply don't need an advanced model.
+
+## Business Impact
+
+At 1,000 active users, that difference is $3,300/month. At 10,000 users — $33,000/month. Dual-Brain is the difference between a money-losing and a profitable AI product.
+
+## Beyond Chat
+
+This principle applies everywhere:
+
+- **Classification** — fast model identifies intent, expensive model handles complex cases
+- **Generation** — fast model creates a draft, expensive model polishes only what fails quality check
+- **Monitoring** — fast model checks metrics, expensive model activates on anomaly
+
+It's a design pattern, not a feature unique to one product.
+
+The underlying insight: most requests in any system are routine. Routing all of them through your best model is expensive and unnecessary. Build a system that knows the difference.

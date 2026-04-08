@@ -1,0 +1,85 @@
+---
+title: "Why AI Agents Fail in Finance — and How I Fixed It"
+description: "Five agents at 95% accuracy each. Joint accuracy: 67%. Every third report contains an error. The fix is verification loops, not better prompts."
+date: 2026-04-05
+readingTime: "11 min read"
+---
+
+Five AI agents, each running at 90-95% accuracy. Chain them together and you get 67% joint accuracy. Every third financial report contains an error.
+
+This is not a model quality problem. It is a pipeline architecture problem. And the fix is not better prompts.
+
+## The Math
+
+Probability multiplication is unforgiving in multi-agent pipelines.
+
+Five agents, each at 95% accuracy: 0.95^5 = 0.77. 23% error rate across the pipeline.
+Five agents, each at 90% accuracy: 0.90^5 = 0.59. 41% error rate.
+
+In financial workflows, "41% error rate" means you cannot trust the output. Period. No amount of disclaimers makes it usable for business decisions.
+
+The instinct is to improve each agent's accuracy. Push agent 3 from 90% to 98%, the pipeline improves slightly. But you cannot get five LLMs to 99.9% accuracy on financial data — the tasks are too varied, the edge cases too numerous.
+
+Improving agent accuracy has diminishing returns. Verification architecture has compounding returns.
+
+## The Verification Loop
+
+The fix is not in the agents. It is in the checkpoints between them.
+
+After each agent produces output, a deterministic verifier runs before the next agent receives that output. Deterministic means: no LLM, no probability, just code.
+
+Three types of verification:
+
+**Mathematical invariants.** The balance sheet must balance — assets = liabilities + equity. Period. If the Analyst agent produces output where this is false, the pipeline stops. The agent is not asked to try again — the violation is logged, the output is flagged, a human reviews it.
+
+**Structural checks.** Numbers must be numbers, dates must be dates, percentages must be between 0 and 100. These are not AI tasks — they are type validation. Fast, cheap, deterministic.
+
+**Cross-formula validation.** Revenue minus cost of goods sold equals gross profit. Net income equals revenue minus all expenses. These relationships must hold across the entire document. If the Forecaster agent writes a projection where they do not, the output is flagged before the Portfolio agent ever sees it.
+
+With verification loops between all five agents: 0.995^5 = 0.975. From 67% to 97.5% pipeline accuracy — not from better models, but from deterministic checkpoints.
+
+## Why LLMs Cannot Self-Verify
+
+The obvious question: why not ask the LLM to check its own output?
+
+Two reasons.
+
+First, the attention bias problem. As I wrote in the AI reasoning collapse post: an LLM reviewing its own output has its attention anchored to what it just produced. The same reasoning that produced the error produces the verification of that error. Self-verification is statistically worse than no verification.
+
+Second, LLMs are probabilistic. A mathematical invariant either holds or it does not — there is no probability distribution over "the balance sheet balances." Using a probabilistic system to check deterministic constraints wastes compute and reduces reliability.
+
+The right tool for mathematical invariants is mathematics. Python code that checks `assets == liabilities + equity` is faster, cheaper, and more reliable than any LLM prompt.
+
+## OpenClaw Finance: The Architecture
+
+This is what I built for OpenClaw Finance — a factory of five specialized agents with verification loops at every stage:
+
+**Analyst** — reads financial documents, extracts key metrics, identifies trends. Verifier: structural type checks, range validation, completeness check (all required metrics present).
+
+**Forecaster** — projects future performance based on historical data. Verifier: mathematical consistency with Analyst output, formula cross-validation, projection interval checks.
+
+**Portfolio** — analyzes asset allocation, risk exposure, rebalancing opportunities. Verifier: portfolio weight sum must equal 100%, allocation constraints from investment policy.
+
+**Risk** — identifies and quantifies risk factors. Verifier: risk ratings must be calibrated (high-risk items must have quantified impact above threshold), consistency with Portfolio output.
+
+**Reporter** — synthesizes everything into a document. Verifier: all figures in the report must match source data from prior agents, no hallucinated numbers.
+
+Each verifier is a separate code module. Each runs in under 100ms. Each stops the pipeline on violation rather than passing bad data downstream.
+
+## What a Human Financial Analyst Actually Does
+
+A good financial analyst is not primarily a calculator. They are a judgment layer.
+
+They know when a number is implausible — not because they computed it, but because they understand the business context. They know when a trend contradicts what they heard in the earnings call. They know when a risk factor is underweighted relative to current market conditions.
+
+This judgment is exactly what LLMs are bad at and humans are good at.
+
+The right role for AI in financial workflows: handle volume. Read 50 quarterly reports in the time a human analyst reads 2. Extract structured data at scale. Run mechanical calculations. Draft the standard sections.
+
+The right role for the human: apply judgment to edge cases, validate against business context, make decisions that require understanding of what the numbers mean, not just what they are.
+
+AI + verification loops handles the 80% that is structured and mechanical. Human judgment handles the 20% that requires context.
+
+This combination does not make analysts obsolete. It makes them dramatically more productive — able to cover more companies, catch more edge cases, produce better analysis at scale.
+
+The math works. The division of labor works. The architecture is the point.

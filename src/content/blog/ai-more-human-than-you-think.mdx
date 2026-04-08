@@ -1,0 +1,74 @@
+---
+title: "AI Is More Human Than You Think"
+description: "Forgets things. Skims long documents. Gets sloppy under load. Doubles down on mistakes. The cognitive failure catalog — and what to do about it."
+date: 2026-04-05
+readingTime: "14 min read"
+---
+
+AI agents make the same cognitive mistakes humans do. Not as a metaphor — as a literal description of how transformer attention mechanisms behave under real conditions.
+
+Once you see this, the way you build AI systems changes fundamentally.
+
+## The Failure Catalog
+
+**Forgetting.** Context windows are bounded. An agent working through a long session loses access to information from the beginning — exactly like human working memory. The difference: human memory degrades gradually. Transformer attention degrades discontinuously when the context limit is reached.
+
+Practical consequence: never assume an agent "remembers" what happened at the start of a long session. Persist important state explicitly.
+
+**Skimming.** Transformer attention is not uniform. Long documents get processed with uneven attention — some sections get full focus, others are effectively skipped. The agent "reads" 207 lines but retains maybe 60. It does not know this is happening.
+
+This is why partial document reads cause downstream errors. The agent is not lazy — it literally does not perceive that it skipped a section.
+
+**Getting sloppy under load.** Longer contexts correlate with lower accuracy — roughly 15-25% degradation at context lengths above 50K tokens. The model is doing more work to maintain coherence across a larger input. Quality drops.
+
+**Doubling down.** When a model makes an error and is then asked to review its own output, it tends to confirm the error. The previous (wrong) answer is now part of the context — the model produces outputs consistent with what it already generated. This is not stubbornness; it is the attention mechanism preferring internal consistency.
+
+**Monotony degradation.** Long generation sequences produce worse output than shorter ones. The model's ability to maintain quality over an extended response decreases as generation length increases. Novelty drops, repetition increases, logical coherence weakens.
+
+## Why This Is the Right Mental Model
+
+If you think of AI agents as precise, reliable machines that occasionally malfunction, you will be surprised by failures and unsure how to prevent them.
+
+If you think of AI agents as fast, capable collaborators with specific, predictable cognitive limitations — the same limitations humans have, just in different proportions — you can build systems that account for them.
+
+Human developers forget requirements. They skim documentation. They make more mistakes when tired. They defend their own code in code review. AI agents do all of this, on a compressed timescale, with different failure thresholds.
+
+The question is not "how do I get the agent to not make mistakes?" The answer to that question is: you cannot. The question is "what architecture compensates for predictable mistakes?"
+
+## The Architecture Response
+
+**Error budget, not zero-defect assumption.**
+
+Design for a known defect rate. If an agent has 95% accuracy per task, a pipeline of 5 agents has a joint accuracy of 77%. Plan for that. Build verification steps.
+
+**Multi-layer review.**
+
+AI generates → Quality agent reviews → Smoke tests verify → Human checks edge cases. Each layer catches different failure modes. No single layer catches everything.
+
+The agent that wrote the code cannot reliably audit the code. The attention mechanism is biased toward the choices it already made. A separate review agent — with no knowledge of how the code was written — catches errors the author cannot see.
+
+**Explicit state persistence.**
+
+Do not rely on the agent "remembering" critical context. Write it down. Commit it to files. Read it at the start of each session. The agent's memory is not persistent — your file system is.
+
+**Short contexts where possible.**
+
+A task that fits in 10K tokens is more reliably executed than the same task in 100K tokens. Break large tasks into bounded sessions. Accept handoff overhead as the price of reliability.
+
+**Specific feedback, not general correction.**
+
+"This is wrong, try again" is the worst prompt for a system with an attention bias toward its previous output. "The channel name should be `kg_update`, not `kg_updates` — fix only this and nothing else" gives the model a specific target without triggering the consistency-preservation instinct.
+
+## The Right Division of Labor
+
+AI generates first drafts and executes known patterns at speed. It is excellent at this — faster and cheaper than human developers for implementation work.
+
+Humans make decisions that require judgment: is this the right architecture? Does this match what users actually need? Is the product direction correct? AI can inform these decisions, but it cannot make them.
+
+The system that works: AI handles volume and speed, humans handle judgment and direction, automated checks handle verification. Together, they produce reliability that neither could achieve alone.
+
+The system that fails: AI running without human review, or humans doing implementation work that AI could do faster and cheaper. Both are waste.
+
+Error budget thinking applied to AI: accept that agents will make mistakes, design the pipeline so those mistakes are caught before they reach production, and get out of the way for everything that does not require judgment.
+
+That is not a limitation to work around. That is the whole model.

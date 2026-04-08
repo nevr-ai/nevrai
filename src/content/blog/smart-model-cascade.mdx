@@ -1,0 +1,99 @@
+---
+title: "Smart Model Cascade: How to Not Die from Rate Limits on Free Models"
+description: "50 concurrent users, free tier exhausted in 2 minutes. The architecture that keeps uptime at 100% for $2.40/month."
+date: 2026-04-09
+readingTime: "8 min read"
+---
+
+At 50 concurrent users, Groq's free tier (30 req/min) is gone in two minutes. OpenRouter's free tier lasts slightly longer. Then your product is down.
+
+The naive fix: pay for a higher tier. The real fix: architecture that never depends on a single model staying available.
+
+Here is the system I built.
+
+## The Problem With Free Models
+
+Free LLM tiers are excellent until they are not. The failure mode is brutal: you go from 100% functional to 0% functional the moment you hit the rate limit. No graceful degradation, no warning — just 429 errors and a broken product.
+
+The instinct is to upgrade to a paid tier. But paid tiers have their own rate limits. And model providers have outages. And some models disappear with 48 hours notice.
+
+Single-model dependency is a structural fragility. The answer is not a better single model — it is a cascade.
+
+## Three Components
+
+**ModelDiscoveryService** runs every 12 hours. It fetches the current model list from Groq and OpenRouter APIs, applies filters (context length, pricing, provider), and ranks the results by the criteria defined in `config/model_cascade.yml`. The output is cached in Redis for 24 hours.
+
+Why auto-discovery? Because the model landscape changes constantly. Models appear, disappear, get repriced. A hardcoded model list is a maintenance burden that eventually becomes a production incident. Discovery means the system adapts.
+
+**The cascade configuration** is a YAML file — declarative, not code:
+
+```yaml
+chat:
+  strategy: speed_first
+  providers: [groq, openrouter]
+  filters:
+    free_only: true
+    min_context: 8192
+  fallback:
+    paid_threshold: 0.50  # $/M tokens
+```
+
+Different functions get different cascades. Chat needs speed. Artifact generation needs quality. Fact extraction needs cost efficiency. One config, clearly expressed.
+
+**ModelCascadeRunner** executes the cascade at request time. It tries models in order. On 429 (rate limit) or 403 (model unavailable), it marks that model as "dead" in Redis with a 1-hour TTL and moves to the next. When the TTL expires, the model is automatically retried.
+
+No manual intervention. No alert that requires a human response. The system routes around failures.
+
+## The Dead Model Registry
+
+This is the piece that makes the rest work.
+
+When a model returns 429 or 403, the runner does not retry immediately. It writes to Redis:
+
+```
+dead_model:groq:llama-3.3-70b → TTL 3600s
+```
+
+For the next hour, the cascade skips that model entirely. After the TTL, it tries again. If the model is back — great, it rejoins the rotation. If still dead — it gets another hour TTL.
+
+This creates automatic recovery without manual monitoring. The rate limit cools down, the model comes back, users never notice.
+
+## The Fallback Strategy
+
+The cascade order matters. My configuration:
+
+1. Groq free models (fast, zero cost, 30 req/min limit)
+2. OpenRouter free models (slower, zero cost, lower limits)
+3. OpenRouter paid models at ≤$0.50/M (acceptable cost, higher limits)
+4. GigaChat (Russian provider, reliable for Russian-language products, last resort)
+
+The paid fallback at step 3 costs roughly $2-4/month at typical usage. That is cheaper than 20 minutes of downtime.
+
+The key insight: you need *minimum* two providers, ideally three. A single provider with multiple models still fails when that provider has an outage.
+
+## Monitoring
+
+Every cascade decision gets logged to `workspace_llm_usages` with the model used, fallback depth, and whether a dead model was encountered. A daily summary goes to Telegram.
+
+Alerts fire on:
+- Cascade falling to depth 3 or deeper (paid models in use, check why)
+- Dead model TTLs increasing across all models for the same provider (provider outage)
+- Average TTFT exceeding 3s (quality degradation from model switching)
+
+The monitoring tells you when to intervene. The cascade handles everything else automatically.
+
+## Actual Costs
+
+At ~200 daily active users on AICPO:
+
+- Free model usage: ~97% of requests
+- Paid fallback usage: ~3% (spikes during peak hours)
+- Monthly LLM spend for cascade: ~$2.40
+
+Compared to the alternative — a single paid tier at $20-50/month — the cascade cuts costs by 90% while improving reliability.
+
+## The Rule
+
+Build cascade-first for anything that depends on external LLM APIs. Free tiers are a subsidy, not a guarantee. Treat them accordingly: use them aggressively, but always have a fallback that costs money instead of causing downtime.
+
+Downtime is always more expensive than $0.50/M tokens.

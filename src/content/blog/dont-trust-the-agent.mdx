@@ -1,0 +1,85 @@
+---
+title: "Don't Trust the Agent: Why Auditing Every Milestone Is Non-Negotiable"
+description: "14 tests passed. 3 critical bugs survived. Here is the audit checklist that catches what tests miss."
+date: 2026-04-10
+readingTime: "7 min read"
+---
+
+All 14 tests passed. The Builder agent reported "done."
+
+I audited anyway. Found three critical bugs.
+
+This is not about the agent being broken. It is about a fundamental property of AI-generated code: the author cannot be the auditor.
+
+## The Three Bugs That Survived Green Tests
+
+**Bug 1: The migration assumed an empty database.**
+
+The migration converted vector column type from `vector(384)` to `vector(1024)`. The SQL was correct for a fresh database. On production — with 50,000 existing embeddings — it would fail silently, truncate data, or crash, depending on the adapter.
+
+The test suite passed because the test database is always empty. The migration was never tested against real data.
+
+**Bug 2: Wrong WebSocket channel name.**
+
+The server was broadcasting knowledge graph updates to `kg_updates`. The frontend was subscribed to `kg_update` (no "s"). Real-time updates were completely broken — silently. No error, no exception, just a UI that never updated.
+
+The unit test mocked the WebSocket layer. The name mismatch was never verified end-to-end.
+
+**Bug 3: Serialization error on file uploads.**
+
+The controller passed `ActionDispatch::Http::UploadedFile` objects directly into a background job. UploadedFile objects cannot be serialized to JSON or stored in Redis. The job would fail the moment it ran.
+
+The test stubbed the job call. The serialization was never tested.
+
+Three different failure modes. One common cause: the tests verified the agent's implementation, not the system's actual requirements.
+
+## Why This Happens
+
+Agents write tests from the inside out. They implement functionality, then write tests that confirm the functionality they just wrote. This is not wrong — it is just incomplete.
+
+What agents do not naturally do:
+
+- Test their code against production-like state (non-empty DB, real files, actual Redis)
+- Verify integration points with components they did not write
+- Check that names match across system boundaries (channel names, queue names, event types)
+- Test what happens when their job fails in an unexpected way
+
+Tests check the contract the agent defined. They do not check whether that contract matches what the rest of the system expects.
+
+## The Audit Checklist
+
+After this incident, I formalized the checklist I now run after every major milestone:
+
+**Database migrations:**
+- Does it handle existing data, not just a fresh DB?
+- Does it run cleanly on both SQLite (dev) and PostgreSQL (prod)?
+- Is there a down migration? Is it safe?
+
+**Real-time features:**
+- Do channel names match exactly between server broadcast and client subscription?
+- Is the WebSocket behavior verified end-to-end, not just mocked?
+
+**Background jobs:**
+- Can every argument passed to the job be serialized to JSON?
+- What happens when the job fails — does it retry safely?
+- Can two copies of this job run simultaneously without conflict?
+
+**Integrations:**
+- Does this component interact with something it did not write?
+- Is that interaction tested with the real component, not a stub?
+
+**Production vs. test environment differences:**
+- Does this code make assumptions about DB state that only hold in test?
+- Does this code use any environment-specific syntax (PostgreSQL vs. SQLite)?
+
+## The Principle
+
+Scale of task correlates directly with number of hidden defects.
+
+A small change — one endpoint, one model, one migration — is usually fine with just test coverage. A large change — a new subsystem, a new data pipeline, a new real-time feature — will always contain integration errors that tests do not catch.
+
+The audit is not a sign that you do not trust the agent. It is a recognition that the agent cannot see what it cannot see. It built the component in isolation. You have to check whether it fits.
+
+The author of the code cannot be its auditor. This is true for human developers. It is doubly true for AI agents.
+
+Audit every milestone. The bugs are always there. Green tests just mean you have not found them yet.

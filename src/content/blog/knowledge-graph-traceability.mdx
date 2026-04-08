@@ -1,0 +1,80 @@
+---
+title: "Knowledge Graph: How AI Sees Connections and How to Verify Every Claim"
+description: "Why 'the AI thinks so' is the worst argument in product research — and how a knowledge graph makes every recommendation traceable to specific user words."
+date: 2026-04-02
+readingTime: "9 min read"
+---
+
+"The AI thinks so" is the worst argument you can make in product research. If you can't trace a recommendation back to specific words from a specific user — that's not research. That's text generation.
+
+The Knowledge Graph in AICPO solves exactly this problem. Every fact, every connection, every recommendation — traceable to its source.
+
+## The Problem: LLMs Don't Remember and Don't Connect
+
+A language model processes text sequentially. It doesn't build a knowledge map. A user says in message #5: "Our customers are EV owners." In message #23: "The main problem is slow charging." In message #41: "Competitor X solves this through reservation systems."
+
+A human sees: segment → pain → competitive solution. By message 41, the LLM has already forgotten message 5. Even with a large context window — the model doesn't build a graph of relationships. It sees a sequence of tokens.
+
+## The Solution: Automatic Graph From Conversation
+
+Every user message goes through an LLM extractor. It doesn't generate — it **extracts** structured objects:
+
+```
+Message: "My customers complain that charging takes 40 minutes,
+          and their lunch break is only 30"
+
+Extracted:
+  Node(pain): "charging takes 40 minutes"
+  Node(segment): "workers with a lunch break"
+  Node(constraint): "30-minute break"
+  Edge: pain → constraint (type: limited_by)
+  Edge: segment → pain (type: experiences)
+```
+
+14 object types: pain, job, segment, competitor, feature, trend, metric, constraint, persona, channel, solution, trigger, emotion, criterion. Every relationship has a confidence weight (0-100) and a reference to the source message.
+
+## Evidence Trail: From Recommendation to Customer Words
+
+This is the key difference from a regular AI chat. When AICPO recommends "focus on the segment of workers with short lunch breaks" — that's not a model hallucination. It's a graph inference:
+
+```
+Recommendation: focus on "workers with lunch break" segment
+  ← Edge: segment-pain (confidence: 85)
+    ← Node(pain): "40-minute charging" (message #23)
+    ← Node(constraint): "30-minute break" (message #23)
+  ← Edge: segment-trigger (confidence: 72)
+    ← Node(trigger): "lunch break" (message #31)
+```
+
+You can click on any recommendation and see the chain: recommendation → fact → message → user's exact words. If the chain isn't convincing — discard the recommendation.
+
+## Why Not Just RAG?
+
+RAG (Retrieval-Augmented Generation) solves part of the problem — it finds relevant fragments for generation. But RAG doesn't build connections. It finds "similar" text chunks, not "logically related" facts.
+
+A knowledge graph adds what RAG lacks:
+
+- **Connections between facts** — pain is linked to segment, segment to trigger
+- **Transitive inferences** — if A relates to B, and B relates to C, the graph shows the path A→C
+- **Counter-signals** — if two facts contradict each other, the graph flags it
+- **Chronology** — when a fact was extracted, whether it changed over time
+
+## Three Levels of Application
+
+**Level 1: Product research.** The graph accumulates data from dozens of interviews. It shows pain clusters, segment overlaps, competitor weak zones. What an analyst does in weeks with sticky notes — the graph builds automatically.
+
+**Level 2: Artifacts with evidence.** When AICPO generates a PRD or competitive map — every claim references graph nodes. Not "the market is growing" but "the market is growing (trend T-12, source: 3 interviews + 2 articles, confidence: 78)."
+
+**Level 3: Monitoring and trends.** Competitive Intelligence and Trend Monitoring add nodes to the graph automatically. A competitor ships a feature → `Node(feature)` + `Edge(threatens, target: your_feature)`. A trend in the niche → `Node(trend)` + `Edge(addresses, target: pain)`.
+
+## For Enterprises: Institutional Memory
+
+Knowledge inside a company lives in people's heads, in Confluence pages nobody reads, and in Slack threads that are impossible to find.
+
+A knowledge graph turns that into structure. Facts from research, decisions from meetings, insights from analytics — all in one graph, with traceability. A new PM can understand in an hour what the team learned over six months.
+
+This isn't a replacement for human judgment. It's a tool that makes judgment **evidence-based**.
+
+---
+
+Want to see the Knowledge Graph in action — try [AICPO](https://aicpo.ru) or reach out at [nevr@aicpo.com](mailto:nevr@aicpo.com).

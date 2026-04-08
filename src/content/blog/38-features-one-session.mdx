@@ -1,0 +1,90 @@
+---
+title: "38 Features in One Session: How AI Factory Builds Product"
+description: "Knowledge Graph v2, Competitive Intelligence, Trend Monitoring — 38 capabilities, 22 commits, ~6500 lines of code, zero manual writing by the CEO."
+date: 2026-04-11
+readingTime: "10 min read"
+---
+
+On April 6th, 2026, I shipped Knowledge Graph v2 for AICPO. One session. 38 features. 22 commits. Roughly 6,500 lines of code — none of it written by me.
+
+Here is how that actually works, and what broke anyway.
+
+## The Workflow
+
+CEO (me) decomposes the task. Builder agent writes the code. CEO audits the result. Builder fixes what the audit finds.
+
+That is the full loop. Simple in theory, brutal in execution.
+
+For KG2, the session covered:
+- **KG2 Core** — 9 phases: entity extraction, relation discovery, LLM deduplication, conflict resolution, graph queries, API layer, background jobs, confidence scoring, backfill
+- **Competitive Intelligence** — competitor tracking, market position analysis, gap detection
+- **Trend Monitoring** — signal extraction from research corpus, trend velocity, alert system
+- **KG1 migration** — deprecate old graph, route existing data into new schema
+
+Four releases. 47 new files. 22 commits across the session.
+
+## What the Audit Found
+
+After the Builder reported "done," I audited the result and found 10 gaps:
+
+1. **Missing DB indexes** on the most queried columns. Queries would degrade under load.
+2. **Channel name mismatch** — ActionCable broadcasting to `kg_updates` but the frontend listening on `kg_update`. Real-time updates silently broken.
+3. **File parsing errors** — certain document types passed the validator but failed on actual content extraction.
+4. **Timestamp handling** — date fields from external sources came in inconsistent formats; the parser assumed ISO8601 everywhere.
+5. **Infinite loop** — the relation discovery retry logic could cycle indefinitely on certain edge cases.
+6. **Race condition** — two background jobs could write to the same node simultaneously, creating conflicting state.
+7. **Cascade delete** — deleting a project deleted KG nodes in the wrong order, triggering FK constraint violations.
+8. **SQLite/PostgreSQL fallbacks** — certain queries used PostgreSQL-specific syntax; SQLite dev environment would fail.
+9. **Organization-level duplicates** — entities shared between projects in the same org were not deduplicated, causing inflation.
+10. **Integration gaps** — KG2 nodes were not correctly wired into the existing artifact staleness detection system.
+
+All 10 found after "all 14 tests passed."
+
+## Why Tests Pass When Things Are Broken
+
+Tests check what the agent wrote. They do not check what the system actually needs.
+
+The channel name mismatch — `kg_updates` vs `kg_update` — passed every unit test because the test mocked the WebSocket. The race condition passed because tests run sequentially. The PostgreSQL syntax issue passed because the test DB is SQLite.
+
+Agents write tests that confirm their implementation. They are not incentivized to write tests that challenge their assumptions.
+
+This is not a criticism of the agent. It is a structural property you have to account for.
+
+## Three Categories of Agent Errors
+
+Looking at the 10 gaps, they cluster into three types:
+
+**Integration errors.** Components work correctly in isolation but break at the boundaries — wrong channel names, FK order issues, org-level deduplication missing because each component was built without awareness of the others.
+
+**Edge case blindness.** The happy path is solid. Unusual inputs, concurrent writes, and environment differences are not considered. Agents default to the most common case.
+
+**Environment assumptions.** Code written for PostgreSQL that breaks on SQLite. Date parsing that works on ISO8601 but fails on Russian locale strings. The agent does not test its own environmental assumptions.
+
+## What Happened After
+
+The Builder fixed all 10 gaps. Three more rounds of audit, three more rounds of fixes. Total time for the full session: one day.
+
+Compare that to the alternative: a human developer estimating 38 features. Even optimistically — 2-4 weeks of work. The agent completed a rough implementation in hours; the audit and refinement cycle added a day.
+
+The code quality is not "AI generated, therefore suspect." After the audit rounds, it is production code. Running in prod now.
+
+## The Rules This Session Produced
+
+Every gap in the audit became a rule:
+
+- Always check ActionCable channel names match client subscription names
+- Always include SQLite fallback paths for PostgreSQL-specific queries
+- Run concurrent write tests for all background jobs that touch shared resources
+- Cascade delete order must be explicitly specified, never assumed
+
+These rules go into the preamble. The next Builder agent that spawns will read them. The 10 errors from this session will not happen again — or at least not in the same way.
+
+## What I Actually Do as CEO
+
+I did not write any of those 6,500 lines. But I also did not just sit there.
+
+What I actually did: decompose the task clearly enough that the agent could execute it, audit the result carefully enough to find the gaps, write audit findings precisely enough that the agent could fix them, and understand the code well enough to verify the fixes were correct.
+
+The CEO who does not understand the code is a rubber stamp. The agent will report "done" and you will believe it.
+
+You have to know enough to ask the right questions. That is the job.

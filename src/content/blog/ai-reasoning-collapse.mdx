@@ -1,0 +1,79 @@
+---
+title: "AI Reasoning Collapse: Why the Longer the Conversation, the Worse the Output"
+description: "Every error correction adds tokens to the context. Those tokens bias the next response. The fix is architectural, not conversational."
+date: 2026-04-05
+readingTime: "12 min read"
+---
+
+The longer you try to fix an AI response through conversation, the worse the responses get. This is not intuition — it is a structural property of how transformers work.
+
+Understanding it changes how you architect AI systems.
+
+## The Mechanism
+
+Transformer self-attention distributes focus proportionally across all tokens in the context. Every response the model generates becomes part of the context for the next response.
+
+When a model makes an error, that error is now a chunk of tokens in the window — maybe 50, maybe 500. The model generates the next response with attention distributed across all prior context, including the wrong answer. The wrong answer pulls the generation toward itself.
+
+Ask the model to fix it, and you get a response shaped by:
+- The original (wrong) answer
+- Your correction request
+- The model's bias toward internal consistency
+
+The model did not become dumber. Its attention is now anchored to a mistake it cannot remove from its own context.
+
+This compounds with each iteration. Fix attempt 1 adds more tokens about the error. Fix attempt 2 references fix attempt 1. By attempt 4, the context is saturated with failure history — and every new response is generated against that history.
+
+This phenomenon has names in the research literature: exposure bias (training on gold sequences, failing on its own outputs), degeneration, and sycophancy (the tendency to agree with the human's framing even when it is wrong).
+
+## The Three-Attempt Rule
+
+When an agent cannot produce a correct result after three attempts, the right action is to start over with a clean context — not to keep iterating.
+
+Clean context means the wrong answers are gone. The new session starts from the specification, not from the failure history. The model produces better output not because anything changed about the model, but because the context it is reasoning from is no longer polluted.
+
+This feels wasteful. It is not. The token cost of a fresh attempt is usually lower than the token cost of five increasingly desperate fix iterations.
+
+## Why "Just Correct It" Does Not Work
+
+The common instinct is to explain the error in more detail. More specific correction → better understanding → better fix.
+
+This works for humans. It fails for AI for a structural reason: more explanation means more tokens about the wrong answer, which means stronger attention pull toward the wrong answer.
+
+The most effective correction is the most surgical one: change exactly one thing, with as few words as possible. "The channel name is `kg_update` not `kg_updates`." Not: "I notice you used `kg_updates` which is incorrect because the frontend subscription expects `kg_update` and this mismatch is causing the real-time updates to fail."
+
+Both corrections contain the same information. The first adds 9 tokens about the error. The second adds 45. The first is safer.
+
+## The Architectural Response
+
+This is why Factory OS separates generation from verification.
+
+The Builder agent generates code. A separate Quality agent reviews it. The Quality agent has no knowledge of how the Builder produced the code — its context starts from the specification and the output, without the generation history.
+
+This is not a quality preference. It is an attention-isolation strategy. The reviewer cannot be biased toward the author's reasoning if it has never seen that reasoning.
+
+When the review finds errors, the Builder does not iterate on the flawed session. The CEO collects all findings and opens a fresh Builder session with a surgical correction list. The new session context: clean spec + specific list of things to fix. Not: the prior session's entire failure history.
+
+The context window is a limited resource. Treat it that way.
+
+## Practical Rules
+
+**Three attempts, then restart.** If a response is wrong after three corrections, open a new session. The cost of a new session is lower than the cost of degraded reasoning.
+
+**Surgical feedback.** Name the specific thing that is wrong. Do not explain why it is wrong at length — that explanation becomes attentional mass around the error.
+
+**Separate generation from review.** The agent that wrote something cannot reliably audit it. Different session, different context, different perspective on the same output.
+
+**Bounded sessions.** Long, open-ended sessions produce worse output than short, task-bounded sessions. Define the scope before starting. When the scope is complete, close the session.
+
+**Explicit state, not conversational memory.** Critical requirements go in files, read at the start of each session. Do not rely on the model "remembering" something from earlier in a long conversation.
+
+## The Underlying Point
+
+AI reasoning does not degrade because the model gets tired or confused. It degrades because every mistake the model makes becomes permanent attentional mass that biases future outputs.
+
+This is deterministic and predictable. Which means it is architectural.
+
+The agents that perform consistently well are not necessarily the most capable models — they are the ones operating in the shortest, cleanest contexts, with generation separated from review, and fresh sessions for each bounded task.
+
+Performance is not just a function of model capability. It is a function of context management.

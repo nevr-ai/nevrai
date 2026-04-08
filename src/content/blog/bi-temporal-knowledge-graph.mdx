@@ -1,0 +1,61 @@
+---
+title: "Bi-Temporal Knowledge Graph: Why Facts Get Invalidated, Not Deleted"
+date: 2026-04-20
+description: "Why overwriting facts destroys institutional memory — and how bi-temporal storage preserves the full history of what you knew and when you knew it."
+readingTime: "9 min read"
+---
+
+Notion, Google Docs, Miro — they all work the same way: new information replaces old. You discover a competitor raised pricing from $8 to $10, so you update the entry. The old figure disappears entirely.
+
+That's not just a UX problem. The historical context disappears with it. You lose the ability to understand why past decisions were made based on information that's now known to be wrong.
+
+## Two Dimensions of Time
+
+The bi-temporal model tracks two separate timestamps:
+
+- **`valid_at`** — when a fact became true in reality. "Miro costs $10" has valid_at = March 1st
+- **`invalid_at`** — when it stopped being true. The old "$8" fact gets invalid_at = March 1st — marked, not deleted
+- **`created_at`** — when you learned it, which might be weeks after the actual change
+
+The gap between valid_at and created_at is "awareness delay" — itself a useful signal worth tracking.
+
+## What Happens When Facts Conflict
+
+**January:** You record "Miro costs $8/month." System creates an edge with valid_at = January.
+
+**March:** You learn "Miro raised prices to $10." The system:
+
+1. Finds the existing pricing edge
+2. Semantic comparison: $8 ≠ $10, same attribute — that's a contradiction
+3. LLM confirms: replacement, not addition
+4. Old edge gets invalid_at = March
+5. New edge created: $10, valid_at = March
+
+Both facts stay in the database. You can now query: "What changed over three months?" or "What did we believe when we set our own pricing?"
+
+## Automated Contradiction Detection
+
+A pipeline fires with each new fact:
+
+1. Semantic similarity — compare new fact embeddings against existing ones
+2. LLM arbitration — supplementary, clarifying, or contradictory?
+3. Temporal resolution — mark old facts invalid, establish new ones, link contradiction edges
+4. User alert — surface the conflict with historical context
+
+## Temporal Evolution as an Artifact
+
+As invalidations accumulate, a new artifact emerges: the cognitive evolution path. How understanding shifted from February's 30% growth projection to March's 12% revision to April's B2B stagnation assessment. This is genuinely useful for retrospectives.
+
+## Decay: Forgetting as a Function
+
+Each node carries a confidence score (0-100) that decays monthly for unconfirmed facts. Repeated mentions reinforce it. Facts that fall below threshold get archived. This mimics how memory actually works — knowledge without reinforcement loses relevance over time.
+
+## Where This Architecture Comes From
+
+The design adapts concepts from Graphiti, a three-layer temporal memory system for LLM agents. Extended with decay mechanisms and promotion logic — facts can elevate from project-level to organization-level when they appear across multiple projects.
+
+---
+
+Knowledge evolves constantly. Databases should evolve with it.
+
+Deleting old facts erases memory. Invalidating them preserves understanding of what changed and why. Those are completely different things.

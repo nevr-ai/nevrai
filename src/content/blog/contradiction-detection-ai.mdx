@@ -1,0 +1,70 @@
+---
+title: "Contradiction Detection: When AI Notices You're Contradicting Yourself"
+date: 2026-04-14
+description: "How a four-step pipeline using embeddings, semantic search, and bi-temporal storage automatically detects when new facts conflict with old ones."
+readingTime: "7 min read"
+---
+
+A product manager states "the market is worth a billion dollars." Three weeks later: "the market is stagnating at $500M." The human doesn't notice the inconsistency. The AI does.
+
+This is one of the most valuable functions an AI product tool can provide — detecting contradictions within your own data before they contaminate your artifacts and decisions.
+
+## Why Contradictions Are Inevitable
+
+Product research spans months, pulling from multiple sources: customer interviews, articles, your own calculations, competitive analysis. You continuously update your understanding — but you almost never go back and invalidate outdated information. It just accumulates.
+
+Four scenarios repeat constantly:
+
+- Market size estimates shift as new data comes in
+- Target customer segmentation pivots after better interviews
+- Competitive landscape changes — a competitor closes or pivots
+- Pricing strategy evolves based on new willingness-to-pay data
+
+Without automatic detection, contradictory information piles up silently and contaminates everything downstream.
+
+## The Four-Step Detection Pipeline
+
+**Step 1: Fact Extraction**
+
+Each message passes through `FactExtractorService`. An LLM extracts structured facts with weights and categories, storing them in `workspace_context_facts`.
+
+**Step 2: Embedding and Semantic Search**
+
+New facts get vector representations via `EmbeddingService`. Then `SemanticSearchService` finds similar existing facts — typically at cosine similarity 0.75-0.85 within the same dimension. This surfaces candidates, not confirmed contradictions.
+
+**Step 3: LLM Verification**
+
+Semantic similarity finds candidates. An LLM distinguishes genuine contradictions from refinements and additions. The system classifies each pair as CONTRADICTION, REFINEMENT, or COMPATIBLE. Groq running Llama 3.3 handles this in roughly 200ms.
+
+**Step 4: System Response**
+
+When a contradiction is confirmed:
+
+1. Older fact gets invalidated — temporal marker set in KG2
+2. User receives an alert about the discrepancy with context
+3. Dependent artifacts get marked stale
+
+## Bi-Temporal Tracking
+
+Knowledge Graph v2 maintains two timestamps per fact: `valid_at` (when it became active) and `invalid_at` (when it was superseded, or null if still current). This creates a complete decision history — not just what you know now, but what you knew when, and exactly when your understanding changed.
+
+Useful for retrospectives. Essential for audits.
+
+## Types of Contradictions
+
+The system handles different conflict patterns:
+
+- **Numerical discrepancies** — $1B vs $500M market size
+- **Categorical conflicts** — "B2B" vs "B2C" positioning
+- **Timeline shifts** — different launch date assumptions
+- **Soft contradictions** — possibly segment-dependent, requires clarification
+
+## Why Standard AI Tools Miss This
+
+ChatGPT, Claude, Gemini — they work with flat message histories. To detect contradictions systematically you need: fact extraction, vector embeddings, a knowledge graph, and bi-temporal storage. That's infrastructure, not a feature you can add to a chat interface.
+
+The architectural investment is the point. Clean data foundations can't be bolted on after the fact.
+
+---
+
+Contradictions aren't errors — they're signals of evolving understanding. The researcher's job is to notice when understanding shifts and update the conclusions that depended on the old version. The AI's job is to make sure nothing gets missed.

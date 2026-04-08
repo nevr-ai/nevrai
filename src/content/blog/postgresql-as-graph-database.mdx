@@ -1,0 +1,105 @@
+---
+title: "PostgreSQL as a Graph Database: CTE + pgvector + pg_trgm = No Neo4j Needed"
+date: 2026-04-21
+description: "How to build a production knowledge graph on PostgreSQL using recursive CTEs, pgvector, and RRF fusion — without touching Neo4j."
+readingTime: "10 min read"
+---
+
+"Graphs require a graph database" — you hear this constantly. It's mostly wrong.
+
+I built a production knowledge graph on PostgreSQL. No Neo4j. Graph databases solve one specific problem: traversing connections at arbitrary depth. For knowledge graphs supporting product analytics at typical query depths of 2-3 levels, PostgreSQL performs comparably.
+
+PostgreSQL handles approximately 95% of graph use cases for systems up to 100K nodes with traversal depths of 4 or less.
+
+## The Stack: Four Extensions
+
+| Task | Tool | What It Gets You |
+|---|---|---|
+| Semantic search | `pgvector` | Cosine similarity, HNSW indexes |
+| Fuzzy matching | `pg_trgm` | Trigram similarity, Levenshtein |
+| Graph traversal | Recursive CTE | BFS/DFS at arbitrary depth |
+| Full-text search | Native `tsvector` | Keyword search with morphology |
+
+One server. One `pg_dump`. One monitoring setup. Infrastructure simplicity is a real advantage.
+
+## Hybrid Search: Three Signals via RRF Fusion
+
+Combine three search mechanisms, then fuse their results:
+
+**Signal 1: Vector Search (pgvector)**
+```sql
+SELECT id FROM kg2_nodes
+WHERE embedding IS NOT NULL
+ORDER BY embedding <=> $query_embedding
+LIMIT 40;
+```
+
+**Signal 2: Keyword Search (tsvector)**
+```sql
+SELECT id FROM kg2_nodes
+WHERE to_tsvector('simple', label || ' ' || COALESCE(summary, ''))
+      @@ plainto_tsquery('simple', $query);
+```
+
+**Signal 3: Graph Traversal (Recursive CTE)**
+```sql
+WITH RECURSIVE graph AS (
+  SELECT target_node_id AS node_id, 1 AS depth
+  FROM kg2_edges WHERE source_node_id IN ($seed_ids) AND invalid_at IS NULL
+  UNION
+  SELECT e.target_node_id, g.depth + 1
+  FROM kg2_edges e JOIN graph g ON e.source_node_id = g.node_id
+  WHERE g.depth < $max_depth AND e.invalid_at IS NULL
+)
+SELECT DISTINCT node_id FROM graph;
+```
+
+**RRF Fusion in Ruby:**
+```ruby
+RRF_K = 60
+def fuse(vector, keyword, graph, limit)
+  scores = Hash.new(0.0)
+  [vector, keyword, graph].each do |results|
+    results.each_with_index do |node, rank|
+      scores[node.id] += 1.0 / (RRF_K + rank + 1)
+    end
+  end
+  scores.sort_by { |_, s| -s }.first(limit)
+end
+```
+
+## Performance at 1,000 Nodes
+
+| Operation | Time |
+|---|---|
+| Depth-2 CTE (1000 nodes, 650 edges) | < 5ms |
+| pgvector nearest neighbor | < 2ms |
+| Keyword search | < 1ms |
+| Full hybrid search | < 15ms |
+| Community detection (BFS) | < 50ms |
+
+## Scaling Roadmap
+
+| Stage | Threshold | Action |
+|---|---|---|
+| S0 | — | CTE + pgvector |
+| S1 | > 5K nodes | Real embeddings, HNSW tuning |
+| S2 | > 20K nodes | Materialized views, partitioning |
+| S3 | > 50K nodes | Read replica |
+| S4 | > 100K + variable-length paths | Apache AGE extension |
+
+Even at S4, you don't need to migrate to Neo4j. Apache AGE adds Cypher support as a PostgreSQL extension, keeping your data in the same database.
+
+## When Neo4j Actually Makes Sense
+
+- More than 100K nodes with variable-length paths — `MATCH (a)-[*1..10]->(b)` in Cypher genuinely beats CTEs here
+- Built-in graph algorithms — PageRank, centrality via GDS
+- Team already fluent in Cypher
+
+Ask yourself: how many of these apply today?
+
+---
+
+PostgreSQL is a complete solution, not a compromise. CTE + pgvector + pg_trgm + tsvector covers the full graph stack. With 1,000 nodes, 650 edges, hybrid search, and bi-temporal modeling, there's no justification for adding Neo4j.
+
+Don't expand infrastructure before the problems demand it.

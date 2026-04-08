@@ -1,0 +1,76 @@
+---
+title: "71% Orphan Nodes: How I Built a Graph That Wasn't Actually a Graph"
+description: "1083 nodes, 388 edges, and 769 nodes with zero connections. How I found the problem and got orphan rate down from 71% to 53%."
+date: 2026-04-12
+readingTime: "8 min read"
+---
+
+I had 1083 nodes and 388 edges in my Knowledge Graph. Looked great on paper.
+
+Then a user asked a simple question about competitive gaps in their market. The system had all the data — competitors, pains, segments. It just could not connect them. Because 769 of those 1083 nodes (71%) had no edges at all.
+
+I had built a graph that was really just a list with extra steps.
+
+## How I Found Out
+
+Not through metrics — through a user complaint. That is the worst way to find a structural problem.
+
+Once I looked, the signal was everywhere: nodes like "40%", "time", "growth" sitting isolated with no connections. Competitors mentioned in facts but never linked to the pains they solve. Segments extracted correctly but never tied to the jobs they have.
+
+The graph had volume. It did not have structure.
+
+## Three Root Causes
+
+**1. Entity extraction optimized for quantity, not connectivity.**
+
+The extraction prompt was essentially: "Find all entities in this text." It was good at finding things. It had no concept of whether those things were worth finding — whether they could connect to anything else in the graph.
+
+"40%" is technically an entity. It is not a useful node.
+
+**2. Garbage entity generation.**
+
+The LLM extracted noise: percentages, abstract nouns, temporal references. Each became a node. None had natural connections. The graph filled up with entities that should have been attributes, not nodes.
+
+**3. RelationDiscoverer was pathologically conservative.**
+
+The prompt told it: only add an edge if the relationship is explicitly stated in the source text. Inference forbidden.
+
+This sounds safe. It is actually a graph-killer. Real knowledge lives in implications, not just explicit statements. "Competitor X targets enterprise customers" and "our product targets SMBs" implies a relationship between competitive positioning and market segment — but neither sentence explicitly states it.
+
+Conservative prompts produce sparse graphs.
+
+## The Fix
+
+Four changes, shipped together:
+
+**Filter garbage nodes first.** New rules: a node must have a real-world referent (person, company, concept, event — not a number or vague noun), must appear in at least two source facts, and must be nameable without losing meaning. "40%" fails all three.
+
+**Merge extraction and linking into one operation.** Previously: extract entities → discover relations (two separate LLM calls). The problem: the extractor had no reason to produce linkable entities; the linker had no influence over what entities existed.
+
+New flow: one prompt that extracts entities *and* defines their relationships simultaneously. The LLM now considers connectivity as it extracts — if it cannot imagine a relationship for a node, it should not create the node.
+
+**Rewrite the relation prompt with calibrated confidence.** Instead of "only add edges if explicitly stated," the new prompt allows inference at different confidence levels:
+
+- Explicit statement in text → confidence 90+
+- Strong implication → confidence 60-80
+- Logical inference from domain knowledge → confidence 40-60
+
+Low-confidence edges are still edges. They just carry a lower weight. The graph becomes explorable rather than empty.
+
+**Add orphan rate to monitoring.** If orphan rate exceeds 50%, the system alerts via Telegram. I should have had this from day one.
+
+## Results
+
+Orphan rate: 71% → 53%. Still not good enough — I want it below 30% — but the direction is right.
+
+Edge-to-node ratio: 0.36 → 0.68. A meaningful graph typically sits above 1.0. Still work to do.
+
+The more important result: the user's question about competitive gaps now returns a coherent answer. The graph can actually traverse from competitor → solves → pain → underserved_segment. That path did not exist before.
+
+## Three Rules I Wish I Had From Day One
+
+**Measure connectivity, not volume.** A graph with 100 highly connected nodes is worth more than 1000 orphaned ones. Track edges-per-node from the start.
+
+**Extraction and linking are one operation.** Separating them creates structural misalignment. The entity creator does not know what the relation finder needs. Merge them.
+
+**"Inference forbidden" prompts create empty graphs.** Inference with calibrated confidence levels is how knowledge graphs actually work. Disable inference only if you can live with a graph you cannot traverse.
