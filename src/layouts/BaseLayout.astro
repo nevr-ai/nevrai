@@ -27,8 +27,8 @@ const canonicalURL = new URL(canonicalPath, Astro.site);
   <meta name="description" content={description} />
   <link rel="canonical" href={canonicalURL} />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="alternate" hreflang="en" href={new URL(basePath || '/', Astro.site)} />
-  <link rel="alternate" hreflang="x-default" href={new URL(basePath || '/', Astro.site)} />
+  <link rel="alternate" hreflang="en" href={canonicalURL} />
+  <link rel="alternate" hreflang="x-default" href={canonicalURL} />
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />
   <meta property="og:type" content="website" />
