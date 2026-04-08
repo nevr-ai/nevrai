@@ -47,7 +47,7 @@ Running 6 products on $15/month sounds like clickbait. It is not. Here is every 
 
 **What breaks**: Rate limits hit hard during burst traffic. The 30 req/min limit means you need queuing for concurrent users. Model availability can be spotty — sometimes a model is "unavailable" for hours.
 
-**Workaround**: I use a Cloudflare Worker as a proxy (Groq blocks Russian IPs) and implement automatic fallback to OpenRouter free models.
+**Workaround**: I use a Cloudflare Worker as a proxy (region-based API restrictions require it) and implement automatic fallback to OpenRouter free models.
 
 **When to upgrade**: The $0.27/M token paid tier removes rate limits. Worth it above 50 concurrent users.
 

@@ -1,0 +1,94 @@
+---
+title: "I Built 9 AI Products Solo — Here's Every Single One"
+description: "A breakdown of all 9 products: what each does, the tech stack, and what it costs to run and maintain."
+date: 2026-03-28
+readingTime: "10 min read"
+---
+
+Three weeks ago I had zero products in production. Now there are nine. No team, no funding, no office. Here is every single one.
+
+## 1. CoffeeBot — AI Coffee Recommendation Quiz
+
+**Stack:** Astro, Tailwind, Groq API, Cloudflare Pages
+
+Users answer 8 questions about their preferences — strength, acidity, brewing method. The AI analyzes responses and picks coffee from a database of 100+ varieties. No magic — just a well-structured prompt and fast inference via Groq.
+
+**Numbers:** 82 unique profiles generated in the first week. Recommendation generation time: under 2 seconds.
+
+**Cost:** $0/mo. Groq is free, Cloudflare Pages is free.
+
+## 2. InkCloak — AI Text Detector & Humanizer
+
+**Stack:** Next.js, DeBERTa LoRA fine-tune, RunPod Serverless, Python, CUDA
+
+The most technically complex product. Two components: the detector identifies whether text was written by AI (AUROC 0.9948 on the test set), and the humanizer rewrites text so detectors cannot catch it.
+
+The detector is a fine-tuned DeBERTa v3 large. Trained on RunPod on an A100 (cost $0.49 for the entire process). The humanizer uses adversarial paraphrasing — generates variants and picks the one that passes detection.
+
+**Numbers:** AUROC 0.9948 on 10K test texts. Inference on P100 — 1.2 seconds per text up to 500 words.
+
+**Cost:** $0/mo idle, ~$0.002 per request under load.
+
+## 3. AICPO — AI Platform for Product Research
+
+**Stack:** Rails 8, SQLite, Groq, ActionCable, OpenRouter
+
+This is my main product. A chat with an AI assistant that helps research markets: asks the right questions, extracts facts from responses, builds a knowledge map, and generates 43 strategy artifacts — from JTBD maps to financial models.
+
+Under the hood: dual-layer architecture with Project Brief (compressed project description for token savings), Intent Gate (intent classification), multi-model cascade (Groq for speed, OpenRouter for quality).
+
+**Numbers:** 43 artifact types. Average artifact generation time — 12 seconds.
+
+**Cost:** ~$5/mo (domain + server).
+
+## 4. Scrutly — Free AI Text Detector
+
+**Stack:** Astro, DeBERTa, Cloudflare Workers
+
+Simplified InkCloak — detection only, no humanization. Fast, free, no signup. Target audience: educators and editors.
+
+**Status:** Planned. The model is ready.
+
+## 5. Tool Sites — 199 SEO Pages Across 5 Domains
+
+**Stack:** Astro, Tailwind, MDX, Cloudflare Pages
+
+Five niche sites with calculators and tools. Content is AI-generated but every page is proofread and edited. Programmatic SEO: template + data = page.
+
+**Numbers:** 199 pages. 5 domains. All on Cloudflare Pages free tier.
+
+## 6. OpenClaw Finance — AI Finance Agent Factory
+
+**Stack:** Python, DeepSeek R1-0528, Docker, SQLite
+
+Five specialized agents: financial reporting analysis, forecasting, portfolio construction, risk management, report generation. Each agent has its own system prompt and toolset.
+
+**Numbers:** 5 agents, deployed on 2 machines. DeepSeek R1 delivers GPT-4 level reasoning quality at zero API cost.
+
+## 7. RackCloud — Custom Cloud Platform
+
+**Stack:** Claude Opus (design), Proxmox, OpenStack, Python
+
+IaaS provider architecture from scratch: 400+ bare-metal servers, 17 services (compute, storage, networking, billing, dashboard), pricing, 12-month roadmap. Designed jointly with Claude Opus.
+
+**Numbers:** 17 IaaS services, 400+ servers, 10 racks. Full documentation in 4 days.
+
+## 8. DIYCalc — Construction Material Calculators
+
+**Stack:** Astro, Tailwind, MDX, Cloudflare Pages
+
+30+ free calculators: concrete, tile, paint, drywall. Each calculates material quantity and cost. SEO-optimized for queries like "how much concrete for a foundation."
+
+## 9. FitCalc — Fitness & Health Calculators
+
+**Stack:** Astro, Tailwind, MDX, Cloudflare Pages
+
+40+ health and fitness calculators: TDEE, BMI, body fat, macros, calories. Science-backed formulas (Mifflin-St Jeor, Harris-Benedict) with personalized recommendations.
+
+## The Bottom Line
+
+Nine products. Total infrastructure cost: $15/mo (domains only). Everything else is free tiers — Cloudflare, Groq, PostHog, Supabase.
+
+The key: I did not write most of the code by hand. Factory OS — my AI agent system on top of Claude Code — generates, tests, and deploys code. I make product decisions and review commits.
+
+This is not the future. This is already the present.

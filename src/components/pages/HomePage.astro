@@ -14,9 +14,7 @@ interface Props {
 const { lang = 'en' } = Astro.props;
 const t = getTranslation(lang);
 
-const langPrefixes = ['es/', 'pt/', 'de/', 'fr/', 'es\\', 'pt\\', 'de\\', 'fr\\'];
 const posts = (await getCollection('blog'))
-  .filter(post => !langPrefixes.some(prefix => post.id.startsWith(prefix)))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
   .slice(0, 3);
 
@@ -63,6 +61,12 @@ const products = [
     stack: ['Python', 'DeepSeek R1', 'Docker'],
   },
   {
+    name: 'RackCloud',
+    tagline: t.products.taglines.rackcloud,
+    status: 'BUILT' as const,
+    stack: ['Claude Opus', 'Proxmox', 'Python'],
+  },
+  {
     name: 'DIYCalc',
     tagline: t.products.taglines.diycalc,
     url: 'https://diycalc.co',
@@ -80,7 +84,7 @@ const products = [
   },
 ];
 
-const linkPrefix = lang === 'en' ? '' : `/${lang}`;
+const linkPrefix = '';
 ---
 <BaseLayout title={t.meta.title} description={t.meta.description} lang={lang} pagePath="/">
   <section class="mb-16">

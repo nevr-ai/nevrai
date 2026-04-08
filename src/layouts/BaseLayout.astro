@@ -2,7 +2,7 @@
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import { getLangs, getPathWithoutLocale, localizedPath, type Lang } from '../i18n/index';
+import { getPathWithoutLocale, localizedPath, type Lang } from '../i18n/index';
 
 interface Props {
   title: string;
@@ -16,7 +16,6 @@ const { title, description = 'Solo maker building AI products with AI agents. 6 
 const basePath = pagePath || getPathWithoutLocale(Astro.url);
 const canonicalPath = pagePath ? localizedPath(lang, pagePath) : Astro.url.pathname;
 const canonicalURL = new URL(canonicalPath, Astro.site);
-const langs = getLangs();
 ---
 <!DOCTYPE html>
 <html lang={lang}>
@@ -28,9 +27,7 @@ const langs = getLangs();
   <meta name="description" content={description} />
   <link rel="canonical" href={canonicalURL} />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  {langs.map(l => (
-    <link rel="alternate" hreflang={l} href={new URL(localizedPath(l, basePath), Astro.site)} />
-  ))}
+  <link rel="alternate" hreflang="en" href={new URL(basePath || '/', Astro.site)} />
   <link rel="alternate" hreflang="x-default" href={new URL(basePath || '/', Astro.site)} />
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />
