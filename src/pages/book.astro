@@ -1,0 +1,201 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="Записаться на консультацию — Роман Неверов"
+  description="Бесплатный 30-минутный созвон. Обсудим задачу, сделаем план работ и оценку бюджета."
+  pagePath="/book"
+>
+  <p class="text-xs mb-1" style="color: var(--color-text-dim)">запись</p>
+  <h1 class="text-base font-medium mb-1" style="color: var(--color-text)">Бесплатная консультация</h1>
+  <p class="text-xs mb-8 leading-relaxed" style="color: var(--color-text-dim)">
+    30 минут. Обсудим задачу, выдам план работ и оценку бюджета. Без обязательств.
+  </p>
+
+  <div id="booking-app">
+    <!-- Step 1: pick date -->
+    <div id="step-date">
+      <p class="text-xs mb-3" style="color: var(--color-text-dim)">выберите дату</p>
+      <div id="dates-grid" style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.5rem;"></div>
+    </div>
+
+    <!-- Step 2: pick time -->
+    <div id="step-time" style="display:none">
+      <p class="text-xs mb-1" style="color: var(--color-text-dim)">выберите время <span id="selected-date-label" style="color: var(--color-text)"></span></p>
+      <p class="text-xs mb-3" style="color: var(--color-text-dim)">Москва (МСК, UTC+3)</p>
+      <div id="slots-grid" style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.5rem;"></div>
+      <button id="back-to-dates" style="font-size:0.7rem; color: var(--color-text-dim); background:none; border:none; cursor:pointer; padding:0; text-decoration:underline;">← назад</button>
+    </div>
+
+    <!-- Step 3: form -->
+    <div id="step-form" style="display:none">
+      <p class="text-xs mb-3" style="color: var(--color-text-dim)">ваши данные</p>
+      <form id="booking-form" style="display:flex; flex-direction:column; gap:0.75rem; max-width:360px;">
+        <div>
+          <label style="font-size:0.7rem; color:var(--color-text-dim); display:block; margin-bottom:0.25rem;">имя *</label>
+          <input id="f-name" type="text" required placeholder="Иван Иванов"
+            style="width:100%; font-size:0.78rem; padding:0.5rem 0.6rem; background:var(--color-bg-card); border:1px solid #333; border-radius:4px; color:var(--color-text); font-family:inherit; box-sizing:border-box;" />
+        </div>
+        <div>
+          <label style="font-size:0.7rem; color:var(--color-text-dim); display:block; margin-bottom:0.25rem;">email *</label>
+          <input id="f-email" type="email" required placeholder="ivan@company.ru"
+            style="width:100%; font-size:0.78rem; padding:0.5rem 0.6rem; background:var(--color-bg-card); border:1px solid #333; border-radius:4px; color:var(--color-text); font-family:inherit; box-sizing:border-box;" />
+        </div>
+        <div>
+          <label style="font-size:0.7rem; color:var(--color-text-dim); display:block; margin-bottom:0.25rem;">о задаче (необязательно)</label>
+          <textarea id="f-message" rows="3" placeholder="Коротко о том, что нужно сделать"
+            style="width:100%; font-size:0.78rem; padding:0.5rem 0.6rem; background:var(--color-bg-card); border:1px solid #333; border-radius:4px; color:var(--color-text); font-family:inherit; resize:vertical; box-sizing:border-box;"></textarea>
+        </div>
+        <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
+          <button type="submit" id="submit-btn"
+            style="font-size:0.78rem; padding:0.5rem 1.2rem; background:#22c55e; color:#000; border:none; border-radius:4px; cursor:pointer; font-family:inherit; font-weight:500;">
+            Записаться
+          </button>
+          <button type="button" id="back-to-slots" style="font-size:0.7rem; color:var(--color-text-dim); background:none; border:none; cursor:pointer; padding:0; text-decoration:underline;">← назад</button>
+        </div>
+        <p id="form-error" style="font-size:0.72rem; color:#f87171; display:none;"></p>
+      </form>
+    </div>
+
+    <!-- Step 4: confirmation -->
+    <div id="step-done" style="display:none">
+      <p style="font-size:0.85rem; color:var(--color-text); margin-bottom:0.5rem;">Готово!</p>
+      <p id="done-summary" class="text-xs leading-relaxed" style="color: var(--color-text-dim);"></p>
+      <p class="text-xs mt-4" style="color: var(--color-text-dim)">
+        Ожидайте письмо с подтверждением. Если появятся вопросы — <a href="https://t.me/nevrdigital" style="color:#22c55e;">@nevrdigital</a>.
+      </p>
+    </div>
+  </div>
+
+  <script is:inline>
+    const API = 'https://nevrai-book.aicpo-relay.workers.dev';
+
+    let selectedDate = null;
+    let selectedTime = null;
+
+    // Generate next 14 weekdays from tomorrow
+    function nextWeekdays(n) {
+      const days = [];
+      const d = new Date();
+      d.setUTCHours(0,0,0,0);
+      d.setUTCDate(d.getUTCDate() + 1);
+      while (days.length < n) {
+        const dow = d.getUTCDay();
+        if (dow >= 1 && dow <= 5) {
+          days.push(d.toISOString().slice(0, 10));
+        }
+        d.setUTCDate(d.getUTCDate() + 1);
+      }
+      return days;
+    }
+
+    const RU_DAYS = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+    const RU_MONTHS = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+
+    function fmtDate(dateStr) {
+      const d = new Date(dateStr + 'T12:00:00Z');
+      return `${RU_DAYS[d.getUTCDay()]} ${d.getUTCDate()} ${RU_MONTHS[d.getUTCMonth()]}`;
+    }
+
+    function chipStyle(active) {
+      return `font-size:0.72rem; padding:0.3rem 0.65rem; border-radius:4px; cursor:pointer; font-family:inherit; border:1px solid ${active ? '#22c55e' : '#333'}; background:${active ? '#1a2e1a' : 'var(--color-bg-card)'}; color:${active ? '#22c55e' : 'var(--color-text)'};`;
+    }
+
+    // Render dates
+    const datesGrid = document.getElementById('dates-grid');
+    nextWeekdays(14).forEach(date => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = fmtDate(date);
+      btn.style.cssText = chipStyle(false);
+      btn.addEventListener('click', () => selectDate(date));
+      datesGrid.appendChild(btn);
+    });
+
+    async function selectDate(date) {
+      selectedDate = date;
+      document.getElementById('selected-date-label').textContent = '— ' + fmtDate(date);
+      document.getElementById('step-date').style.display = 'none';
+      document.getElementById('step-time').style.display = '';
+      const slotsGrid = document.getElementById('slots-grid');
+      slotsGrid.innerHTML = '<span style="font-size:0.72rem;color:var(--color-text-dim)">загрузка...</span>';
+      try {
+        const res = await fetch(`${API}/slots?date=${date}`);
+        const data = await res.json();
+        slotsGrid.innerHTML = '';
+        if (!data.slots || !data.slots.length) {
+          slotsGrid.innerHTML = '<span style="font-size:0.72rem;color:var(--color-text-dim)">Нет свободных слотов</span>';
+          return;
+        }
+        data.slots.forEach(time => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.textContent = time;
+          btn.style.cssText = chipStyle(false);
+          btn.addEventListener('click', () => selectTime(time));
+          slotsGrid.appendChild(btn);
+        });
+      } catch {
+        slotsGrid.innerHTML = '<span style="font-size:0.72rem;color:#f87171">Ошибка загрузки слотов</span>';
+      }
+    }
+
+    function selectTime(time) {
+      selectedTime = time;
+      document.getElementById('step-time').style.display = 'none';
+      document.getElementById('step-form').style.display = '';
+    }
+
+    document.getElementById('back-to-dates').addEventListener('click', () => {
+      document.getElementById('step-time').style.display = 'none';
+      document.getElementById('step-date').style.display = '';
+    });
+
+    document.getElementById('back-to-slots').addEventListener('click', () => {
+      document.getElementById('step-form').style.display = 'none';
+      document.getElementById('step-time').style.display = '';
+    });
+
+    document.getElementById('booking-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('submit-btn');
+      const errEl = document.getElementById('form-error');
+      btn.disabled = true;
+      btn.textContent = 'Отправка...';
+      errEl.style.display = 'none';
+
+      const body = {
+        date: selectedDate,
+        time: selectedTime,
+        name: document.getElementById('f-name').value.trim(),
+        email: document.getElementById('f-email').value.trim(),
+        message: document.getElementById('f-message').value.trim(),
+      };
+
+      try {
+        const res = await fetch(`${API}/book`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          errEl.textContent = data.error || 'Ошибка. Попробуйте ещё раз.';
+          errEl.style.display = '';
+          btn.disabled = false;
+          btn.textContent = 'Записаться';
+          return;
+        }
+        document.getElementById('step-form').style.display = 'none';
+        document.getElementById('done-summary').textContent =
+          `${body.name}, вы записаны на ${fmtDate(selectedDate)} в ${selectedTime} МСК.`;
+        document.getElementById('step-done').style.display = '';
+      } catch {
+        errEl.textContent = 'Сетевая ошибка. Попробуйте ещё раз.';
+        errEl.style.display = '';
+        btn.disabled = false;
+        btn.textContent = 'Записаться';
+      }
+    });
+  </script>
+</BaseLayout>

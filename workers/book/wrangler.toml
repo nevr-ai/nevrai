@@ -1,0 +1,7 @@
+name = "nevrai-book"
+main = "worker.js"
+compatibility_date = "2026-04-01"
+
+[[kv_namespaces]]
+binding = "BOOKINGS"
+id = "03ad3d50673f4a0abcf83613d27fc5ec"
