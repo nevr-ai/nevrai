@@ -5,3 +5,7 @@ compatibility_date = "2026-04-01"
 [[kv_namespaces]]
 binding = "BOOKINGS"
 id = "63b99af33fe04a3bba9ee5065e752865"
+
+[[send_email]]
+name = "SEND_EMAIL"
+destination_address = "roman.neverov@aicpo.ru"

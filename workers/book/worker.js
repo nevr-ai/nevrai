@@ -1,10 +1,10 @@
 // Cloudflare Worker: nevrai-book
 // Booking API for nevr.aicpo.ru/book
-// Deploy: cd workers/book && npx wrangler deploy
-// KV binding: BOOKINGS (reuses SUBSCRIBERS KV namespace, prefix "book:")
-// Secrets: npx wrangler secret put RESEND_API_KEY
+// Deploy: cd workers/book && CLOUDFLARE_API_TOKEN=$CF_TOKEN npx wrangler deploy
+// KV binding: BOOKINGS (KV id: 63b99af33fe04a3bba9ee5065e752865)
+// Email: send_email binding via Cloudflare Email Routing on nevrai.com (no external API needed)
 
-const FROM_EMAIL = 'Роман Неверов <noreply@nevrai.com>';
+const FROM_EMAIL = 'noreply@nevrai.com';
 const NOTIFY_EMAIL = 'roman.neverov@aicpo.ru';
 
 // Slots: Mon-Fri 10:00-19:00, step 15 min
@@ -101,20 +101,24 @@ export default {
       booked[time] = { name, email, message: message || '', booked_at: new Date().toISOString() };
       await env.BOOKINGS.put(key, JSON.stringify(booked), { expirationTtl: 60 * 60 * 24 * 90 });
 
-      // Send email notification
-      if (env.RESEND_API_KEY) {
-        await sendEmail(env.RESEND_API_KEY, {
-          to: NOTIFY_EMAIL,
-          subject: `Новая запись: ${name} — ${date} ${time}`,
-          html: `
-            <h2>Новая запись на консультацию</h2>
-            <p><b>Имя:</b> ${escHtml(name)}</p>
-            <p><b>Email:</b> ${escHtml(email)}</p>
-            <p><b>Дата:</b> ${escHtml(date)}</p>
-            <p><b>Время:</b> ${escHtml(time)} МСК</p>
-            ${message ? `<p><b>Сообщение:</b> ${escHtml(message)}</p>` : ''}
-          `,
-        });
+      // Send email notification via Cloudflare Email Routing (nevrai.com MX)
+      if (env.SEND_EMAIL) {
+        try {
+          await sendEmail(env.SEND_EMAIL, {
+            subject: `Новая запись: ${name} — ${date} ${time}`,
+            text: [
+              `Новая запись на консультацию`,
+              ``,
+              `Имя:    ${name}`,
+              `Email:  ${email}`,
+              `Дата:   ${date}`,
+              `Время:  ${time} МСК`,
+              message ? `\nСообщение: ${message}` : '',
+            ].join('\n'),
+          });
+        } catch (e) {
+          console.error('Email send failed:', e);
+        }
       }
 
       return json({ success: true });
@@ -124,20 +128,21 @@ export default {
   },
 };
 
-async function sendEmail(apiKey, { to, subject, html }) {
-  await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      from: FROM_EMAIL,
-      to: [to],
-      subject,
-      html,
-    }),
-  });
+async function sendEmail(sender, { subject, text }) {
+  const raw = [
+    `Date: ${new Date().toUTCString()}`,
+    `From: Booking nevr.aicpo.ru <${FROM_EMAIL}>`,
+    `To: ${NOTIFY_EMAIL}`,
+    `Subject: ${subject}`,
+    `MIME-Version: 1.0`,
+    `Content-Type: text/plain; charset=utf-8`,
+    ``,
+    text,
+  ].join('\r\n');
+
+  const { EmailMessage } = await import('cloudflare:email');
+  const msg = new EmailMessage(FROM_EMAIL, NOTIFY_EMAIL, raw);
+  await sender.send(msg);
 }
 
 function escHtml(s) {
