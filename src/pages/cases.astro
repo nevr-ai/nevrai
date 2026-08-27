@@ -1,0 +1,43 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import cases from '../data/cases.json';
+---
+<BaseLayout
+  title="Кейсы — Роман Неверов"
+  description="Проекты и результаты: AI-агенты, SaaS-платформы, автоматизация бизнеса. Реальные цифры."
+  pagePath="/cases"
+>
+  <p class="text-xs mb-1" style="color: var(--color-text-dim)">кейсы</p>
+  <h1 class="text-base font-medium mb-1" style="color: var(--color-text)">Проекты и результаты</h1>
+  <p class="text-xs mb-8 leading-relaxed" style="color: var(--color-text-dim)">
+    Собирательные образы реальных проектов. Цифры — из договоров, ретроспектив и послепроектных интервью.
+  </p>
+
+  <div style="display: flex; flex-direction: column; gap: 1rem;">
+    {cases.map(c => (
+      <div style="background: var(--color-bg-card); border: 1px solid #222; border-radius: 6px; padding: 1rem 1.25rem;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 0.5rem;">
+          <h2 style="font-size: 0.8rem; font-weight: 500; color: var(--color-text); margin: 0; line-height: 1.4;">{c.title}</h2>
+          <span style="font-size: 0.7rem; color: var(--color-text-dim); white-space: nowrap; flex-shrink: 0;">{c.industry}</span>
+        </div>
+
+        <div style="display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.75rem;">
+          {c.tags.map(tag => (
+            <span style="font-size: 0.65rem; padding: 0.15rem 0.5rem; border-radius: 3px; background: #1a2e1a; color: #22c55e;">{tag}</span>
+          ))}
+        </div>
+
+        <p style="font-size: 0.72rem; color: var(--color-text-dim); margin: 0 0 0.6rem; line-height: 1.6;">{c.challenge}</p>
+
+        <p style="font-size: 0.72rem; color: var(--color-text); margin: 0; line-height: 1.6; border-left: 2px solid #22c55e; padding-left: 0.6rem;">{c.result}</p>
+      </div>
+    ))}
+  </div>
+
+  <div style="margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid #222;">
+    <p style="font-size: 0.72rem; color: var(--color-text-dim); margin: 0 0 0.75rem;">Обсудить задачу:</p>
+    <a href="/contact" style="font-size: 0.72rem; color: #22c55e; text-decoration: none;">написать →</a>
+    &nbsp;&nbsp;
+    <a href="https://t.me/nevrdigital" target="_blank" rel="noopener" style="font-size: 0.72rem; color: #22c55e; text-decoration: none;">telegram →</a>
+  </div>
+</BaseLayout>
